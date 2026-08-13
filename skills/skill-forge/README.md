@@ -35,13 +35,7 @@ DISCOVER → DESIGN → AUTHOR → VALIDATE → OPTIMIZE → DELIVER
 
 ### Installation
 
-The recommended way to install this skill (along with the rest of the catalog) is via the `@runecraft/summon` CLI — it picks the right destination for your agent, handles the write, and keeps the install declarative:
-
-```bash
-npx @runecraft/summon install
-```
-
-If you prefer to install just this skill, copy `skills/skill-forge/` into your agent's skills directory:
+Install manually by copying `skills/skill-forge/` into your agent's skills directory (a dedicated installer TUI is coming in slice 2 of the catalog):
 
 | Agent | Path |
 |---|---|
