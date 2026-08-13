@@ -1,5 +1,12 @@
 # @runecraft/skills
 
+## 0.18.0
+
+### Minor Changes
+
+- feat(installer): add the `install` subcommand — `npx @runecraft/skills install` / `bunx @runecraft/skills install` now run the installer directly. Bare invocation keeps working (install stays the default command), `--skill`/`--target`/`--list`/`--target-dir`/`--overwrite` behave exactly as before, and `--help` documents the subcommand
+- docs: redesign the repository README (hero + how-it-works SVG assets under `assets/readme/`, `npx`/`bunx` install as the primary path)
+
 ## 0.17.0
 
 ### Minor Changes

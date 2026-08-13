@@ -2,9 +2,9 @@
 /**
  * runecraft-skills — interactive installer TUI for the @runecraft/skills catalog.
  *
- *   runecraft-skills                       interactive installer
- *   runecraft-skills --list                list the catalog
- *   runecraft-skills --skill <name> --target <id> [options]   scripting mode
+ *   runecraft-skills [install]             interactive installer (default command)
+ *   runecraft-skills install --list        list the catalog
+ *   runecraft-skills install -s <name> -t <id> [options]   scripting mode
  */
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -23,9 +23,13 @@ const catalogDir = join(pkgRoot, "skills");
 const USAGE = `runecraft-skills — install skills from the @runecraft/skills catalog
 
 Usage:
-  runecraft-skills                      interactive installer
-  runecraft-skills --list               list available skills
-  runecraft-skills -s <name> -t <id>    install one or more skills (scripting)
+  runecraft-skills [install]                    interactive installer (default command)
+  runecraft-skills install --list               list available skills
+  runecraft-skills install -s <name> -t <id>    install one or more skills (scripting)
+
+Via npx or bunx (no install required):
+  npx @runecraft/skills install
+  bunx @runecraft/skills install
 
 Options:
   -s, --skill <name>      skill to install (repeatable: -s a -s b)
@@ -38,10 +42,11 @@ Options:
 
 Examples:
   runecraft-skills
-  runecraft-skills --list
-  runecraft-skills -s spec-driven -s tdd -t pi
-  runecraft-skills -s skill-forge -t opencode --overwrite
-  runecraft-skills -s using-agent-skills -t codex --target-dir ./ci/skills`;
+  npx @runecraft/skills install
+  npx @runecraft/skills install --list
+  npx @runecraft/skills install -s spec-driven -s tdd -t pi
+  npx @runecraft/skills install -s skill-forge -t opencode --overwrite
+  npx @runecraft/skills install -s using-agent-skills -t codex --target-dir ./ci/skills`;
 
 interface Args {
   skill: string[];
@@ -65,6 +70,7 @@ function parseArgs(argv: string[]): Args {
     if (inline !== undefined) throw new Error(`unexpected value for ${flag}`);
   };
   let i = 0;
+  let sawInstall = false;
   for (; i < argv.length; i++) {
     const arg = argv[i];
     const eq = arg.startsWith("--") ? arg.indexOf("=") : -1;
@@ -102,6 +108,11 @@ function parseArgs(argv: string[]): Args {
         args.targetDir = take(flag, inline);
         break;
       default:
+        // `install` is the default command; accept it as the first (only) positional.
+        if (arg === "install" && !sawInstall) {
+          sawInstall = true;
+          break;
+        }
         throw new Error(`unknown option: ${arg}`);
     }
   }

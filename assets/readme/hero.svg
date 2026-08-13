@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">Runecraft Skills — SKILL.md packages for AI coding agents</title>
+  <desc id="desc">A catalog of 23 agent skills installed with npx @runecraft/skills install: pick skills in the installer TUI, choose a target agent (pi, claude, codex, opencode), and the skill folders are copied into that agent's skills directory.</desc>
+
+  <rect width="1200" height="420" rx="24" fill="#0d1117"/>
+
+  <!-- title block -->
+  <g id="title-block" transform="translate(56 44)">
+    <text x="0" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" letter-spacing="5" fill="#8b949e">AGENT SKILL CATALOG</text>
+    <circle cx="322" cy="12" r="5" fill="#c9a24a"/>
+
+    <text x="0" y="104" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="72" font-weight="700" fill="#e6edf3">Runecraft Skills</text>
+    <rect x="2" y="122" width="56" height="5" rx="2.5" fill="#c9a24a"/>
+
+    <text x="0" y="172" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="26" fill="#e6edf3">SKILL.md packages that teach AI coding agents</text>
+    <text x="0" y="210" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="26" fill="#e6edf3">multi-phase workflows — planning, TDD, review,</text>
+    <text x="0" y="248" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, sans-serif" font-size="26" fill="#e6edf3">security, and shipping — precisely, every time.</text>
+
+    <g id="metadata" transform="translate(0 284)">
+      <rect width="132" height="34" rx="9" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+      <text x="18" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#e6edf3">23 skills</text>
+      <rect x="146" width="312" height="34" rx="9" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+      <text x="164" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" fill="#e6edf3">pi · claude · codex · opencode</text>
+      <rect x="472" width="88" height="34" rx="9" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+      <text x="490" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#e6edf3">MIT</text>
+    </g>
+  </g>
+
+  <!-- installer terminal (real flow) -->
+  <g id="installer-proof" transform="translate(660 36)">
+    <rect width="484" height="348" rx="14" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <circle cx="24" cy="26" r="6" fill="#8b949e" opacity="0.55"/>
+    <circle cx="46" cy="26" r="6" fill="#8b949e" opacity="0.55"/>
+    <circle cx="68" cy="26" r="6" fill="#c9a24a"/>
+    <text x="242" y="31" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" fill="#8b949e">runecraft-skills — install</text>
+
+    <text x="24" y="78" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#c9a24a">❯</text>
+    <text x="48" y="78" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#e6edf3">npx @runecraft/skills install</text>
+
+    <text x="24" y="116" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#8b949e">? Select skills to install</text>
+
+    <g id="chip-row-1" transform="translate(24 132)">
+      <rect width="186" height="32" rx="8" fill="#21262d" stroke="#c9a24a" stroke-width="1.5"/>
+      <text x="16" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#c9a24a">✔</text>
+      <text x="42" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#e6edf3">spec-driven</text>
+      <rect x="202" width="168" height="32" rx="8" fill="#21262d" stroke="#c9a24a" stroke-width="1.5"/>
+      <text x="214" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#c9a24a">✔</text>
+      <text x="240" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#e6edf3">skill-forge</text>
+    </g>
+    <g id="chip-row-2" transform="translate(24 176)">
+      <rect width="186" height="32" rx="8" fill="#21262d" stroke="#c9a24a" stroke-width="1.5"/>
+      <text x="16" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#c9a24a">✔</text>
+      <text x="42" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#e6edf3">git-worktree</text>
+      <rect x="202" width="136" height="32" rx="8" fill="#21262d" stroke="#30363d" stroke-width="1.5"/>
+      <text x="214" y="22" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#8b949e">+19 more</text>
+    </g>
+
+    <text x="24" y="236" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#8b949e">? Target agent</text>
+
+    <g id="target-row" transform="translate(24 252)">
+      <rect width="436" height="34" rx="8" fill="#21262d"/>
+      <text x="14" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#c9a24a">❯</text>
+      <text x="40" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#e6edf3">pi</text>
+      <text x="212" y="23" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" fill="#8b949e">~/.pi/agent/skills/</text>
+    </g>
+
+    <text x="24" y="318" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#3fb950">✔ installed 5 skills → pi</text>
+    <rect x="338" y="304" width="11" height="20" fill="#c9a24a"/>
+  </g>
+</svg>
