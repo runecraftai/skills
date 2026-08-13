@@ -231,7 +231,7 @@ If 3 cycles is "obviously insufficient" because the artifact is large: the artif
 ## Interaction with Other Skills
 
 - **`code-review-and-quality` / `/review`**: complementary. `/review` is post-hoc PR verdict; doubt-driven is in-flight per-decision. Use both.
-- **`source-driven-development`**: SDD verifies *facts about frameworks* against official docs. Doubt-driven verifies *your reasoning about the artifact*. SDD checks the API exists; doubt-driven checks you used it correctly under the contract.
+- **Framework-fact verification**: verifying *facts about frameworks* against official docs is a different claim class. Doubt-driven verifies *your reasoning about the artifact* — checking the API exists is a fact check; checking you used it correctly under the contract is doubt-driven's job.
 - **`test-driven-development`**: TDD's RED step is doubt made concrete — a failing test is a disproof attempt. When TDD applies, that failing test *is* the doubt step for behavioral claims.
 - **`debugging-and-error-recovery`**: when the reviewer surfaces a real failure mode, drop into the debugging skill to localize and fix.
 - **Repo orchestration rules**: this skill orchestrates from the main session. A persona calling another persona is anti-pattern B — see Loading Constraints above.

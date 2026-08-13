@@ -84,7 +84,7 @@ For detailed security guidance, see `security-and-hardening`. Does the change in
 
 ### 5. Performance
 
-For detailed profiling and optimization, see `performance-optimization`. Does the change introduce performance problems?
+Does the change introduce performance problems? Use the profiling and optimization checks below.
 
 - Any N+1 query patterns?
 - Any unbounded loops or unconstrained data fetching?
