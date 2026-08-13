@@ -1,0 +1,28 @@
+{
+  "name": "@runecraft/skills",
+  "version": "0.16.0",
+  "description": "Agent skill catalog — SKILL.md packages for pi, claude, codex and opencode",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "runecraft",
+    "agent",
+    "skills",
+    "prompts",
+    "ai",
+    "coding-agent",
+    "claude",
+    "codex",
+    "opencode",
+    "copilot"
+  ],
+  "files": [
+    "skills/"
+  ]
+}

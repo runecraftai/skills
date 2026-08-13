@@ -1,0 +1,14 @@
+{
+  "name": "git-commit-learning",
+  "version": "1.0.0",
+  "type": "workflow-skill",
+  "description": "RPI model (Research → Plan → Implement → Verify) — analyzes git log for patterns and writes AI-learnable commits. PT/EN triggers.",
+  "modes": ["analyze", "write"],
+  "trigger": "/commit",
+  "scope": "public",
+  "audience": "development-teams",
+  "dependencies": {
+    "required": [],
+    "optional": ["spec-driven"]
+  }
+}
