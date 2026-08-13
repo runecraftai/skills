@@ -94,11 +94,7 @@ Works with any agent that supports custom instructions, skills, or rules directo
 | **using-agent-skills** | Meta-skill: discover and dispatch to the right catalog skill for the current task. | `/skill` | [→ README](skills/using-agent-skills/README.md) |
 | **idea-refine** | Refine raw ideas through divergent/convergent thinking — expand options, stress-test assumptions. | `/ideate` | [→ README](skills/idea-refine/README.md) |
 | **interview-me** | One-question-at-a-time interview until ~95% confidence about user intent. | `/interview` | [→ README](skills/interview-me/README.md) |
-| **loop-contract** | Reads the next pending roadmap phase and writes a scoped `.flywheel/contracts/<phase-id>.md` — the single source of truth the loop obeys for one phase. | `/loop-contract` | [→ README](skills/loop-contract/README.md) |
-| **loop-judge** | Independent phase-level verifier (author≠verifier) with programmatic or LLM-judge gates. Emits escalation statuses with cited evidence. | `/loop-judge` | [→ README](skills/loop-judge/README.md) |
-| **loop-learn** | Records phase outcomes to Flywheel memory: decisions to `decisions.md`, distilled failures to `lessons.md`. | `/loop-learn` | [→ README](skills/loop-learn/README.md) |
-| **loop-roadmap** | Type-aware roadmap generation from raw ideas. Adapts interview rigor per project type, produces `.flywheel/roadmap.md` + `.flywheel/state.md`. | `/loop-roadmap` | [→ README](skills/loop-roadmap/README.md) |
-| **loop-run** | Flywheel loop orchestrator. Wires SELECT→APPLY→MEASURE→JUDGE→UNIFY, driving a roadmap to completion phase-by-phase. | `/loop-run` | [→ README](skills/loop-run/README.md) |
+| **spec-loop** | Milestone-loop runner: drives every `.specs/` artifact to completion — ROADMAP → milestones → tasks → verification gates → atomic commits → STATE.md. PT/EN. | "execute the specs" | [→ README](skills/spec-loop/README.md) |
 | **memory-management** | Lightweight agent memory for non-Guild projects. Maintains project decisions and error patterns in a flat .agent-memory/ directory. | `/memory` | [→ README](skills/memory-management/README.md) |
 | **doubt-driven-development** | Adversarial review of non-trivial decisions: CLAIM → EXTRACT → DOUBT → RECONCILE → STOP. | `/harden` | [→ README](skills/doubt-driven-development/README.md) |
 | **test-driven-development** | TDD with the 80/15/5 pyramid and Beyonce Rule. Fail first, then make it pass. | `/test` | [→ README](skills/test-driven-development/README.md) |
