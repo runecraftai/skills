@@ -35,7 +35,7 @@ DISCOVER → DESIGN → AUTHOR → VALIDATE → OPTIMIZE → DELIVER
 
 ### Installation
 
-Install manually by copying `skills/skill-forge/` into your agent's skills directory (a dedicated installer TUI is coming in slice 2 of the catalog):
+Install manually by copying `skills/skill-forge/` into your agent's skills directory, or use the `runecraft-skills` installer TUI shipped with the package (see the [catalog README](../../README.md)):
 
 | Agent | Path |
 |---|---|
