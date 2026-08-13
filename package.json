@@ -1,6 +1,6 @@
 {
   "name": "@runecraft/skills",
-  "version": "0.17.1",
+  "version": "0.18.0",
   "description": "Agent skill catalog — SKILL.md packages for pi, claude, codex and opencode, with an interactive installer TUI",
   "license": "MIT",
   "type": "module",

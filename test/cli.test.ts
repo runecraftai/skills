@@ -43,10 +43,53 @@ describe("runecraft-skills CLI (scripting mode)", () => {
     expect(stdout).toContain("--skill");
   });
 
+  test("--help documents the install subcommand and npx/bunx forms", () => {
+    const { status, stdout } = runCli(["--help"]);
+    expect(status).toBe(0);
+    expect(stdout).toContain("[install]");
+    expect(stdout).toContain("npx @runecraft/skills install");
+    expect(stdout).toContain("bunx @runecraft/skills install");
+  });
+
   test("--version prints a semver", () => {
     const { status, stdout } = runCli(["--version"]);
     expect(status).toBe(0);
     expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+
+  test("install subcommand lists the catalog", () => {
+    const { status, stdout } = runCli(["install", "--list"]);
+    expect(status).toBe(0);
+    for (const name of ["spec-driven", "skill-forge", "test-driven-development"]) {
+      expect(stdout).toContain(name);
+    }
+  });
+
+  test("install subcommand works with scripting flags", () => {
+    const target = join(tempDir(), "skills");
+    const { status, stdout, stderr } = runCli(["install", "--skill", "spec-driven", "--target", "pi", "--target-dir", target]);
+    expect(stderr).toBe("");
+    expect(status).toBe(0);
+    expect(stdout).toContain("installed: spec-driven");
+    expect(existsSync(join(target, "spec-driven", "SKILL.md"))).toBe(true);
+  });
+
+  test("bare install in a non-TTY routes to the interactive installer", () => {
+    const { status, stderr } = runCli(["install"]);
+    expect(status).toBe(1);
+    expect(stderr).toContain("interactive mode needs a terminal");
+  });
+
+  test("install is consumed as a --skill value, not a subcommand", () => {
+    const { status, stderr } = runCli(["--skill", "install", "--target", "pi"]);
+    expect(status).toBe(1);
+    expect(stderr).toContain("unknown skill(s): install");
+  });
+
+  test("unknown positionals still error", () => {
+    const { status, stderr } = runCli(["frobnicate"]);
+    expect(status).toBe(1);
+    expect(stderr).toContain("unknown option: frobnicate");
   });
 
   test("installs a skill into a temp target dir", () => {

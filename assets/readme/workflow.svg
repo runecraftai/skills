@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">How Runecraft Skills works</title>
+  <desc id="desc">One skills catalog feeds the runecraft-skills installer, which copies selected skill folders into the skills directory of the chosen agent: pi, claude, codex, or opencode.</desc>
+
+  <rect width="1200" height="360" rx="24" fill="#0d1117"/>
+
+  <text x="56" y="48" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" letter-spacing="5" fill="#8b949e">HOW IT WORKS</text>
+  <rect x="300" y="40" width="200" height="4" rx="2" fill="#c9a24a"/>
+
+  <!-- catalog card -->
+  <g id="catalog" transform="translate(56 80)">
+    <rect width="220" height="256" rx="14" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <text x="20" y="34" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="22" font-weight="700" fill="#e6edf3">skills/</text>
+    <rect x="104" y="14" width="100" height="26" rx="8" fill="#21262d" stroke="#c9a24a" stroke-width="1.5"/>
+    <text x="154" y="32" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" fill="#c9a24a">SKILL.md</text>
+
+    <g id="catalog-chips" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18">
+      <rect y="76" width="188" height="28" rx="8" fill="#21262d"/>
+      <text x="16" y="95" fill="#e6edf3">spec-driven</text>
+      <rect y="116" width="188" height="28" rx="8" fill="#21262d"/>
+      <text x="16" y="135" fill="#e6edf3">skill-forge</text>
+      <rect y="156" width="188" height="28" rx="8" fill="#21262d"/>
+      <text x="16" y="175" fill="#e6edf3">git-worktree</text>
+      <rect y="196" width="188" height="28" rx="8" fill="#21262d"/>
+      <text x="16" y="215" fill="#e6edf3">code-review</text>
+    </g>
+    <text x="20" y="244" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" fill="#8b949e">…and 19 more</text>
+  </g>
+
+  <!-- installer node -->
+  <g id="installer" transform="translate(336 148)">
+    <rect width="420" height="96" rx="14" fill="#21262d" stroke="#c9a24a" stroke-width="1.5"/>
+    <text x="20" y="42" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#c9a24a">❯</text>
+    <text x="44" y="42" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#e6edf3">npx @runecraft/skills install</text>
+    <text x="20" y="74" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" fill="#8b949e">pick skills · pick agent · copy folders</text>
+  </g>
+
+  <!-- arrows: catalog -> installer -->
+  <path d="M 276 208 L 322 208" stroke="#c9a24a" stroke-width="2" fill="none"/>
+  <polygon points="330,208 320,203 320,213" fill="#c9a24a"/>
+
+  <!-- arrows: installer -> agents -->
+  <g id="agent-arrows" stroke="#c9a24a" stroke-width="2" fill="none">
+    <path d="M 756 196 C 770 196, 770 116, 801 116"/>
+    <path d="M 756 196 C 770 196, 770 184, 801 184"/>
+    <path d="M 756 196 C 770 196, 770 252, 801 252"/>
+    <path d="M 756 196 C 770 196, 770 320, 801 320"/>
+  </g>
+  <g fill="#c9a24a">
+    <polygon points="809,116 799,111 799,121"/>
+    <polygon points="809,184 799,179 799,189"/>
+    <polygon points="809,252 799,247 799,257"/>
+    <polygon points="809,320 799,315 799,325"/>
+  </g>
+
+  <!-- agent cards -->
+  <g id="agents" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+    <g transform="translate(811 88)">
+      <rect width="344" height="56" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+      <text x="20" y="36" font-size="22" font-weight="700" fill="#e6edf3">pi</text>
+      <text x="20" y="56" font-size="18" fill="#8b949e">~/.pi/agent/skills/</text>
+    </g>
+    <g transform="translate(811 156)">
+      <rect width="344" height="56" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+      <text x="20" y="36" font-size="22" font-weight="700" fill="#e6edf3">claude</text>
+      <text x="20" y="56" font-size="18" fill="#8b949e">~/.claude/skills/</text>
+    </g>
+    <g transform="translate(811 224)">
+      <rect width="344" height="56" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+      <text x="20" y="36" font-size="22" font-weight="700" fill="#e6edf3">codex</text>
+      <text x="20" y="56" font-size="18" fill="#8b949e">~/.codex/skills/</text>
+    </g>
+    <g transform="translate(811 292)">
+      <rect width="344" height="56" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+      <text x="20" y="36" font-size="22" font-weight="700" fill="#e6edf3">opencode</text>
+      <text x="20" y="56" font-size="18" fill="#8b949e">~/.config/opencode/skills/</text>
+    </g>
+  </g>
+</svg>
