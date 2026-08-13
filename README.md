@@ -17,16 +17,46 @@ The catalog is distributed as the [`@runecraft/skills`](https://www.npmjs.com/pa
 npm install @runecraft/skills
 ```
 
-A dedicated installer TUI — which detects your agent, picks the right destination, and wires up slash commands — is coming in slice 2. Until then, install manually by copying the skill folder(s) you want into your agent's skills directory:
+### Installer TUI (`runecraft-skills`)
 
-| Agent | Skills directory |
-|-------|------------------|
-| pi | `~/.pi/agent/skills/<skill>/` |
-| Claude Code | `~/.claude/skills/<skill>/` |
-| Codex | `~/.codex/skills/<skill>/` |
-| OpenCode | `~/.config/opencode/skills/<skill>/` |
+The package ships an interactive, keyboard-driven installer — `runecraft-skills` — that lists the catalog, multi-selects which skills to install, picks the target agent, and copies the skill folders into place. It is built with Bun + TypeScript on top of [clack](https://github.com/bombshell-dev/clack) and runs on Node 20.12+ (or Bun):
 
-Example:
+```bash
+# interactive installer
+runecraft-skills
+
+# list the catalog and exit
+runecraft-skills --list
+
+# scripting: install specific skills to a specific agent
+runecraft-skills --skill spec-driven --skill skill-forge --target pi
+```
+
+Options:
+
+| Flag | Description |
+|------|-------------|
+| `-s, --skill <name>` | Skill to install (repeatable). |
+| `-t, --target <id>` | Install target: `pi`, `claude`, `codex`, `opencode`. |
+| `--target-dir <dir>` | Override the destination skills directory (scripting / CI). |
+| `--overwrite` | Replace already-installed skills (default: skip them). |
+| `-l, --list` | List the catalog skills and exit. |
+| `-h, --help`, `-v, --version` | Help / version. |
+
+### Install targets
+
+The installer resolves each agent's skills directory, honoring the agent's own configuration conventions:
+
+| Target | Skills directory | Convention |
+|--------|------------------|------------|
+| `pi` | `~/.pi/agent/skills/` | pi home: `$PI_HOME` (default `~/.pi`) |
+| `claude` | `~/.claude/skills/` | Claude Code config dir: `$CLAUDE_CONFIG_DIR` (default `~/.claude`) |
+| `codex` | `~/.codex/skills/` | Codex config dir: `$CODEX_HOME` (default `~/.codex`); the legacy-but-still-scanned location OpenAI's skill-installer targets. Codex CLI also reads the newer cross-agent `~/.agents/skills/` — point `--target-dir` there if you prefer it. |
+| `opencode` | `~/.config/opencode/skills/` | XDG config home: `$XDG_CONFIG_HOME` (default `~/.config`) |
+
+Already-installed skills are skipped by default; the interactive flow asks whether to overwrite or skip, and `--overwrite` forces replacement without asking (in both interactive and scripting modes).
+
+You can also install manually by copying skill folders:
 
 ```bash
 # after `npm install @runecraft/skills`

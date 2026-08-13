@@ -1,5 +1,13 @@
 # @runecraft/skills
 
+## 0.17.0
+
+### Minor Changes
+
+- feat(installer): add the interactive installer TUI (slice 2) — `runecraft-skills` bin, built with Bun + TypeScript + clack. Lists the catalog, multi-selects skills, picks a target agent (pi / claude / codex / opencode, each resolved to its own skills directory), and copies skill folders into place with skip/overwrite conflict handling
+- feat(installer): support scripting via `--skill <name> --target <id>` (repeatable `--skill`), plus `--list`, `--target-dir` override, and `--overwrite`
+- chore: bump engines to `node >=20.12.0` (required by @clack/prompts); add `bun test` suite for target resolution, catalog listing, and install-copy logic (temp dirs only)
+
 ## 0.16.0
 
 ### Minor Changes
