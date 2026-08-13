@@ -6,7 +6,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 
 - `runecraftai/skills` — home of the Runecraft agent-skill catalog, published on npm as **`@runecraft/skills`** (see `package.json`). It is the renamed continuation of the legacy `@runecraft/spells` package (frozen in the arcanum monorepo); `CHANGELOG.md` documents the 0.15.0 → 0.16.0 rename.
 - Content layout: one folder per skill under `skills/` (each with `SKILL.md` + optional `references/`, `scripts/`, `.skill-meta.json`); shared docs under `references/` (`definition-of-done.md`, `testing-patterns.md`).
-- Slice 2 (not yet built) adds the installer TUI; until then installs are manual copies into agent skills directories (pi `~/.pi/agent/skills/`, Claude `~/.claude/skills/`, Codex `~/.codex/skills/`, OpenCode `~/.config/opencode/skills/`).
+- Slice 2 adds the installer TUI: `runecraft-skills` bin (interactive clack flow + `--skill/--target` scripting), built with Bun + TypeScript from `src/` into a single `dist/skills.js` (see `package.json` scripts). Install destinations: pi `~/.pi/agent/skills/`, Claude `~/.claude/skills/`, Codex `~/.codex/skills/`, OpenCode `~/.config/opencode/skills/` (env overrides `PI_HOME`/`CLAUDE_CONFIG_DIR`/`CODEX_HOME`/`XDG_CONFIG_HOME`; see `src/targets.ts`).
 
 ## Identity rules (hard constraints)
 
@@ -15,7 +15,10 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 
 ## Validation
 
-- `npm pack --dry-run` — confirms `files: ["skills/", "references/"]` packs the catalog.
+- `npm pack --dry-run` — confirms `files: ["skills/", "references/", "dist/"]` packs the catalog + installer.
+- `bun test` — unit + CLI tests for target resolution, catalog listing, and install-copy logic (temp dirs only; never real user dirs).
+- `bun run build && node dist/skills.js --list` — bundles the TUI and smoke-checks it.
+- `bunx tsc --noEmit` — typecheck (`src/` + `test/`).
 - `python3 skills/skill-forge/scripts/validate.py skills/skill-forge` — SKILL.md structure validator (23 checks; 1 pre-existing warning, not a failure).
 - New skills must ship `SKILL.md` + `references/` and follow the skill-forge conventions.
 
