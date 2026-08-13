@@ -1,0 +1,7 @@
+# Per-repo drill overrides.
+
+# Skills is a content catalog (SKILL.md packages + installer TUI): it has no CI
+# pipeline by design, and an empty forge check list is never treated as green
+# without this declaration. Trusted-only: honored only from the default-branch
+# copy of this file.
+no_ci: true
