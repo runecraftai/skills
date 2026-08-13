@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -77,6 +77,25 @@ describe("runecraft-skills CLI (scripting mode)", () => {
     expect(status).toBe(0);
     expect(existsSync(join(target, "git-worktree", "SKILL.md"))).toBe(true);
     expect(existsSync(join(target, "memory-management", "SKILL.md"))).toBe(true);
+  });
+
+  test("rejects inline values on boolean flags instead of silently honoring them", () => {
+    for (const flag of ["--overwrite", "--list", "--help", "--version"]) {
+      const { status, stderr } = runCli([`${flag}=false`]);
+      expect(status).toBe(1);
+      expect(stderr).toContain(`unexpected value for ${flag}`);
+    }
+  });
+
+  test("--overwrite=false errors out and never replaces an installed skill", () => {
+    const target = join(tempDir(), "skills");
+    runCli(["--skill", "git-worktree", "--target", "pi", "--target-dir", target]);
+    const marker = join(target, "git-worktree", "SKILL.md");
+    writeFileSync(marker, "user-local edit");
+    const { status, stderr } = runCli(["--skill", "git-worktree", "--target", "pi", "--target-dir", target, "--overwrite=false"]);
+    expect(status).toBe(1);
+    expect(stderr).toContain("unexpected value for --overwrite");
+    expect(readFileSync(marker, "utf8")).toBe("user-local edit");
   });
 
   test("rejects an unknown skill name", () => {

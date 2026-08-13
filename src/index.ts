@@ -61,6 +61,9 @@ function parseArgs(argv: string[]): Args {
     if (value === undefined) throw new Error(`missing value for ${flag}`);
     return value;
   };
+  const noInlineValue = (flag: string, inline?: string): void => {
+    if (inline !== undefined) throw new Error(`unexpected value for ${flag}`);
+  };
   let i = 0;
   for (; i < argv.length; i++) {
     const arg = argv[i];
@@ -70,17 +73,21 @@ function parseArgs(argv: string[]): Args {
     switch (flag) {
       case "-h":
       case "--help":
+        noInlineValue(flag, inline);
         args.help = true;
         break;
       case "-v":
       case "--version":
+        noInlineValue(flag, inline);
         args.version = true;
         break;
       case "-l":
       case "--list":
+        noInlineValue(flag, inline);
         args.list = true;
         break;
       case "--overwrite":
+        noInlineValue(flag, inline);
         args.overwrite = true;
         break;
       case "-s":
