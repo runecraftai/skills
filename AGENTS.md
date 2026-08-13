@@ -15,7 +15,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 
 ## Validation
 
-- `npm pack --dry-run` — confirms `files: ["skills/"]` packs the catalog.
+- `npm pack --dry-run` — confirms `files: ["skills/", "references/"]` packs the catalog.
 - `python3 skills/skill-forge/scripts/validate.py skills/skill-forge` — SKILL.md structure validator (23 checks; 1 pre-existing warning, not a failure).
 - New skills must ship `SKILL.md` + `references/` and follow the skill-forge conventions.
 
