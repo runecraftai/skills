@@ -157,7 +157,7 @@ async function main(argv: string[]): Promise<number> {
     if (!process.stdout.isTTY || !process.stdin.isTTY) {
       return fail("interactive mode needs a terminal; use --skill <name> --target <id> for scripting");
     }
-    return runInteractive({ catalogDir, home: homedir(), targetDirOverride: args.targetDir });
+    return runInteractive({ catalogDir, home: homedir(), targetDirOverride: args.targetDir, overwrite: args.overwrite });
   }
 
   if (args.skill.length === 0) return fail("--skill <name> is required in non-interactive mode");

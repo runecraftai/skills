@@ -15,6 +15,8 @@ export interface InteractiveContext {
   env?: Record<string, string | undefined>;
   /** Optional explicit destination, bypassing per-target resolution. */
   targetDirOverride?: string;
+  /** When set, already-installed skills are replaced without asking. */
+  overwrite?: boolean;
 }
 
 const MAX_HINT = 90;
@@ -88,8 +90,8 @@ export async function runInteractive(ctx: InteractiveContext): Promise<number> {
   }
 
   const conflicts = findConflicts(targetDir, names);
-  let overwrite = false;
-  if (conflicts.length > 0) {
+  let overwrite = ctx.overwrite ?? false;
+  if (conflicts.length > 0 && !overwrite) {
     const mode = await select({
       message: `${conflicts.length} skill(s) are already installed at ${displayPath(targetDir, ctx.home)}. How to proceed?`,
       options: [

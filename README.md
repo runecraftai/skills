@@ -54,7 +54,7 @@ The installer resolves each agent's skills directory, honoring the agent's own c
 | `codex` | `~/.codex/skills/` | Codex config dir: `$CODEX_HOME` (default `~/.codex`); the legacy-but-still-scanned location OpenAI's skill-installer targets. Codex CLI also reads the newer cross-agent `~/.agents/skills/` — point `--target-dir` there if you prefer it. |
 | `opencode` | `~/.config/opencode/skills/` | XDG config home: `$XDG_CONFIG_HOME` (default `~/.config`) |
 
-Already-installed skills are skipped by default; the interactive flow asks whether to overwrite or skip, and scripting mode uses `--overwrite` to force replacement.
+Already-installed skills are skipped by default; the interactive flow asks whether to overwrite or skip, and `--overwrite` forces replacement without asking (in both interactive and scripting modes).
 
 You can also install manually by copying skill folders:
 
