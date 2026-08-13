@@ -23,6 +23,7 @@
     "copilot"
   ],
   "files": [
-    "skills/"
+    "skills/",
+    "references/"
   ]
 }
