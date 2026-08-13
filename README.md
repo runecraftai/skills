@@ -43,7 +43,7 @@ Works with any agent that supports custom instructions, skills, or rules directo
 | **git-commit-learning** | 1.0.0 | RPI model: analyze git log for patterns and write AI-learnable commits (Research → Plan → Implement → Verify). PT/EN. | `/commit` | [→ README](skills/git-commit-learning/README.md) |
 | **git-worktree** | 1.0.0 | Use git worktrees for parallel feature branches without stashing or cloning. | `/worktree` | [→ README](skills/git-worktree/README.md) |
 | **using-agent-skills** | 1.0.0 | Meta-skill: discover and dispatch to the right catalog skill for the current task. | `/skill` | [→ README](skills/using-agent-skills/README.md) |
-| **idea-refine** | 1.0.0 | Refine raw ideas through divergent/convergent thinking — expand options, stress-test assumptions. | `/plan` | [→ README](skills/idea-refine/README.md) |
+| **idea-refine** | 1.0.0 | Refine raw ideas through divergent/convergent thinking — expand options, stress-test assumptions. | `/ideate` | [→ README](skills/idea-refine/README.md) |
 | **interview-me** | 1.0.0 | One-question-at-a-time interview until ~95% confidence about user intent. | `/interview` | [→ README](skills/interview-me/README.md) |
 | **loop-contract** | 1.0.0 | Reads the next pending roadmap phase and writes a scoped `.flywheel/contracts/<phase-id>.md` — the single source of truth the loop obeys for one phase. | `/loop-contract` | [→ README](skills/loop-contract/README.md) |
 | **loop-judge** | 1.0.0 | Independent phase-level verifier (author≠verifier) with programmatic or LLM-judge gates. Emits escalation statuses with cited evidence. | `/loop-judge` | [→ README](skills/loop-judge/README.md) |
