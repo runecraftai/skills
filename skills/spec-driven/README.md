@@ -35,24 +35,7 @@ SPECIFY → (DESIGN) → (TASKS) → EXECUTE → VERIFY → LEARN
 
 ### Installation
 
-```bash
-# npm
-npm install @runecraft/skills
-
-# bun
-bun add @runecraft/skills
-
-# pnpm
-pnpm add @runecraft/skills
-
-# yarn
-yarn add @runecraft/skills
-```
-
-Copy to your agent:
-```bash
-cp -r node_modules/@runecraft/skills/skills/spec-driven ~/.config/opencode/skills/spec-driven
-```
+Install with the catalog installer (`npx @runecraft/skills install`) or copy the skill folder manually — see the [catalog README](../../README.md) for targets and options.
 
 ### First Commands
 

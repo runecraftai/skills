@@ -6,7 +6,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 
 - `runecraftai/skills` — home of the Runecraft agent-skill catalog, published on npm as **`@runecraft/skills`** (see `package.json`). It is the renamed continuation of the legacy `@runecraft/spells` package (frozen in the arcanum monorepo); `CHANGELOG.md` documents the 0.15.0 → 0.16.0 rename.
 - Content layout: one folder per skill under `skills/` (each with `SKILL.md` + optional `references/`, `scripts/`, `.skill-meta.json`); shared docs under `references/` (`definition-of-done.md`, `testing-patterns.md`).
-- Slice 2 adds the installer TUI: `runecraft-skills` bin (interactive clack flow + `--skill/--target` scripting), built with Bun + TypeScript from `src/` into a single `dist/skills.js` (see `package.json` scripts). Install destinations: pi `~/.pi/agent/skills/`, Claude `~/.claude/skills/`, Codex `~/.codex/skills/`, OpenCode `~/.config/opencode/skills/` (env overrides `PI_HOME`/`CLAUDE_CONFIG_DIR`/`CODEX_HOME`/`XDG_CONFIG_HOME`; see `src/targets.ts`).
+- The installer TUI ships as the `runecraft-skills` bin (interactive clack flow + `--skill/--target` scripting), built with Bun + TypeScript from `src/` into a single `dist/skills.js` (see `package.json` scripts). The canonical invocation is `npx @runecraft/skills install` / `bunx @runecraft/skills install`; `install` is the default command, so bare `runecraft-skills` keeps working (see `src/index.ts`). Install destinations: pi `~/.pi/agent/skills/`, Claude `~/.claude/skills/`, Codex `~/.codex/skills/`, OpenCode `~/.config/opencode/skills/` (env overrides `PI_HOME`/`CLAUDE_CONFIG_DIR`/`CODEX_HOME`/`XDG_CONFIG_HOME`; see `src/targets.ts`).
 
 ## Identity rules (hard constraints)
 

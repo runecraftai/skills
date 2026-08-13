@@ -27,10 +27,7 @@ Baseado nos princípios de Context Engineering e nas práticas de desenvolviment
 
 ### Installation
 
-```bash
-npm install @runecraft/skills
-cp node_modules/@runecraft/skills/skills/git-commit-learning/SKILL.md <your-agent-skills-dir>/git-commit-learning.md
-```
+Install with the catalog installer (`npx @runecraft/skills install`) or copy the skill folder manually — see the [catalog README](../../README.md) for targets and options.
 
 ### Common Triggers (PT/EN)
 
