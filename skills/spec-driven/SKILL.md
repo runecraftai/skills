@@ -1,19 +1,17 @@
 ---
 name: spec-driven
 description: >
-  Feature planning and implementation with 4 adaptive phases — Specify, Design, Tasks, Execute.
-  Auto-sizes depth by complexity. Creates atomic tasks with verification criteria, atomic git
-  commits, and requirement traceability. Features an independent Verifier (author != verifier,
-  evidence-or-zero), persistent decision log (STATE.md), and test-coverage-matrix-driven tests,
-  plus a self-improving lessons layer that turns verification failures into reusable project-local
-  guidance. Stack-agnostic. Use when planning features (requirements, design, task breakdown),
-  implementing with verification and atomic commits, or validating/verifying an implementation
-  against a spec. Triggers (PT/EN): "specify feature", "vamos especificar", "discutir feature",
-  "discutir este caso", "design", "design da feature", "tarefas", "quebrar em tarefas",
-  "implementar", "build", "validar", "verify work", "UAT", "validar implementação",
-  "record decision", "pause work", "pausar trabalho", "resume work", "retomar trabalho".
-  Do NOT use for architecture decomposition analysis (use architecture skills) or technical
-  design docs (treat as Complex scope: discuss gray areas + architecture-focused design).
+  Planning and implementation with 4 adaptive phases — Specify, Design, Tasks, Execute. Auto-sizes
+  depth by complexity. Atomic tasks with verification criteria, atomic git commits, requirement
+  traceability. Independent Verifier (author != verifier, evidence-or-zero), decision log
+  (STATE.md), test-coverage-matrix-driven tests, self-improving lessons layer. Stack-agnostic. Use
+  when planning features (requirements, design, task breakdown), implementing with verification
+  and atomic commits, or validating against a spec. Triggers (PT/EN): "specify feature", "vamos
+  especificar", "discutir feature", "discutir este caso", "design", "design da feature",
+  "tarefas", "quebrar em tarefas", "implementar", "build", "validar", "verify work", "UAT",
+  "validar implementação", "record decision", "pause work", "pausar trabalho", "resume work",
+  "retomar trabalho". Do NOT use for architecture decomposition analysis (use architecture skills)
+  or technical design docs (Complex scope: gray areas + architecture-focused design).
 license: CC-BY-4.0
 metadata:
   version: 5.0.0
