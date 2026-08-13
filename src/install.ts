@@ -6,7 +6,7 @@
  * Pure filesystem code — the interactive TUI and the scripting flag path both
  * drive this, and tests exercise it against temp directories only.
  */
-import { cpSync, existsSync, mkdirSync, statSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 export interface InstallOptions {
@@ -61,6 +61,9 @@ export function installSkills(opts: InstallOptions): InstallResult {
     }
 
     try {
+      if (exists && statSync(dest).isDirectory()) {
+        rmSync(dest, { recursive: true, force: true });
+      }
       cpSync(src, dest, { recursive: true, force: true });
       (exists ? result.overwritten : result.installed).push(name);
     } catch (err) {

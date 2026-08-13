@@ -71,16 +71,21 @@ export async function runInteractive(ctx: InteractiveContext): Promise<number> {
   if (isCancel(chosen)) return cancelled();
   const names = chosen as string[];
 
-  const target = await select({
-    message: "Which agent should get them?",
-    options: TARGETS.map((t) => ({
-      value: t.id,
-      label: t.label,
-      hint: displayPath(resolveSkillsDir(t.id, ctx), ctx.home),
-    })),
-  });
-  if (isCancel(target)) return cancelled();
-  const targetDir = ctx.targetDirOverride ?? resolveSkillsDir(target as TargetId, ctx);
+  let targetDir: string;
+  if (ctx.targetDirOverride !== undefined) {
+    targetDir = ctx.targetDirOverride;
+  } else {
+    const target = await select({
+      message: "Which agent should get them?",
+      options: TARGETS.map((t) => ({
+        value: t.id,
+        label: t.label,
+        hint: displayPath(resolveSkillsDir(t.id, ctx), ctx.home),
+      })),
+    });
+    if (isCancel(target)) return cancelled();
+    targetDir = resolveSkillsDir(target as TargetId, ctx);
+  }
 
   const conflicts = findConflicts(targetDir, names);
   let overwrite = false;

@@ -80,13 +80,15 @@ describe("installSkills", () => {
     const root = tempDir();
     const catalog = makeCatalog(root, ["alpha"]);
     const target = join(root, "target");
-    mkdirSync(join(target, "alpha"), { recursive: true });
+    mkdirSync(join(target, "alpha", "scripts"), { recursive: true });
     writeFileSync(join(target, "alpha", "SKILL.md"), "stale copy\n");
+    writeFileSync(join(target, "alpha", "scripts", "legacy.sh"), "old helper removed from the catalog\n");
 
     const result = installSkills({ catalogDir: catalog, targetDir: target, names: ["alpha"], overwrite: true });
 
     expect(result.overwritten).toEqual(["alpha"]);
     expect(readFileSync(join(target, "alpha", "SKILL.md"), "utf8")).toBe("# alpha\n");
+    expect(existsSync(join(target, "alpha", "scripts", "legacy.sh"))).toBe(false);
   });
 
   test("reports missing catalog skills as failures, leaving others installed", () => {
