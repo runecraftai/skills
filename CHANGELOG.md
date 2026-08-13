@@ -1,5 +1,11 @@
 # @runecraft/skills
 
+## 0.19.0
+
+### Minor Changes
+
+- feat(skills): replace the five Flywheel `loop-*` skills (`loop-contract`, `loop-judge`, `loop-learn`, `loop-roadmap`, `loop-run`) with `spec-loop` — the milestone-loop runner that drives `.specs/` artifacts to completion (ROADMAP → milestones → tasks → verification gates → atomic commits → STATE.md). Removes the unused `.flywheel/` engine family; catalog routing (using-agent-skills) and the README table now point loop work at `spec-loop` / `spec-driven`
+
 ## 0.18.0
 
 ### Minor Changes
