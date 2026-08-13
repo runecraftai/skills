@@ -3,7 +3,7 @@ name: using-agent-skills
 description: >
   Discovers and invokes the right @runecraft/skills skill for the current task.
   Use when starting a session, when a request is ambiguous about which workflow to apply,
-  or when you need to pick among the 23-skill Runecraft catalog.
+  or when you need to pick among the 19-skill Runecraft catalog.
   EN triggers: /skill, which skill, pick a skill, what skill should I use, skill discovery, meta skill.
   PT triggers: qual skill, qual habilidade, descobrir skill, qual fluxo usar.
   Do NOT use for: actual implementation work (route to the specific skill instead), unrelated
@@ -31,11 +31,9 @@ Task arrives
     ├── Implementing code? ─────────────→ spec-driven
     │   ├── TypeScript code? ──────────→ typescript-patterns
     │   ├── Stakes high / unfamiliar code? ──→ doubt-driven-development
-    │   └── Driving a Flywheel loop? ───→ loop-run
-    │       ├── Generate/validate roadmap? → loop-roadmap
-    │       ├── Write a phase contract? ────→ loop-contract
-    │       ├── Verify a phase? ───────────→ loop-judge
-    │       └── Record phase outcomes? ─────→ loop-learn
+    │   └── Driving a loop? ──────────────→ spec-loop
+    │       ├── Need a plan/spec first? ────→ spec-driven
+    │       └── Verify the executed work? ───→ spec-driven
     ├── Writing/running tests? ─────────→ test-driven-development
     ├── Something broke? ───────────────→ debugging-and-error-recovery
     ├── Reviewing code? ────────────────→ code-review-and-quality
@@ -183,11 +181,7 @@ Not every task needs every skill. A bug fix might only need: `debugging-and-erro
 | Git | git-worktree | Parallel feature branches in isolated worktrees |
 | Git | git-commit-learning | Mine git history into reusable project memory |
 | Memory | memory-management | Project decisions and error patterns in `.agent-memory/` |
-| Loop | loop-run | Flywheel orchestrator: SELECT→APPLY→MEASURE→JUDGE→UNIFY |
-| Loop | loop-contract | Produce phase contracts from the roadmap |
-| Loop | loop-judge | Independent phase-level verification |
-| Loop | loop-learn | Append phase outcomes to Flywheel memory |
-| Loop | loop-roadmap | Type-aware roadmap generation and validation |
+| Loop | spec-loop | Milestone-loop runner: drives .specs artifacts to completion (gates, atomic commits, STATE.md) |
 | Meta | using-agent-skills | Discover and route to the right skill (this skill) |
 | Meta | skill-forge | Design, author, and validate new Agent Skills |
 | Domain | linkedin-audit | LinkedIn profile analysis with 0-10 scores and HTML dashboard |
