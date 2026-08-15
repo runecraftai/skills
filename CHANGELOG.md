@@ -1,5 +1,11 @@
 # @runecraft/skills
 
+## 0.19.1
+
+### Patch Changes
+
+- fix(installer): make the non-TTY guard self-documenting — the interactive-mode error now shows a copy-pasteable scripting command (`bunx @runecraft/skills install -s <skill> -t <target>`), and the README quick start states that `install` is an interactive TUI needing a terminal, pointing scripts/CI users at the scripting form. Fixes the stale `tdd` example in `--help` (now `test-driven-development`) and adds a regression test proving scripting mode installs a real catalog skill without a TTY
+
 ## 0.19.0
 
 ### Minor Changes
