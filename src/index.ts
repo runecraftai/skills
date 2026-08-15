@@ -44,7 +44,7 @@ Examples:
   runecraft-skills
   npx @runecraft/skills install
   npx @runecraft/skills install --list
-  npx @runecraft/skills install -s spec-driven -s tdd -t pi
+  npx @runecraft/skills install -s spec-driven -s test-driven-development -t pi
   npx @runecraft/skills install -s skill-forge -t opencode --overwrite
   npx @runecraft/skills install -s using-agent-skills -t codex --target-dir ./ci/skills`;
 
@@ -173,7 +173,7 @@ async function main(argv: string[]): Promise<number> {
 
   if (!nonInteractive) {
     if (!process.stdout.isTTY || !process.stdin.isTTY) {
-      return fail("interactive mode needs a terminal; use --skill <name> --target <id> for scripting");
+      return fail("interactive mode needs a terminal; run `bunx @runecraft/skills install -s <skill> -t <target>` (see `--list`) for scripting");
     }
     return runInteractive({ catalogDir, home: homedir(), targetDirOverride: args.targetDir, overwrite: args.overwrite });
   }
