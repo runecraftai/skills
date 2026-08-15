@@ -29,6 +29,8 @@ bunx @runecraft/skills install
 
 The installer lists the catalog, multi-selects skills, picks the target agent, and copies the skill folders into that agent's skills directory. Already-installed skills are skipped by default; the flow asks whether to overwrite or skip, and `--overwrite` forces replacement.
 
+The installer is an interactive TUI and needs a terminal (a TTY on stdin and stdout). In scripts, CI, or any non-interactive shell, `install` exits with guidance instead — use the scripting form below.
+
 If the package is installed locally, the same CLI is available as `runecraft-skills` (bare invocation also defaults to the installer):
 
 ```bash

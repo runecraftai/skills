@@ -78,6 +78,16 @@ describe("runecraft-skills CLI (scripting mode)", () => {
     const { status, stderr } = runCli(["install"]);
     expect(status).toBe(1);
     expect(stderr).toContain("interactive mode needs a terminal");
+    expect(stderr).toContain("bunx @runecraft/skills install -s <skill> -t <target>");
+  });
+
+  test("scripting mode installs a real catalog skill without a TTY", () => {
+    const target = join(tempDir(), "skills");
+    const { status, stdout, stderr } = runCli(["install", "-s", "test-driven-development", "-t", "pi", "--target-dir", target]);
+    expect(stderr).toBe("");
+    expect(status).toBe(0);
+    expect(stdout).toContain("installed: test-driven-development");
+    expect(existsSync(join(target, "test-driven-development", "SKILL.md"))).toBe(true);
   });
 
   test("install is consumed as a --skill value, not a subcommand", () => {
