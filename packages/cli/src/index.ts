@@ -36,7 +36,14 @@ function selectedSkills(names: string[], detected: string[] = []): RegistrySkill
 }
 function install(names: string[], opts: Options, detected: string[] = []): void {
   const available = new Set(readRegistry(catalogDir).map((skill) => skill.name));
+  const unavailableDetected = detected.filter((name) => !available.has(name));
   const availableDetected = detected.filter((name) => available.has(name));
+  if (!names.length && unavailableDetected.length) {
+    console.warn(`Detected skills unavailable: ${unavailableDetected.join(", ")}`);
+  }
+  if (!names.length && detected.length && !availableDetected.length) {
+    fail(`detected skills unavailable: ${unavailableDetected.join(", ")}`);
+  }
   const skills = selectedSkills(names, availableDetected); const agents = validAgents(opts.agents); const lock = readLockfile(projectDir);
   for (const skill of skills) for (const agent of agents) { const target = agentPath(agent, projectDir, opts.global); const result = installSkill(skill, target, opts.overwrite); console.log(`${result}: ${skill.name} → ${target}`); if (!opts.global) updateLock(lock, skill.name, { version: skill.version, hash: skillHash(skill.dir), installed: new Date().toISOString(), agents: agents.map((a) => a.id) }); }
   if (!opts.global) writeLockfile(projectDir, lock);

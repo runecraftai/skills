@@ -8,7 +8,14 @@ export function readLockfile(projectDir: string): Lockfile {
   return { version: 1, generated: new Date().toISOString(), registry: "runecraftai/skills", skills: {} };
 }
 export function writeLockfile(projectDir: string, lock: Lockfile): void { writeFileSync(lockPath(projectDir), `${JSON.stringify(lock, null, 2)}\n`); }
-export function updateLock(lock: Lockfile, name: string, entry: LockedSkill): Lockfile { lock.generated = new Date().toISOString(); lock.skills[name] = entry; return lock; }
+export function updateLock(lock: Lockfile, name: string, entry: LockedSkill): Lockfile {
+  const existing = lock.skills[name];
+  lock.generated = new Date().toISOString();
+  lock.skills[name] = existing
+    ? { ...entry, agents: [...new Set([...existing.agents, ...entry.agents])] }
+    : entry;
+  return lock;
+}
 export function removeLock(lock: Lockfile, name: string): boolean { const existed = Boolean(lock.skills[name]); delete lock.skills[name]; lock.generated = new Date().toISOString(); return existed; }
 export function removeLockAgent(lock: Lockfile, name: string, agent: string): boolean {
   const entry = lock.skills[name]; if (!entry) return false;

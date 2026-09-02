@@ -18,14 +18,22 @@ function assertTarget(targetDir: string): string {
   if (realpathSync(target) !== target) throw new Error("target path cannot contain symlinks");
   return target;
 }
+function assertCatalogSkill(dir: string, name: string): void {
+  if (!lstatSync(dir, { throwIfNoEntry: false })?.isDirectory()) throw new Error(`invalid catalog entry: ${name}`);
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isSymbolicLink()) throw new Error(`catalog skill cannot contain symlinks: ${name}`);
+    if (entry.isDirectory()) assertCatalogSkill(path, name);
+  }
+}
 export function installSkill(skill: RegistrySkill, targetDir: string, overwrite = false): "installed" | "updated" | "skipped" {
   if (!safeSkillName(skill.name)) throw new Error(`unsafe skill name: ${skill.name}`);
+  assertCatalogSkill(skill.dir, skill.name);
   const target = assertTarget(targetDir); const destination = resolve(target, skill.name);
   if (!destination.startsWith(target + sep)) throw new Error("skill destination escapes target directory");
   if (lstatSync(destination, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error("skill destination cannot be a symlink");
   if (existsSync(destination) && !overwrite) return "skipped";
   if (existsSync(destination)) rmSync(destination, { recursive: true, force: true });
-  if (!statSync(skill.dir).isDirectory()) throw new Error(`invalid catalog entry: ${skill.name}`);
   cpSync(skill.dir, destination, { recursive: true }); return overwrite ? "updated" : "installed";
 }
 export function removeSkill(name: string, targetDir: string): boolean {
