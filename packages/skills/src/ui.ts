@@ -59,7 +59,7 @@ export async function selectSkillsByCategory(grouped: ReturnType<typeof categori
         message: `${category.name} — select skills (space to toggle, backspace/← to return)`,
         options: category.skills.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description) })),
         initialValues: [...(selectedByCategory.get(category.name) ?? [])],
-        required: true,
+        required: false,
         input: navigationInput.adapter,
       });
     } finally {

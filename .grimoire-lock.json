@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "generated": "2026-09-02T20:12:27.829Z",
+  "registry": "runecraftai/grimoire",
+  "skills": {
+    "beta": {
+      "version": "0.1.0",
+      "hash": "sha256:247e1f7348551bf9ee980f380fe8543ec74b9d920a0eeb9437cadbb9a6d28f8d",
+      "installed": "2026-09-02T20:12:27.829Z",
+      "agents": [
+        "custom"
+      ]
+    }
+  }
+}
