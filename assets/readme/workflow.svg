@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
-  <title id="title">How Runecraft Skills works</title>
+  <title id="title">How Grimoire works</title>
   <desc id="desc">One skills catalog feeds the grimoire installer, which copies selected skill folders into the skills directory of the chosen agent: pi, claude, codex, or opencode.</desc>
 
   <rect width="1200" height="360" rx="24" fill="#0d1117"/>

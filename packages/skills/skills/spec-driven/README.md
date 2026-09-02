@@ -331,5 +331,5 @@ MIT
 ---
 
 <p align="center">
-  <sub>Part of the <a href="https://github.com/runecraftai/skills">Runecraft Skills</a> catalog</sub>
+  <sub>Part of the <a href="https://github.com/runecraftai/skills">Grimoire</a> catalog</sub>
 </p>

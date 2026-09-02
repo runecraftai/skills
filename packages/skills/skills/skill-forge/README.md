@@ -144,7 +144,7 @@ Works with any agent that follows the open SKILL.md format.
 
 ## 📦 Catalog
 
-This skill is part of the [Runecraft Skills](https://github.com/runecraftai/skills) catalog, distributed via the [`@runecraft/grimoire`](https://www.npmjs.com/package/@runecraft/grimoire) npm package.
+This skill is part of the [Grimoire](https://github.com/runecraftai/skills) catalog, distributed via the [`@runecraft/grimoire`](https://www.npmjs.com/package/@runecraft/grimoire) npm package.
 
 ---
 
