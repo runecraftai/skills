@@ -1,5 +1,11 @@
 # @runecraft/grimoire
 
+## 1.1.0
+
+### Minor Changes
+
+- dd4ab3b: Add category-first catalog navigation with persistent checkbox selection, refined category taxonomy, and complete README documentation table
+
 ## 1.0.0
 
 ### Major Changes
