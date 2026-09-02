@@ -96,9 +96,7 @@ export async function runInteractive(ctx: InteractiveContext): Promise<number> {
   const selected = await selectSkillsByCategory(grouped);
   if (selected === null) return cancelled();
   if (!selected.length) return cancelled();
-  const review = await multiselect({ message: `Review selection: ${selected.length} skill(s)`, options: registry.map((s) => ({ value: s.name, label: s.name, hint: s.category })), initialValues: selected, required: true });
-  if (isCancel(review)) return cancelled();
-  const finalSelected = review as string[];
+  const finalSelected = selected;
   const target = ctx.targetDirOverride ? undefined : await select({ message: "Which destination agent should receive them?", options: TARGETS.map((t) => ({ value: t.id, label: t.label, hint: displayPath(resolveSkillsDir(t.id, { home: ctx.home, env: ctx.env, projectDir: ctx.projectDir, global: ctx.global }), ctx.home) })) });
   if (target !== undefined && isCancel(target)) return cancelled();
   const targetDir = ctx.targetDirOverride ?? resolveSkillsDir(target as TargetId, { home: ctx.home, env: ctx.env, projectDir: ctx.projectDir, global: ctx.global });

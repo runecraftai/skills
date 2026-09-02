@@ -26,7 +26,7 @@ test("expands, collapses, revisits categories, and installs the revised selectio
   const root = mkdtempSync(join(tmpdir(), "grimoire-ui-")); dirs.push(root); const catalog = join(root, "catalog");
   skill(catalog, "alpha"); skill(catalog, "beta");
   // Save alpha, add beta while retaining alpha, then reopen to deselect alpha.
-  selects = ["Other", ["alpha"], "Other", ["alpha", "beta"], "Other", ["beta"], "__continue__", ["beta"], "confirm"];
+  selects = ["Other", ["alpha"], "Other", ["alpha", "beta"], "Other", ["beta"], "__continue__", "confirm"];
   expect(await runInteractive({ catalogDir: catalog, home: root, targetDirOverride: join(root, "target") })).toBe(0);
   expect(multiselectCalls[1].initialValues).toEqual(["alpha"]);
   expect(multiselectCalls[2].initialValues).toEqual(["alpha", "beta"]);
