@@ -1,9 +1,35 @@
 {
   "categories": {
-    "Build & Design": ["spec-driven", "idea-refine", "typescript-patterns", "code-simplification"],
-    "Testing & Quality": ["test-driven-development", "code-review-and-quality", "doubt-driven-development", "debugging-and-error-recovery"],
-    "Security & Operations": ["security-and-hardening", "shipping-and-launch", "git-worktree", "git-commit-learning", "deprecation-and-migration"],
-    "Agent Craft": ["skill-forge", "using-agent-skills", "memory-management", "interview-me"],
-    "Planning & Collaboration": ["spec-loop", "linkedin-audit"]
+    "Agent Skills": [
+      "skill-forge",
+      "using-agent-skills",
+      "memory-management"
+    ],
+    "Code Quality & Testing": [
+      "code-review-and-quality",
+      "test-driven-development",
+      "doubt-driven-development",
+      "debugging-and-error-recovery",
+      "typescript-patterns",
+      "code-simplification"
+    ],
+    "Security & Reliability": [
+      "security-and-hardening"
+    ],
+    "Delivery & Repository": [
+      "shipping-and-launch",
+      "git-worktree",
+      "git-commit-learning",
+      "deprecation-and-migration"
+    ],
+    "Planning & Specification": [
+      "spec-driven",
+      "spec-loop",
+      "idea-refine",
+      "interview-me"
+    ],
+    "Professional Development": [
+      "linkedin-audit"
+    ]
   }
 }

@@ -23,7 +23,7 @@ npx @runecraft/grimoire
 bunx @runecraft/grimoire
 ```
 
-The interactive flow is the default. It lets you choose a category or **Detect project skills**, select one or more skills, choose a destination, and confirm the install.
+The interactive flow is the default. Choose a category to expand it, use space to check skills, and select **← Back to categories** to collapse it while keeping your choices. Revisit categories before continuing to review and install.
 
 ## Supported agents
 
@@ -44,9 +44,35 @@ grimoire install -s skill-forge -t codex --overwrite
 
 The executable is `grimoire`. Run `grimoire --help` for all options. Repeat `-s` to install multiple skills; use `--target-dir` for an isolated destination.
 
+## Available skills
+
+The catalog is the source of truth for these categories; descriptions below come from each skill's `SKILL.md` metadata.
+
+| Category | Skill | Description |
+| --- | --- | --- |
+| Agent Skills | `skill-forge` | Designs, authors, validates, and optimizes new Agent Skills. |
+| Agent Skills | `using-agent-skills` | Discovers and invokes the right Grimoire skill for a task. |
+| Agent Skills | `memory-management` | Maintains lightweight project decisions and error-pattern memory. |
+| Code Quality & Testing | `code-review-and-quality` | Reviews correctness, readability, architecture, security, and performance with severity labels. |
+| Code Quality & Testing | `test-driven-development` | Drives implementation with failing tests first, then passing tests and refactoring. |
+| Code Quality & Testing | `doubt-driven-development` | Applies adversarial review to non-trivial decisions before they stand. |
+| Code Quality & Testing | `debugging-and-error-recovery` | Guides systematic reproduce, localize, reduce, fix, and guard debugging. |
+| Code Quality & Testing | `typescript-patterns` | Covers type-safe TypeScript patterns including unions, generics, and narrowing. |
+| Code Quality & Testing | `code-simplification` | Simplifies code for clarity while preserving exact behavior. |
+| Delivery & Repository | `shipping-and-launch` | Prepares production launches with rollout, monitoring, and rollback planning. |
+| Security & Reliability | `security-and-hardening` | Hardens code against vulnerabilities using OWASP and boundary-focused practices. |
+| Delivery & Repository | `git-worktree` | Uses isolated Git worktrees for parallel feature branches. |
+| Delivery & Repository | `git-commit-learning` | Extracts reusable project lessons from Git history and commits. |
+| Delivery & Repository | `deprecation-and-migration` | Manages deprecation and migration of old systems, APIs, and features. |
+| Planning & Specification | `spec-driven` | Plans and implements work through adaptive specification, design, tasks, and execution phases. |
+| Planning & Specification | `spec-loop` | Executes specification artifacts milestone by milestone with verification gates. |
+| Planning & Specification | `idea-refine` | Turns raw ideas into sharp, actionable concepts through divergent and convergent thinking. |
+| Planning & Specification | `interview-me` | Extracts underlying intent through a focused one-question-at-a-time interview. |
+| Professional Development | `linkedin-audit` | Audits LinkedIn profiles with scored sections, diagnostics, rewrites, and a dashboard. |
+
 ## Why Grimoire
 
-- **One catalog:** skills are organized into Build & Design, Testing & Quality, Security & Operations, Agent Craft, and Planning & Collaboration.
+- **One catalog:** skills are organized into Agent Skills, Code Quality & Testing, Delivery & Repository, Planning & Specification, Security & Reliability, and Professional Development.
 - **Project-aware:** detection reads common project files and recommends relevant skills.
 - **Explicit installs:** existing skills are skipped by default; conflicts require an overwrite choice or `--overwrite`.
 - **Trackable work:** project installs can be recorded in `.grimoire-lock.json`.
