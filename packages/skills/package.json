@@ -1,7 +1,7 @@
 {
-  "name": "@runecraft/skills",
+  "name": "@runecraft/grimoire",
   "version": "0.19.1",
-  "description": "Agent skill catalog — SKILL.md packages for pi, claude, codex and opencode, with an interactive installer TUI",
+  "description": "Interactive catalog and installer for agent skills",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -11,15 +11,16 @@
     "access": "public"
   },
   "bin": {
-    "runecraft-skills": "dist/skills.js"
+    "grimoire": "dist/grimoire.js"
   },
   "files": [
     "skills/",
     "references/",
-    "dist/"
+    "dist/",
+    "catalog.json"
   ],
   "scripts": {
-    "build": "bun build src/index.ts --target=node --format=esm --outfile dist/skills.js && chmod +x dist/skills.js",
+    "build": "rm -rf dist && bun build src/index.ts --target=node --format=esm --outfile dist/grimoire.js && chmod +x dist/grimoire.js",
     "dev": "bun run src/index.ts",
     "lint": "bun run typecheck",
     "test": "bun test",
@@ -28,7 +29,7 @@
     "prepublishOnly": "bun run build"
   },
   "keywords": [
-    "runecraft",
+    "grimoire",
     "agent",
     "skills",
     "prompts",

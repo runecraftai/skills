@@ -35,7 +35,7 @@ SPECIFY → (DESIGN) → (TASKS) → EXECUTE → VERIFY → LEARN
 
 ### Installation
 
-Install with the catalog installer (`npx @runecraft/skills install`) or copy the skill folder manually — see the [catalog README](../../README.md) for targets and options.
+Install with the catalog installer (`npx @runecraft/grimoire install`) or copy the skill folder manually — see the [catalog README](../../README.md) for targets and options.
 
 ### First Commands
 

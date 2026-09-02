@@ -27,7 +27,7 @@ Baseado nos princípios de Context Engineering e nas práticas de desenvolviment
 
 ### Installation
 
-Install with the catalog installer (`npx @runecraft/skills install`) or copy the skill folder manually — see the [catalog README](../../README.md) for targets and options.
+Install with the catalog installer (`npx @runecraft/grimoire install`) or copy the skill folder manually — see the [catalog README](../../README.md) for targets and options.
 
 ### Common Triggers (PT/EN)
 

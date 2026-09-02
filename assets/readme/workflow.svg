@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
   <title id="title">How Runecraft Skills works</title>
-  <desc id="desc">One skills catalog feeds the runecraft-skills installer, which copies selected skill folders into the skills directory of the chosen agent: pi, claude, codex, or opencode.</desc>
+  <desc id="desc">One skills catalog feeds the grimoire installer, which copies selected skill folders into the skills directory of the chosen agent: pi, claude, codex, or opencode.</desc>
 
   <rect width="1200" height="360" rx="24" fill="#0d1117"/>
 
@@ -31,7 +31,7 @@
   <g id="installer" transform="translate(336 148)">
     <rect width="420" height="96" rx="14" fill="#21262d" stroke="#c9a24a" stroke-width="1.5"/>
     <text x="20" y="42" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#c9a24a">❯</text>
-    <text x="44" y="42" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#e6edf3">npx @runecraft/skills install</text>
+    <text x="44" y="42" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20" fill="#e6edf3">npx @runecraft/grimoire install</text>
     <text x="20" y="74" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" fill="#8b949e">pick skills · pick agent · copy folders</text>
   </g>
 

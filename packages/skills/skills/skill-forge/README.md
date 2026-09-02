@@ -35,7 +35,7 @@ DISCOVER → DESIGN → AUTHOR → VALIDATE → OPTIMIZE → DELIVER
 
 ### Installation
 
-Install manually by copying `skills/skill-forge/` into your agent's skills directory, or use the `runecraft-skills` installer TUI shipped with the package (see the [catalog README](../../README.md)):
+Install manually by copying `skills/skill-forge/` into your agent's skills directory, or use the `grimoire` installer TUI shipped with the package (see the [catalog README](../../README.md)):
 
 | Agent | Path |
 |---|---|
@@ -144,7 +144,7 @@ Works with any agent that follows the open SKILL.md format.
 
 ## 📦 Catalog
 
-This skill is part of the [Runecraft Skills](https://github.com/runecraftai/skills) catalog, distributed via the [`@runecraft/skills`](https://www.npmjs.com/package/@runecraft/skills) npm package.
+This skill is part of the [Runecraft Skills](https://github.com/runecraftai/skills) catalog, distributed via the [`@runecraft/grimoire`](https://www.npmjs.com/package/@runecraft/grimoire) npm package.
 
 ---
 

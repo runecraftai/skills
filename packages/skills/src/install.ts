@@ -1,75 +1,16 @@
-/**
- * Install logic: copy selected skill folders from the catalog into a target
- * skills directory, deciding per skill whether to skip (already installed),
- * overwrite, or fail (not in catalog / copy error).
- *
- * Pure filesystem code — the interactive TUI and the scripting flag path both
- * drive this, and tests exercise it against temp directories only.
- */
-import { cpSync, existsSync, mkdirSync, rmSync, statSync } from "node:fs";
-import { join } from "node:path";
-
-export interface InstallOptions {
-  /** Source catalog directory (the package's skills/ folder). */
-  catalogDir: string;
-  /** Destination skills directory (e.g. ~/.pi/agent/skills). Created if missing. */
-  targetDir: string;
-  /** Skill folder names to install. */
-  names: string[];
-  /** When false (default), existing installations are skipped, not replaced. */
-  overwrite?: boolean;
-  /** Progress hook invoked before each skill copy (for spinner UX). */
-  onStatus?: (skillName: string) => void;
-}
-
-export interface InstallResult {
-  installed: string[];
-  overwritten: string[];
-  skipped: string[];
-  failed: { name: string; error: string }[];
-}
-
-/** Which of the given skills are already present in the target directory. */
-export function findConflicts(targetDir: string, names: string[]): string[] {
-  return names.filter((name) => existsSync(join(targetDir, name)));
-}
-
-export function installSkills(opts: InstallOptions): InstallResult {
-  const result: InstallResult = { installed: [], overwritten: [], skipped: [], failed: [] };
-  mkdirSync(opts.targetDir, { recursive: true });
-
-  for (const name of opts.names) {
-    opts.onStatus?.(name);
-    const src = join(opts.catalogDir, name);
-    const dest = join(opts.targetDir, name);
-
-    let isDir = false;
-    try {
-      isDir = statSync(src).isDirectory();
-    } catch {
-      isDir = false;
-    }
-    if (!isDir) {
-      result.failed.push({ name, error: `not found in catalog: ${name}` });
-      continue;
-    }
-
-    const exists = existsSync(dest);
-    if (exists && !opts.overwrite) {
-      result.skipped.push(name);
-      continue;
-    }
-
-    try {
-      if (exists && statSync(dest).isDirectory()) {
-        rmSync(dest, { recursive: true, force: true });
-      }
-      cpSync(src, dest, { recursive: true, force: true });
-      (exists ? result.overwritten : result.installed).push(name);
-    } catch (err) {
-      result.failed.push({ name, error: err instanceof Error ? err.message : String(err) });
-    }
-  }
-
-  return result;
-}
+import { createHash } from "node:crypto";
+import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync } from "node:fs";
+import { join, relative, resolve, sep } from "node:path";
+import { safeSkillName } from "./agents.js";
+import type { RegistrySkill } from "./registry.js";
+export interface InstallResult { installed: string[]; overwritten: string[]; skipped: string[]; failed: { name: string; error: string }[]; }
+export interface InstallOptions { catalogDir: string; targetDir: string; names: string[]; overwrite?: boolean; onStatus?: (name: string) => void; }
+function assertNoSymlinks(path: string) { const absolute = resolve(path); let current = absolute.startsWith(sep) ? sep : ""; for (const part of absolute.slice(current.length).split(sep).filter(Boolean)) { current = join(current, part); if (lstatSync(current, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error("target path cannot contain symlinks"); } }
+function assertTarget(dir: string) { const target = resolve(dir); assertNoSymlinks(target); mkdirSync(target, { recursive: true }); if (realpathSync(target) !== target) throw new Error("target path cannot contain symlinks"); return target; }
+function assertCatalog(dir: string, name: string) { if (!lstatSync(dir, { throwIfNoEntry: false })?.isDirectory()) throw new Error(`invalid catalog entry: ${name}`); for (const e of readdirSync(dir, { withFileTypes: true })) { if (e.isSymbolicLink()) throw new Error(`catalog skill cannot contain symlinks: ${name}`); if (e.isDirectory()) assertCatalog(join(dir, e.name), name); } }
+export function skillHash(dir: string): string { const hash = createHash("sha256"); const walk = (current: string) => { for (const e of readdirSync(current, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) { const path = join(current, e.name); if (e.isDirectory()) walk(path); else { hash.update(relative(dir, path)); hash.update(readFileSync(path)); } } }; walk(dir); return `sha256:${hash.digest("hex")}`; }
+export function findConflicts(targetDir: string, names: string[]) { return names.filter((name) => existsSync(join(targetDir, name))); }
+export function installSkills(opts: InstallOptions): InstallResult { const result: InstallResult = { installed: [], overwritten: [], skipped: [], failed: [] }; const target = assertTarget(opts.targetDir); for (const name of opts.names) { opts.onStatus?.(name); try { if (!safeSkillName(name)) throw new Error(`unsafe skill name: ${name}`); const src = join(opts.catalogDir, name); if (!lstatSync(src, { throwIfNoEntry: false })?.isDirectory()) throw new Error(`not found in catalog: ${name}`); assertCatalog(src, name); const dest = resolve(target, name); if (!dest.startsWith(target + sep)) throw new Error("skill destination escapes target directory"); if (lstatSync(dest, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error("skill destination cannot be a symlink"); const exists = existsSync(dest); if (exists && !lstatSync(dest).isDirectory()) throw new Error("skill destination must be a directory"); if (exists && !opts.overwrite) { result.skipped.push(name); continue; } if (exists) rmSync(dest, { recursive: true, force: true }); cpSync(src, dest, { recursive: true }); (exists ? result.overwritten : result.installed).push(name); } catch (error) { result.failed.push({ name, error: error instanceof Error ? error.message : String(error) }); } } return result; }
+export function installSkill(skill: RegistrySkill, targetDir: string, overwrite = false): "installed" | "updated" | "skipped" { const result = installSkills({ catalogDir: join(skill.dir, ".."), targetDir, names: [skill.name], overwrite }); if (result.failed.length) throw new Error(result.failed[0].error); return result.installed.length ? "installed" : result.overwritten.length ? "updated" : "skipped"; }
+export function removeSkill(name: string, targetDir: string): boolean { if (!safeSkillName(name)) throw new Error(`unsafe skill name: ${name}`); const target = assertTarget(targetDir); const path = resolve(target, name); if (lstatSync(path, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error("skill destination cannot be a symlink"); if (!existsSync(path)) return false; rmSync(path, { recursive: true, force: true }); return true; }
+export function installedSkillNames(targetDir: string): string[] { return readdirSync(assertTarget(targetDir), { withFileTypes: true }).filter((e) => e.isDirectory() && !e.isSymbolicLink()).map((e) => e.name); }

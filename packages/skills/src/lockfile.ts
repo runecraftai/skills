@@ -5,7 +5,7 @@ export interface Lockfile { version: 1; generated: string; registry: string; ski
 export function lockPath(projectDir: string): string { return join(projectDir, ".grimoire-lock.json"); }
 export function readLockfile(projectDir: string): Lockfile {
   try { const lock = JSON.parse(readFileSync(lockPath(projectDir), "utf8")); if (lock.version === 1 && lock.skills) return lock; } catch {}
-  return { version: 1, generated: new Date().toISOString(), registry: "runecraftai/skills", skills: {} };
+  return { version: 1, generated: new Date().toISOString(), registry: "runecraftai/grimoire", skills: {} };
 }
 export function writeLockfile(projectDir: string, lock: Lockfile): void { writeFileSync(lockPath(projectDir), `${JSON.stringify(lock, null, 2)}\n`); }
 export function updateLock(lock: Lockfile, name: string, entry: LockedSkill): Lockfile {
