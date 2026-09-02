@@ -27,8 +27,7 @@ jobs:
       - uses: changesets/action@v1
         with:
           version: bun run version
-          publish: npm publish --access public
-          working-directory: packages/skills
+          publish: npx changeset publish
           title: "chore: version packages"
           commit: "chore: version packages"
           createGithubReleases: true
