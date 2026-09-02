@@ -60,7 +60,7 @@ For a user-facing change, create a Changeset with `bun changeset` and commit the
 
 ## CI/CD
 
-Pull requests and pushes to `main` run lint, tests, and the build through Turborepo. Changesets on `main` version packages and create a `v*` tag. Tagged releases currently publish `packages/skills` to npm using the repository's `NPM_TOKEN` secret.
+Pull requests and pushes to `main` run lint, tests, and the build through Turborepo. Changesets on `main` version the published skills package and create a `v*` tag. Tagged releases currently publish `packages/skills` to npm using the repository's `NPM_TOKEN` secret.
 
 ## License
 
