@@ -2,6 +2,11 @@
   "name": "@runecraft/grimoire",
   "version": "1.1.0",
   "description": "Interactive catalog and installer for agent skills",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/runecraftai/skills.git",
+    "directory": "packages/skills"
+  },
   "license": "MIT",
   "type": "module",
   "engines": {
