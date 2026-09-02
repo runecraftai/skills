@@ -38,12 +38,18 @@ export function isTargetId(value: string): value is TargetId {
 export interface PathContext {
   home?: string;
   env?: Record<string, string | undefined>;
+  projectDir?: string;
+  global?: boolean;
 }
 
 /** Resolve the skills directory for an agent, honoring the agent's own env conventions. */
 export function resolveSkillsDir(id: TargetId, ctx: PathContext = {}): string {
   const home = ctx.home ?? homedir();
   const env = ctx.env ?? process.env;
+  if (ctx.global === false) {
+    const projectPaths: Record<TargetId, string> = { pi: ".pi/agent/skills", claude: ".claude/skills", codex: ".codex/skills", opencode: ".opencode/skills" };
+    return join(ctx.projectDir ?? process.cwd(), projectPaths[id]);
+  }
   switch (id) {
     case "pi":
       return join(env.PI_HOME ?? join(home, ".pi"), "agent", "skills");
