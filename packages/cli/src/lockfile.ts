@@ -10,4 +10,8 @@ export function readLockfile(projectDir: string): Lockfile {
 export function writeLockfile(projectDir: string, lock: Lockfile): void { writeFileSync(lockPath(projectDir), `${JSON.stringify(lock, null, 2)}\n`); }
 export function updateLock(lock: Lockfile, name: string, entry: LockedSkill): Lockfile { lock.generated = new Date().toISOString(); lock.skills[name] = entry; return lock; }
 export function removeLock(lock: Lockfile, name: string): boolean { const existed = Boolean(lock.skills[name]); delete lock.skills[name]; lock.generated = new Date().toISOString(); return existed; }
+export function removeLockAgent(lock: Lockfile, name: string, agent: string): boolean {
+  const entry = lock.skills[name]; if (!entry) return false;
+  entry.agents = entry.agents.filter((id) => id !== agent); if (!entry.agents.length) delete lock.skills[name]; lock.generated = new Date().toISOString(); return true;
+}
 export function hasLockfile(projectDir: string): boolean { return existsSync(lockPath(projectDir)); }

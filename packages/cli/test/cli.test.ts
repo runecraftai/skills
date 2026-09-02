@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { detectStack } from "../src/detect.js";
@@ -31,6 +31,12 @@ describe("installation and lockfile", () => {
   test("rejects path traversal", () => {
     const root = temp(); const source = join(root, "alpha"); mkdirSync(source); writeFileSync(join(source, "SKILL.md"), "x");
     expect(() => installSkill({ name: "../escape", description: "", version: "1", dir: source }, join(root, "target"))).toThrow("unsafe skill name");
+  });
+  test("rejects symlinked target directories", () => {
+    const root = temp(); const outside = temp(); const source = join(root, "alpha"); mkdirSync(source); writeFileSync(join(source, "SKILL.md"), "x");
+    const target = join(root, "target"); symlinkSync(outside, target);
+    expect(() => installSkill({ name: "alpha", description: "", version: "1", dir: source }, target)).toThrow("target path cannot contain symlinks");
+    expect(readFileSync(join(source, "SKILL.md"), "utf8")).toBe("x");
   });
 });
 

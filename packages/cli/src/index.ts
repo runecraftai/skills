@@ -6,8 +6,8 @@ import * as readline from "node:readline/promises";
 import { stdin, stdout } from "node:process";
 import { agentPath, AGENTS, getAgent, type Agent } from "./agents.js";
 import { detectStack } from "./detect.js";
-import { installSkill, removeSkill, skillHash } from "./install.js";
-import { readLockfile, removeLock, updateLock, writeLockfile } from "./lockfile.js";
+import { installedSkillNames, installSkill, removeSkill, skillHash } from "./install.js";
+import { readLockfile, removeLockAgent, updateLock, writeLockfile } from "./lockfile.js";
 import { findSkill, readRegistry, type RegistrySkill } from "./registry.js";
 
 const projectDir = resolve(process.cwd());
@@ -47,8 +47,8 @@ function status(): void { const lock = readLockfile(projectDir); const names = O
 function info(name: string): void { const skill = findSkill(catalogDir, name) ?? fail(`skill not found: ${name}`); console.log(`${skill.name}@${skill.version}\n${skill.description}\npath: ${skill.dir}`); }
 async function main(): Promise<void> { const raw = process.argv.slice(2); if (!raw.length) return wizard(); const command = raw[0]; if (command === "--help" || command === "-h") return console.log(usage); const { positional, opts } = options(raw.slice(1)); if (positional.includes("--help")) return console.log(usage);
   if (command === "list") return list(); if (command === "search") return list(positional[0]); if (command === "status") return status(); if (command === "info") return info(positional[0] ?? fail("info requires a skill"));
-  if (command === "remove") { const name = positional[0] ?? fail("remove requires a skill"); const agents = validAgents(opts.agents); for (const agent of agents) console.log(removeSkill(name, agentPath(agent, projectDir, opts.global)) ? `removed: ${name} (${agent.id})` : `not installed: ${name} (${agent.id})`); const lock = readLockfile(projectDir); removeLock(lock, name); writeLockfile(projectDir, lock); return; }
-  if (command === "update") { const lock = readLockfile(projectDir); const names = positional.length ? positional : Object.keys(lock.skills); return install(names, { ...opts, overwrite: true }); }
+  if (command === "remove") { const name = positional[0] ?? fail("remove requires a skill"); const agents = validAgents(opts.agents); for (const agent of agents) console.log(removeSkill(name, agentPath(agent, projectDir, opts.global)) ? `removed: ${name} (${agent.id})` : `not installed: ${name} (${agent.id})`); if (!opts.global) { const lock = readLockfile(projectDir); for (const agent of agents) removeLockAgent(lock, name, agent.id); writeLockfile(projectDir, lock); } return; }
+  if (command === "update") { const lock = readLockfile(projectDir); const names = positional.length ? positional : opts.global ? [...new Set(validAgents(opts.agents).flatMap((agent) => installedSkillNames(agentPath(agent, projectDir, true)))].filter((name) => findSkill(catalogDir, name)) : Object.keys(lock.skills); return install(names, { ...opts, overwrite: true }); }
   if (command === "install") { const detected = detectStack(projectDir); if (!positional.length && detected.skills.length) console.log(`Based on your stack (${detected.stack.join(", ")}), suggested: ${detected.skills.join(", ")}`); return install(positional, opts, detected.skills); }
   fail(`unknown command: ${command}`);
 }
