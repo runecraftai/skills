@@ -1,5 +1,6 @@
 import { cancel, intro, isCancel, log, multiselect, note, outro, select, spinner } from "@clack/prompts";
 import { resolve } from "node:path";
+import { Transform } from "node:stream";
 import { findConflicts, installSkills, skillHash, type InstallResult } from "./install.js";
 import { categories, findSkill, listSkills } from "./registry.js";
 import { readLockfile, updateLock, writeLockfile } from "./lockfile.js";
@@ -11,6 +12,29 @@ const cancelled = () => { cancel("Installation cancelled."); return 1; };
 function report(result: InstallResult, target: string, home: string) { if (result.installed.length) log.success(`Installed: ${result.installed.join(", ")}`); if (result.overwritten.length) log.info(`Overwritten: ${result.overwritten.join(", ")}`); if (result.skipped.length) log.warn(`Skipped (already installed): ${result.skipped.join(", ")}`); for (const f of result.failed) log.error(`${f.name}: ${f.error}`); note(`Install target: ${displayPath(target, home)}`, "Done"); }
 
 const CONTINUE = "__continue__";
+
+/** Make navigation keys submit the current Clack multiselect selection. */
+function backNavigationInput() {
+  const input = process.stdin;
+  let pending = "";
+  const adapter = new Transform({
+    transform(chunk, _encoding, callback) {
+      const value = pending + chunk.toString();
+      pending = value.endsWith("\x1b") ? "\x1b" : value.endsWith("\x1b[") ? "\x1b[" : "";
+      const complete = pending ? value.slice(0, -pending.length) : value;
+      callback(null, complete.replace(/\x1b\[D|\x7f|\x08/g, "\r"));
+    },
+    flush(callback) {
+      callback(null, pending);
+    },
+  });
+  Object.assign(adapter, {
+    isTTY: input.isTTY,
+    setRawMode: (mode: boolean) => input.setRawMode?.(mode),
+  });
+  input.pipe(adapter);
+  return { adapter, close: () => { input.unpipe(adapter); adapter.destroy(); } };
+}
 
 /** Browse categories while keeping selections across every category visit. */
 export async function selectSkillsByCategory(grouped: ReturnType<typeof categories>): Promise<string[] | null> {
@@ -28,12 +52,19 @@ export async function selectSkillsByCategory(grouped: ReturnType<typeof categori
     if (root === CONTINUE) return grouped.flatMap((category) => [...(selectedByCategory.get(category.name) ?? [])]);
     const category = grouped.find((c) => c.name === root);
     if (!category) continue;
-    const picked = await multiselect({
-      message: `${category.name} — select skills (space to toggle, enter to collapse)`,
-      options: category.skills.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description) })),
-      initialValues: [...(selectedByCategory.get(category.name) ?? [])],
-      required: true,
-    });
+    const navigationInput = backNavigationInput();
+    let picked: string | symbol | string[] | undefined;
+    try {
+      picked = await multiselect({
+        message: `${category.name} — select skills (space to toggle, backspace/← to return)`,
+        options: category.skills.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description) })),
+        initialValues: [...(selectedByCategory.get(category.name) ?? [])],
+        required: true,
+        input: navigationInput.adapter,
+      });
+    } finally {
+      navigationInput.close();
+    }
     if (isCancel(picked)) return null;
     const categorySelected = selectedByCategory.get(category.name);
     if (!categorySelected) continue;
