@@ -1,8 +1,21 @@
-# Grimoire
+<p align="center">
+  <img src="./assets/readme/grimoire-flow.svg" width="100%" alt="Grimoire discovers agent skills from categories or project detection, then installs them for your coding agent">
+</p>
 
-Grimoire is a catalog of reusable `SKILL.md` workflows for coding agents, with one safe interactive installer. Browse skills by category or let Grimoire inspect the current project and recommend a starting set.
+<h1 align="center">Grimoire</h1>
 
-## Quick start
+<p align="center">A curated skill catalog and safe installer for coding agents.</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@runecraft/grimoire"><img src="https://img.shields.io/npm/v/@runecraft/grimoire?color=6874ff&label=npm" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@runecraft/grimoire"><img src="https://img.shields.io/npm/dm/@runecraft/grimoire?color=58d6b0&label=downloads" alt="monthly npm downloads"></a>
+  <a href="https://github.com/runecraftai/skills/actions/workflows/ci.yml"><img src="https://github.com/runecraftai/skills/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+  <a href="https://github.com/runecraftai/skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-f0b86e" alt="MIT license"></a>
+</p>
+
+Grimoire puts reusable `SKILL.md` workflows in the right place for your agent. Browse by category, detect what your project needs, review the selection, and confirm before anything is installed.
+
+## Start here
 
 ```bash
 npx @runecraft/grimoire
@@ -10,31 +23,33 @@ npx @runecraft/grimoire
 bunx @runecraft/grimoire
 ```
 
-Both commands launch the same flow: choose a category or **Detect project skills**, review the multi-selection, choose a destination agent, and explicitly confirm installation. Nothing is installed before confirmation.
+The interactive flow is the default. It lets you choose a category or **Detect project skills**, select one or more skills, choose a destination, and confirm the install.
 
 ## Supported agents
 
-Grimoire currently supports pi, Claude Code, Codex CLI, and OpenCode. Destinations follow each agent's conventional skills directory and honor their supported environment overrides.
+- [Pi](https://github.com/badlogic/pi-mono)
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+- [Codex CLI](https://github.com/openai/codex)
+- [OpenCode](https://opencode.ai/)
 
 ## Commands
 
 ```bash
-grimoire list                         # list every catalog entry
-grimoire search typescript             # search names, descriptions, and categories
-grimoire detect                        # print project recommendations
-grimoire install -s spec-driven -t pi  # noninteractive installation
+grimoire list                              # list catalog entries
+grimoire search typescript                 # search names, descriptions, and categories
+grimoire detect                            # recommend skills for this project
+grimoire install -s spec-driven -t pi       # install without the TUI
 grimoire install -s skill-forge -t codex --overwrite
 ```
 
-The executable is `grimoire`; use `grimoire --help` for all options. `--target-dir` supports automation and isolated test destinations. Noninteractive commands require explicit skill and agent selections.
+The executable is `grimoire`. Run `grimoire --help` for all options. Repeat `-s` to install multiple skills; use `--target-dir` for an isolated destination.
 
-## Categories
+## Why Grimoire
 
-The catalog is organized into Build & Design, Testing & Quality, Security & Operations, Agent Craft, and Planning & Collaboration. Every bundled skill appears in a category and remains available through search.
-
-## Safety
-
-Installation copies catalog skill directories into the selected agent destination. Existing skills are skipped by default; `--overwrite` or the interactive conflict choice replaces them. Project installations can be tracked in `.grimoire-lock.json`. Path isolation, catalog symlink checks, and skill-name validation protect destinations from traversal and symlink surprises.
+- **One catalog:** skills are organized into Build & Design, Testing & Quality, Security & Operations, Agent Craft, and Planning & Collaboration.
+- **Project-aware:** detection reads common project files and recommends relevant skills.
+- **Explicit installs:** existing skills are skipped by default; conflicts require an overwrite choice or `--overwrite`.
+- **Trackable work:** project installs can be recorded in `.grimoire-lock.json`.
 
 ## Development
 
@@ -47,12 +62,6 @@ bun run build
 npm pack --dry-run --workspace @runecraft/grimoire
 ```
 
-The catalog lives in `packages/skills/skills/`; category metadata is in `packages/skills/catalog.json`. Add a skill folder with `SKILL.md`, then add its name to a category. Run the skill validator when changing skill structure:
-
-```bash
-python3 packages/skills/skills/skill-forge/scripts/validate.py packages/skills/skills/skill-forge
-```
-
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
