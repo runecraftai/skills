@@ -13,7 +13,7 @@
   <a href="https://github.com/runecraftai/skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-f0b86e" alt="MIT license"></a>
 </p>
 
-Grimoire puts reusable `SKILL.md` workflows in the right place for your agent. Browse by category, detect what your project needs, review the selection, and confirm before anything is installed.
+Grimoire puts reusable `SKILL.md` workflows in the right place for your agent. Browse by category, detect what your project needs, choose skills, and confirm before anything is installed.
 
 ## Start here
 
@@ -23,7 +23,7 @@ npx @runecraft/grimoire
 bunx @runecraft/grimoire
 ```
 
-The interactive flow is the default. Choose a category to expand it, use space to check skills, and select **← Back to categories** to collapse it while keeping your choices. Revisit categories before continuing to review and install.
+The interactive flow is the default. Choose a category to expand it, use space to toggle skills, and press Backspace or ArrowLeft to return to the category list while keeping your choices. Revisit categories before continuing; selected skills are installed after you choose a destination and confirm installation.
 
 ## Supported agents
 
