@@ -1,5 +1,11 @@
 # @runecraft/grimoire
 
+## 1.1.1
+
+### Patch Changes
+
+- d49f8e1: Refine category navigation UX: backspace/arrow-left back navigation, visual selected-state indicators, skill-only checkboxes
+
 ## 1.1.0
 
 ### Minor Changes
