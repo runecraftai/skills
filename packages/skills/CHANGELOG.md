@@ -1,4 +1,4 @@
-# @runecraft/skills
+# @runecraft/grimoire
 
 ## 1.0.0
 

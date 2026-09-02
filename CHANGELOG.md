@@ -1,4 +1,4 @@
-# @runecraft/skills
+# @runecraft/grimoire
 
 ## 0.19.1
 
