@@ -47,7 +47,7 @@ export function resolveSkillsDir(id: TargetId, ctx: PathContext = {}): string {
   const home = ctx.home ?? homedir();
   const env = ctx.env ?? process.env;
   if (ctx.global === false) {
-    const projectPaths: Record<TargetId, string> = { pi: ".pi/agent/skills", claude: ".claude/skills", codex: ".codex/skills", opencode: ".opencode/skills" };
+    const projectPaths: Record<TargetId, string> = { pi: ".pi/skills", claude: ".claude/skills", codex: ".codex/skills", opencode: ".opencode/skills" };
     return join(ctx.projectDir ?? process.cwd(), projectPaths[id]);
   }
   switch (id) {
