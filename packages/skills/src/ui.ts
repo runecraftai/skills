@@ -10,7 +10,6 @@ const hint = (s: string) => s.replace(/\s+/g, " ").trim().slice(0, 90);
 const cancelled = () => { cancel("Installation cancelled."); return 1; };
 function report(result: InstallResult, target: string, home: string) { if (result.installed.length) log.success(`Installed: ${result.installed.join(", ")}`); if (result.overwritten.length) log.info(`Overwritten: ${result.overwritten.join(", ")}`); if (result.skipped.length) log.warn(`Skipped (already installed): ${result.skipped.join(", ")}`); for (const f of result.failed) log.error(`${f.name}: ${f.error}`); note(`Install target: ${displayPath(target, home)}`, "Done"); }
 
-const BACK = "__back__";
 const CONTINUE = "__continue__";
 
 /** Browse categories while keeping selections across every category visit. */
@@ -19,7 +18,10 @@ export async function selectSkillsByCategory(grouped: ReturnType<typeof categori
   while (true) {
     const selected = [...selectedByCategory.values()].reduce((count, skills) => count + skills.size, 0);
     const root = await select({ message: `Choose a category (${selected} selected)`, options: [
-      ...grouped.map((c) => ({ value: c.name, label: c.name, hint: `${c.skills.length} skill(s), ${selectedByCategory.get(c.name)?.size ?? 0} selected` })),
+      ...grouped.map((c) => {
+        const categorySelected = selectedByCategory.get(c.name)?.size ?? 0;
+        return { value: c.name, label: `${categorySelected > 0 ? "✓ " : ""}${c.name}`, hint: `${c.skills.length} skill(s), ${categorySelected} selected` };
+      }),
       ...(selected > 0 ? [{ value: CONTINUE, label: "Continue with selected skills", hint: "Review and install" }] : []),
     ] });
     if (isCancel(root)) return null;
@@ -28,10 +30,7 @@ export async function selectSkillsByCategory(grouped: ReturnType<typeof categori
     if (!category) continue;
     const picked = await multiselect({
       message: `${category.name} — select skills (space to toggle, enter to collapse)`,
-      options: [
-        ...category.skills.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description) })),
-        { value: BACK, label: "← Back to categories", hint: "Keep these choices and choose another category" },
-      ],
+      options: category.skills.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description) })),
       initialValues: [...(selectedByCategory.get(category.name) ?? [])],
       required: true,
     });
@@ -39,7 +38,7 @@ export async function selectSkillsByCategory(grouped: ReturnType<typeof categori
     const categorySelected = selectedByCategory.get(category.name);
     if (!categorySelected) continue;
     categorySelected.clear();
-    for (const name of picked as string[]) if (name !== BACK) categorySelected.add(name);
+    for (const name of picked as string[]) categorySelected.add(name);
   }
 }
 
