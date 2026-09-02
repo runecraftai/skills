@@ -1,5 +1,6 @@
 import { cancel, intro, isCancel, log, multiselect, note, outro, select, spinner } from "@clack/prompts";
 import { resolve } from "node:path";
+import { Transform } from "node:stream";
 import { findConflicts, installSkills, skillHash, type InstallResult } from "./install.js";
 import { categories, findSkill, listSkills } from "./registry.js";
 import { readLockfile, updateLock, writeLockfile } from "./lockfile.js";
@@ -10,8 +11,45 @@ const hint = (s: string) => s.replace(/\s+/g, " ").trim().slice(0, 90);
 const cancelled = () => { cancel("Installation cancelled."); return 1; };
 function report(result: InstallResult, target: string, home: string) { if (result.installed.length) log.success(`Installed: ${result.installed.join(", ")}`); if (result.overwritten.length) log.info(`Overwritten: ${result.overwritten.join(", ")}`); if (result.skipped.length) log.warn(`Skipped (already installed): ${result.skipped.join(", ")}`); for (const f of result.failed) log.error(`${f.name}: ${f.error}`); note(`Install target: ${displayPath(target, home)}`, "Done"); }
 
-const BACK = "__back__";
 const CONTINUE = "__continue__";
+
+/** Make navigation keys submit the current Clack multiselect selection. */
+function backNavigationInput() {
+  const input = process.stdin;
+  let pending = "";
+  let pendingTimer: ReturnType<typeof setTimeout> | undefined;
+  const flushPending = () => {
+    if (!pending) return;
+    const value = pending;
+    pending = "";
+    adapter.push(value);
+  };
+  const adapter = new Transform({
+    transform(chunk, _encoding, callback) {
+      const value = pending + chunk.toString();
+      pending = value.endsWith("\x1b") ? "\x1b" : value.endsWith("\x1b[") ? "\x1b[" : "";
+      if (pending) {
+        if (pendingTimer) clearTimeout(pendingTimer);
+        pendingTimer = setTimeout(flushPending, 50);
+      } else if (pendingTimer) {
+        clearTimeout(pendingTimer);
+        pendingTimer = undefined;
+      }
+      const complete = pending ? value.slice(0, -pending.length) : value;
+      callback(null, complete.replace(/\x1b\[D|\x7f|\x08/g, "\r"));
+    },
+    flush(callback) {
+      if (pendingTimer) clearTimeout(pendingTimer);
+      callback(null, pending);
+    },
+  });
+  Object.assign(adapter, {
+    isTTY: input.isTTY,
+    setRawMode: (mode: boolean) => input.setRawMode?.(mode),
+  });
+  input.pipe(adapter);
+  return { adapter, close: () => { input.unpipe(adapter); adapter.destroy(); } };
+}
 
 /** Browse categories while keeping selections across every category visit. */
 export async function selectSkillsByCategory(grouped: ReturnType<typeof categories>): Promise<string[] | null> {
@@ -19,27 +57,34 @@ export async function selectSkillsByCategory(grouped: ReturnType<typeof categori
   while (true) {
     const selected = [...selectedByCategory.values()].reduce((count, skills) => count + skills.size, 0);
     const root = await select({ message: `Choose a category (${selected} selected)`, options: [
-      ...grouped.map((c) => ({ value: c.name, label: c.name, hint: `${c.skills.length} skill(s), ${selectedByCategory.get(c.name)?.size ?? 0} selected` })),
+      ...grouped.map((c) => {
+        const categorySelected = selectedByCategory.get(c.name)?.size ?? 0;
+        return { value: c.name, label: `${categorySelected > 0 ? "✓ " : ""}${c.name}`, hint: `${c.skills.length} skill(s), ${categorySelected} selected` };
+      }),
       ...(selected > 0 ? [{ value: CONTINUE, label: "Continue with selected skills", hint: "Review and install" }] : []),
     ] });
     if (isCancel(root)) return null;
     if (root === CONTINUE) return grouped.flatMap((category) => [...(selectedByCategory.get(category.name) ?? [])]);
     const category = grouped.find((c) => c.name === root);
     if (!category) continue;
-    const picked = await multiselect({
-      message: `${category.name} — select skills (space to toggle, enter to collapse)`,
-      options: [
-        ...category.skills.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description) })),
-        { value: BACK, label: "← Back to categories", hint: "Keep these choices and choose another category" },
-      ],
-      initialValues: [...(selectedByCategory.get(category.name) ?? [])],
-      required: true,
-    });
+    const navigationInput = backNavigationInput();
+    let picked: string | symbol | string[] | undefined;
+    try {
+      picked = await multiselect({
+        message: `${category.name} — select skills (space to toggle, backspace/← to return)`,
+        options: category.skills.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description) })),
+        initialValues: [...(selectedByCategory.get(category.name) ?? [])],
+        required: false,
+        input: navigationInput.adapter,
+      });
+    } finally {
+      navigationInput.close();
+    }
     if (isCancel(picked)) return null;
     const categorySelected = selectedByCategory.get(category.name);
     if (!categorySelected) continue;
     categorySelected.clear();
-    for (const name of picked as string[]) if (name !== BACK) categorySelected.add(name);
+    for (const name of picked as string[]) categorySelected.add(name);
   }
 }
 
@@ -51,9 +96,7 @@ export async function runInteractive(ctx: InteractiveContext): Promise<number> {
   const selected = await selectSkillsByCategory(grouped);
   if (selected === null) return cancelled();
   if (!selected.length) return cancelled();
-  const review = await multiselect({ message: `Review selection: ${selected.length} skill(s)`, options: registry.map((s) => ({ value: s.name, label: s.name, hint: s.category })), initialValues: selected, required: true });
-  if (isCancel(review)) return cancelled();
-  const finalSelected = review as string[];
+  const finalSelected = selected;
   const target = ctx.targetDirOverride ? undefined : await select({ message: "Which destination agent should receive them?", options: TARGETS.map((t) => ({ value: t.id, label: t.label, hint: displayPath(resolveSkillsDir(t.id, { home: ctx.home, env: ctx.env, projectDir: ctx.projectDir, global: ctx.global }), ctx.home) })) });
   if (target !== undefined && isCancel(target)) return cancelled();
   const targetDir = ctx.targetDirOverride ?? resolveSkillsDir(target as TargetId, { home: ctx.home, env: ctx.env, projectDir: ctx.projectDir, global: ctx.global });
