@@ -13,29 +13,33 @@ function report(result: InstallResult, target: string, home: string) { if (resul
 const BACK = "__back__";
 const CONTINUE = "__continue__";
 
-/** Browse categories while keeping one selection set across every category visit. */
+/** Browse categories while keeping selections across every category visit. */
 export async function selectSkillsByCategory(grouped: ReturnType<typeof categories>): Promise<string[] | null> {
-  const selected = new Set<string>();
+  const selectedByCategory = new Map(grouped.map((category) => [category.name, new Set<string>()]));
   while (true) {
-    const root = await select({ message: `Choose a category (${selected.size} selected)`, options: [
-      ...grouped.map((c) => ({ value: c.name, label: c.name, hint: `${c.skills.length} skill(s), ${c.skills.filter((s) => selected.has(s.name)).length} selected` })),
-      ...(selected.size ? [{ value: CONTINUE, label: "Continue with selected skills", hint: "Review and install" }] : []),
+    const selected = [...selectedByCategory.values()].reduce((count, skills) => count + skills.size, 0);
+    const root = await select({ message: `Choose a category (${selected} selected)`, options: [
+      ...grouped.map((c) => ({ value: c.name, label: c.name, hint: `${c.skills.length} skill(s), ${selectedByCategory.get(c.name)?.size ?? 0} selected` })),
+      ...(selected > 0 ? [{ value: CONTINUE, label: "Continue with selected skills", hint: "Review and install" }] : []),
     ] });
     if (isCancel(root)) return null;
-    if (root === CONTINUE) return [...selected];
+    if (root === CONTINUE) return grouped.flatMap((category) => [...(selectedByCategory.get(category.name) ?? [])]);
     const category = grouped.find((c) => c.name === root);
     if (!category) continue;
     const picked = await multiselect({
       message: `${category.name} — select skills (space to toggle, enter to collapse)`,
       options: [
-        ...category.skills.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description), initialValue: selected.has(s.name) })),
+        ...category.skills.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description) })),
         { value: BACK, label: "← Back to categories", hint: "Keep these choices and choose another category" },
       ],
+      initialValues: [...(selectedByCategory.get(category.name) ?? [])],
       required: true,
     });
     if (isCancel(picked)) return null;
-    for (const skill of category.skills) selected.delete(skill.name);
-    for (const name of picked as string[]) if (name !== BACK) selected.add(name);
+    const categorySelected = selectedByCategory.get(category.name);
+    if (!categorySelected) continue;
+    categorySelected.clear();
+    for (const name of picked as string[]) if (name !== BACK) categorySelected.add(name);
   }
 }
 
@@ -47,7 +51,7 @@ export async function runInteractive(ctx: InteractiveContext): Promise<number> {
   const selected = await selectSkillsByCategory(grouped);
   if (selected === null) return cancelled();
   if (!selected.length) return cancelled();
-  const review = await multiselect({ message: `Review selection: ${selected.length} skill(s)`, options: registry.map((s) => ({ value: s.name, label: s.name, hint: s.category, initialValue: selected.includes(s.name) })), initialValues: selected, required: true });
+  const review = await multiselect({ message: `Review selection: ${selected.length} skill(s)`, options: registry.map((s) => ({ value: s.name, label: s.name, hint: s.category })), initialValues: selected, required: true });
   if (isCancel(review)) return cancelled();
   const finalSelected = review as string[];
   const target = ctx.targetDirOverride ? undefined : await select({ message: "Which destination agent should receive them?", options: TARGETS.map((t) => ({ value: t.id, label: t.label, hint: displayPath(resolveSkillsDir(t.id, { home: ctx.home, env: ctx.env, projectDir: ctx.projectDir, global: ctx.global }), ctx.home) })) });
