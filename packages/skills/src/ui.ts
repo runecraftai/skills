@@ -1,121 +1,62 @@
-/**
- * Interactive installer flow, powered by clack:
- *   catalog -> multi-select skills -> pick agent target -> resolve conflicts
- *   -> install with spinner -> colored summary.
- */
-import { cancel, intro, isCancel, log, multiselect, note, outro, select, spinner } from "@clack/prompts";
-
-import { findConflicts, installSkills, type InstallResult } from "./install.js";
-import { listSkills } from "./skills.js";
+import { cancel, intro, isCancel, log, multiselect, note, outro, select, spinner, text } from "@clack/prompts";
+import { resolve } from "node:path";
+import { detectStack } from "./detect.js";
+import { findConflicts, installSkills, skillHash, type InstallResult } from "./install.js";
+import { categories, findSkill, listSkills, type RegistrySkill } from "./registry.js";
+import { readLockfile, updateLock, writeLockfile } from "./lockfile.js";
 import { displayPath, resolveSkillsDir, TARGETS, type TargetId } from "./targets.js";
 
-export interface InteractiveContext {
-  catalogDir: string;
-  home: string;
-  env?: Record<string, string | undefined>;
-  /** Optional explicit destination, bypassing per-target resolution. */
-  targetDirOverride?: string;
-  /** When set, already-installed skills are replaced without asking. */
-  overwrite?: boolean;
-}
-
-const MAX_HINT = 90;
-
-function truncate(text: string, max: number): string {
-  const clean = text.replace(/\s+/g, " ").trim();
-  return clean.length <= max ? clean : clean.slice(0, max - 1) + "…";
-}
-
-function cancelled(message = "Installation cancelled."): number {
-  cancel(message);
-  return 1;
-}
-
-function report(result: InstallResult, targetDir: string, home: string): void {
-  if (result.installed.length > 0) {
-    log.success(`Installed ${result.installed.length} skill(s): ${result.installed.join(", ")}`);
-  }
-  if (result.overwritten.length > 0) {
-    log.info(`Overwritten ${result.overwritten.length} skill(s): ${result.overwritten.join(", ")}`);
-  }
-  if (result.skipped.length > 0) {
-    log.warn(`Already installed, skipped: ${result.skipped.join(", ")}`);
-  }
-  for (const failure of result.failed) {
-    log.error(`${failure.name}: ${failure.error}`);
-  }
-  note(
-    `Install target: ${displayPath(targetDir, home)}\n` +
-      "Restart your agent (or reload its skills) to pick up the new skills.",
-    "Done",
-  );
-}
+export interface InteractiveContext { catalogDir: string; home: string; env?: Record<string, string | undefined>; targetDirOverride?: string; overwrite?: boolean; projectDir?: string; global?: boolean; }
+const hint = (s: string) => s.replace(/\s+/g, " ").trim().slice(0, 90);
+const cancelled = () => { cancel("Installation cancelled."); return 1; };
+function report(result: InstallResult, target: string, home: string) { if (result.installed.length) log.success(`Installed: ${result.installed.join(", ")}`); if (result.overwritten.length) log.info(`Overwritten: ${result.overwritten.join(", ")}`); if (result.skipped.length) log.warn(`Skipped (already installed): ${result.skipped.join(", ")}`); for (const f of result.failed) log.error(`${f.name}: ${f.error}`); note(`Install target: ${displayPath(target, home)}`, "Done"); }
 
 export async function runInteractive(ctx: InteractiveContext): Promise<number> {
-  intro("Runecraft Skills");
-
-  const catalog = listSkills(ctx.catalogDir);
-  if (catalog.length === 0) {
-    log.error(`No skills found in ${ctx.catalogDir} — nothing to install.`);
-    outro("Nothing to do.");
-    return 1;
-  }
-
-  const chosen = await multiselect({
-    message: "Which skills do you want to install?",
-    options: catalog.map((skill) => ({
-      value: skill.name,
-      label: skill.name,
-      hint: skill.description ? truncate(skill.description, MAX_HINT) : undefined,
-    })),
-    required: true,
-  });
-  if (isCancel(chosen)) return cancelled();
-  const names = chosen as string[];
-
-  let targetDir: string;
-  if (ctx.targetDirOverride !== undefined) {
-    targetDir = ctx.targetDirOverride;
+  intro("Grimoire");
+  const registry = listSkills(ctx.catalogDir);
+  if (!registry.length) { log.error("No skills found in the catalog."); return 1; }
+  const grouped = categories(registry);
+  const root = await select({ message: "What would you like to do?", options: [
+    ...grouped.map((c) => ({ value: `category:${c.name}`, label: c.name, hint: `${c.skills.length} skill(s)` })),
+    { value: "detect", label: "Detect project skills", hint: "Analyze this project and recommend relevant skills" },
+    { value: "search", label: "Search all skills", hint: "Find a skill by name or description" },
+  ] });
+  if (isCancel(root)) return cancelled();
+  let selected: string[];
+  if (root === "detect") {
+    const detection = detectStack(ctx.projectDir ?? process.cwd(), registry);
+    if (!detection.recommendations.length) log.info("No matching recommendations found; browse a category instead.");
+    else note(detection.recommendations.map((r) => `${r.name}: ${r.reason}`).join("\n"), `Detected ${detection.stack.join(", ") || "no known stack"}`);
+    const picked = await multiselect({ message: "Review recommendations (add or remove skills)", options: registry.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description), initialValue: detection.skills.includes(s.name) })), required: true });
+    if (isCancel(picked)) return cancelled(); selected = picked as string[];
   } else {
-    const target = await select({
-      message: "Which agent should get them?",
-      options: TARGETS.map((t) => ({
-        value: t.id,
-        label: t.label,
-        hint: displayPath(resolveSkillsDir(t.id, ctx), ctx.home),
-      })),
-    });
-    if (isCancel(target)) return cancelled();
-    targetDir = resolveSkillsDir(target as TargetId, ctx);
+    let options: RegistrySkill[];
+    if (root === "search") {
+      const query = await text({ message: "Search skills" });
+      if (isCancel(query)) return cancelled();
+      const needle = String(query).toLowerCase();
+      options = registry.filter((s) => `${s.name} ${s.description} ${s.category}`.toLowerCase().includes(needle));
+      if (!options.length) { log.error("No matching skills."); return 1; }
+    } else options = grouped.find((c) => c.name === String(root).slice(9))?.skills ?? registry;
+    const picked = await multiselect({ message: "Select skills (space to toggle, enter to continue)", options: options.map((s) => ({ value: s.name, label: s.name, hint: hint(s.description) })), required: true });
+    if (isCancel(picked)) return cancelled(); selected = picked as string[];
   }
-
-  const conflicts = findConflicts(targetDir, names);
+  const review = await multiselect({ message: `Review selection: ${selected.length} skill(s)`, options: registry.map((s) => ({ value: s.name, label: s.name, hint: s.category })), initialValues: selected, required: true });
+  if (isCancel(review)) return cancelled(); selected = review as string[];
+  const target = ctx.targetDirOverride ? undefined : await select({ message: "Which destination agent should receive them?", options: TARGETS.map((t) => ({ value: t.id, label: t.label, hint: displayPath(resolveSkillsDir(t.id, { home: ctx.home, env: ctx.env, projectDir: ctx.projectDir, global: ctx.global }), ctx.home) })) });
+  if (target !== undefined && isCancel(target)) return cancelled();
+  const targetDir = ctx.targetDirOverride ?? resolveSkillsDir(target as TargetId, { home: ctx.home, env: ctx.env, projectDir: ctx.projectDir, global: ctx.global });
   let overwrite = ctx.overwrite ?? false;
-  if (conflicts.length > 0 && !overwrite) {
-    const mode = await select({
-      message: `${conflicts.length} skill(s) are already installed at ${displayPath(targetDir, ctx.home)}. How to proceed?`,
-      options: [
-        { value: "skip", label: "Skip existing", hint: "Keep your current copies" },
-        { value: "overwrite", label: "Overwrite existing", hint: "Replace them with the catalog versions" },
-        { value: "cancel", label: "Cancel" },
-      ],
-    });
-    if (isCancel(mode)) return cancelled();
-    if (mode === "cancel") return cancelled();
-    overwrite = mode === "overwrite";
+  const conflicts = findConflicts(targetDir, selected);
+  if (conflicts.length && !overwrite) { const mode = await select({ message: "Some selected skills already exist. How should Grimoire proceed?", options: [{ value: "skip", label: "Keep existing copies" }, { value: "overwrite", label: "Overwrite existing copies" }, { value: "cancel", label: "Cancel" }] }); if (isCancel(mode) || mode === "cancel") return cancelled(); overwrite = mode === "overwrite"; }
+  const confirmed = await select({ message: `Install ${selected.length} skill(s) to ${displayPath(targetDir, ctx.home)}?`, options: [{ value: "confirm", label: "Confirm installation" }, { value: "cancel", label: "Cancel" }] });
+  if (isCancel(confirmed) || confirmed !== "confirm") return cancelled();
+  const spin = spinner(); spin.start("Installing"); const result = installSkills({ catalogDir: ctx.catalogDir, targetDir, names: selected, overwrite, onStatus: (name) => spin.message(`Installing ${name}`) }); spin.stop("Installation complete");
+  if (!ctx.global && (result.installed.length || result.overwritten.length)) {
+    const projectDir = resolve(ctx.projectDir ?? process.cwd());
+    const lock = readLockfile(projectDir);
+    for (const name of [...result.installed, ...result.overwritten]) { const skill = findSkill(ctx.catalogDir, name); if (skill) updateLock(lock, name, { version: skill.version, hash: skillHash(skill.dir), installed: new Date().toISOString(), agents: [target ? String(target) : "custom"] }); }
+    writeLockfile(projectDir, lock);
   }
-
-  const spin = spinner();
-  spin.start("Installing");
-  const result = installSkills({
-    catalogDir: ctx.catalogDir,
-    targetDir,
-    names,
-    overwrite,
-    onStatus: (name) => spin.message(`Installing ${name}`),
-  });
-  spin.stop(result.failed.length > 0 ? "Install finished with errors" : "Install complete");
-
-  report(result, targetDir, ctx.home);
-  return result.failed.length > 0 ? 1 : 0;
+  report(result, targetDir, ctx.home); outro("Ready"); return result.failed.length ? 1 : 0;
 }

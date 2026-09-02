@@ -1,7 +1,7 @@
 ---
 name: using-agent-skills
 description: >
-  Discovers and invokes the right @runecraft/skills skill for the current task.
+  Discovers and invokes the right @runecraft/grimoire skill for the current task.
   Use when starting a session, when a request is ambiguous about which workflow to apply,
   or when you need to pick among the 19-skill Runecraft catalog.
   EN triggers: /skill, which skill, pick a skill, what skill should I use, skill discovery, meta skill.

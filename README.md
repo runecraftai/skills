@@ -1,67 +1,58 @@
-# Runecraft Skills
+# Grimoire
 
-[![npm](https://img.shields.io/npm/v/@runecraft/skills?label=npm)](https://www.npmjs.com/package/@runecraft/skills)
-[![license](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
-
-Runecraft is a Bun + Turborepo monorepo containing reusable `SKILL.md` workflows and the `grimoire` CLI for installing them into pi, Claude Code, Codex, OpenCode, and Cursor projects.
+Grimoire is a catalog of reusable `SKILL.md` workflows for coding agents, with one safe interactive installer. Browse skills by category or let Grimoire inspect the current project and recommend a starting set.
 
 ## Quick start
 
 ```bash
-npx @runecraft/skills install
+npx @runecraft/grimoire
 # or
-bunx @runecraft/skills install
+bunx @runecraft/grimoire
 ```
 
-Install selected skills non-interactively:
+Both commands launch the same flow: choose a category or **Detect project skills**, review the multi-selection, choose a destination agent, and explicitly confirm installation. Nothing is installed before confirmation.
+
+## Supported agents
+
+Grimoire currently supports pi, Claude Code, Codex CLI, and OpenCode. Destinations follow each agent's conventional skills directory and honor their supported environment overrides.
+
+## Commands
 
 ```bash
-npx @runecraft/skills install --skill spec-driven --target pi
+grimoire list                         # list every catalog entry
+grimoire search typescript             # search names, descriptions, and categories
+grimoire detect                        # print project recommendations
+grimoire install -s spec-driven -t pi  # noninteractive installation
+grimoire install -s skill-forge -t codex --overwrite
 ```
 
-See the package documentation in [`packages/skills/README.md`](packages/skills/README.md) for the catalog installer options and complete catalog.
+The executable is `grimoire`; use `grimoire --help` for all options. `--target-dir` supports automation and isolated test destinations. Noninteractive commands require explicit skill and agent selections.
 
-## Grimoire CLI
+## Categories
 
-The `@runecraft/cli` package provides the `grimoire` command for project or global skill installation. It includes `install`, `remove`, `list`, `search`, `status`, `update`, and `info` commands, supports `--agent pi,claude-code,codex,opencode,cursor`, and records project installs in `.grimoire-lock.json` with SHA-256 hashes.
+The catalog is organized into Build & Design, Testing & Quality, Security & Operations, Agent Craft, and Planning & Collaboration. Every bundled skill appears in a category and remains available through search.
 
-Build and run it from this workspace:
+## Safety
 
-```bash
-bun run --cwd packages/cli build
-node packages/cli/dist/cli.js --help
-```
+Installation copies catalog skill directories into the selected agent destination. Existing skills are skipped by default; `--overwrite` or the interactive conflict choice replaces them. Project installations can be tracked in `.grimoire-lock.json`. Path isolation, catalog symlink checks, and skill-name validation protect destinations from traversal and symlink surprises.
 
-## Repository structure
-
-```text
-packages/
-├── cli/          # @runecraft/cli and the grimoire installer
-└── skills/       # @runecraft/skills catalog and installer
-```
-
-The root workspace contains the Turborepo configuration, shared TypeScript configuration, Changesets, and GitHub Actions.
-
-## Adding a skill
-
-1. Create `packages/skills/skills/<skill-name>/SKILL.md` with valid frontmatter.
-2. Add optional `README.md`, `references/`, and `scripts/` files as needed.
-3. Add the skill to the catalog table in [`packages/skills/README.md`](packages/skills/README.md).
-4. Run the checks before opening a pull request:
+## Development
 
 ```bash
 bun install
 bun run lint
 bun run test
+bun run typecheck
 bun run build
+npm pack --dry-run --workspace @runecraft/grimoire
 ```
 
-For a user-facing change, create a Changeset with `bun changeset` and commit the generated file under `.changeset/`.
+The catalog lives in `packages/skills/skills/`; category metadata is in `packages/skills/catalog.json`. Add a skill folder with `SKILL.md`, then add its name to a category. Run the skill validator when changing skill structure:
 
-## CI/CD
-
-Pull requests and pushes to `main` run lint, tests, and the build through Turborepo. Changesets on `main` version the published skills package and create a `v*` tag. Tagged releases currently publish `packages/skills` to npm using the repository's `NPM_TOKEN` secret.
+```bash
+python3 packages/skills/skills/skill-forge/scripts/validate.py packages/skills/skills/skill-forge
+```
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
