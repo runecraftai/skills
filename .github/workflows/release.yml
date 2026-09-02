@@ -28,7 +28,7 @@ jobs:
       - uses: changesets/action@v1
         with:
           version: bun run version
-          publish: node scripts/publish-packages.mjs
+          publish: npx changeset publish
           title: "chore: version packages"
           commit: "chore: version packages"
           createGithubReleases: true

@@ -13,8 +13,7 @@
     "typecheck": "turbo run typecheck",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "changeset publish",
-    "publish:packages": "node scripts/publish-packages.mjs"
+    "release": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
