@@ -1,6 +1,6 @@
 {
   "name": "@runecraft/grimoire",
-  "version": "0.19.1",
+  "version": "1.0.0",
   "description": "Interactive catalog and installer for agent skills",
   "license": "MIT",
   "type": "module",

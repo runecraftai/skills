@@ -1,5 +1,11 @@
 # @runecraft/skills
 
+## 1.0.0
+
+### Major Changes
+
+- d0d8f8d: Consolidate the catalog and installer into the unified Grimoire product with categorized browsing and project detection.
+
 ## 0.19.1
 
 ### Patch Changes
