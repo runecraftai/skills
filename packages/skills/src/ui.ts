@@ -17,14 +17,29 @@ const CONTINUE = "__continue__";
 function backNavigationInput() {
   const input = process.stdin;
   let pending = "";
+  let pendingTimer: ReturnType<typeof setTimeout> | undefined;
+  const flushPending = () => {
+    if (!pending) return;
+    const value = pending;
+    pending = "";
+    adapter.push(value);
+  };
   const adapter = new Transform({
     transform(chunk, _encoding, callback) {
       const value = pending + chunk.toString();
       pending = value.endsWith("\x1b") ? "\x1b" : value.endsWith("\x1b[") ? "\x1b[" : "";
+      if (pending) {
+        if (pendingTimer) clearTimeout(pendingTimer);
+        pendingTimer = setTimeout(flushPending, 50);
+      } else if (pendingTimer) {
+        clearTimeout(pendingTimer);
+        pendingTimer = undefined;
+      }
       const complete = pending ? value.slice(0, -pending.length) : value;
       callback(null, complete.replace(/\x1b\[D|\x7f|\x08/g, "\r"));
     },
     flush(callback) {
+      if (pendingTimer) clearTimeout(pendingTimer);
       callback(null, pending);
     },
   });
