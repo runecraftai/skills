@@ -4,9 +4,9 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 
 ## What this repo is
 
-- `runecraftai/skills` — home of the Runecraft agent-skill catalog, published on npm as **`@runecraft/skills`** (see `package.json`). It is the renamed continuation of the legacy `@runecraft/spells` package (frozen in the arcanum monorepo); `CHANGELOG.md` documents the 0.15.0 → 0.16.0 rename.
-- Content layout: one folder per skill under `skills/` (each with `SKILL.md` + optional `references/`, `scripts/`, `.skill-meta.json`); shared docs under `references/` (`definition-of-done.md`, `testing-patterns.md`).
-- The installer TUI ships as the `runecraft-skills` bin (interactive clack flow + `--skill/--target` scripting), built with Bun + TypeScript from `src/` into a single `dist/skills.js` (see `package.json` scripts). The canonical invocation is `npx @runecraft/skills install` / `bunx @runecraft/skills install`; `install` is the default command, so bare `runecraft-skills` keeps working (see `src/index.ts`). Install destinations: pi `~/.pi/agent/skills/`, Claude `~/.claude/skills/`, Codex `~/.codex/skills/`, OpenCode `~/.config/opencode/skills/` (env overrides `PI_HOME`/`CLAUDE_CONFIG_DIR`/`CODEX_HOME`/`XDG_CONFIG_HOME`; see `src/targets.ts`).
+- `runecraftai/skills` — home of the Runecraft agent-skill catalog, published on npm as **`@runecraft/skills`** (see `packages/skills/package.json`). It is the renamed continuation of the legacy `@runecraft/spells` package (frozen in the arcanum monorepo); `CHANGELOG.md` documents the 0.15.0 → 0.16.0 rename.
+- Content layout: one folder per skill under `packages/skills/skills/` (each with `SKILL.md` + optional `references/`, `scripts/`, `.skill-meta.json`); shared docs under `packages/skills/references/` (`definition-of-done.md`, `testing-patterns.md`).
+- The installer TUI ships as the `runecraft-skills` bin (interactive clack flow + `--skill/--target` scripting), built with Bun + TypeScript from `packages/skills/src/` into a single `packages/skills/dist/skills.js` (see `packages/skills/package.json` scripts). The canonical invocation is `npx @runecraft/skills install` / `bunx @runecraft/skills install`; `install` is the default command, so bare `runecraft-skills` keeps working (see `packages/skills/src/index.ts`). Install destinations: pi `~/.pi/agent/skills/`, Claude `~/.claude/skills/`, Codex `~/.codex/skills/`, OpenCode `~/.config/opencode/skills/` (env overrides `PI_HOME`/`CLAUDE_CONFIG_DIR`/`CODEX_HOME`/`XDG_CONFIG_HOME`; see `src/targets.ts`).
 
 ## Identity rules (hard constraints)
 
@@ -15,11 +15,11 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 
 ## Validation
 
-- `npm pack --dry-run` — confirms `files: ["skills/", "references/", "dist/"]` packs the catalog + installer.
-- `bun test` — unit + CLI tests for target resolution, catalog listing, and install-copy logic (temp dirs only; never real user dirs).
-- `bun run build && node dist/skills.js --list` — bundles the TUI and smoke-checks it.
-- `bunx tsc --noEmit` — typecheck (`src/` + `test/`).
-- `python3 skills/skill-forge/scripts/validate.py skills/skill-forge` — SKILL.md structure validator (23 checks; 1 pre-existing warning, not a failure).
+- `npm pack --dry-run --workspace @runecraft/skills` — confirms `files: ["skills/", "references/", "dist/"]` packs the catalog + installer.
+- `bun run test` — unit + CLI tests for target resolution, catalog listing, and install-copy logic (temp dirs only; never real user dirs).
+- `bun run build && node packages/skills/dist/skills.js --list` — bundles the TUI and smoke-checks it.
+- `bun run typecheck` — typecheck (`packages/skills/src/` + `packages/skills/test/`).
+- `python3 packages/skills/skills/skill-forge/scripts/validate.py packages/skills/skills/skill-forge` — SKILL.md structure validator (23 checks; 1 pre-existing warning, not a failure).
 - New skills must ship `SKILL.md` + `references/` and follow the skill-forge conventions.
 
 ## Maintaining this file

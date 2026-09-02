@@ -1,0 +1,53 @@
+{
+  "name": "@runecraft/skills",
+  "version": "0.19.1",
+  "description": "Agent skill catalog — SKILL.md packages for pi, claude, codex and opencode, with an interactive installer TUI",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20.12.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "runecraft-skills": "dist/skills.js"
+  },
+  "files": [
+    "skills/",
+    "references/",
+    "dist/"
+  ],
+  "scripts": {
+    "build": "bun build src/index.ts --target=node --format=esm --outfile dist/skills.js && chmod +x dist/skills.js",
+    "dev": "bun run src/index.ts",
+    "lint": "bun run typecheck",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "prepack": "bun run build",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "runecraft",
+    "agent",
+    "skills",
+    "prompts",
+    "ai",
+    "coding-agent",
+    "claude",
+    "codex",
+    "opencode",
+    "copilot",
+    "installer",
+    "cli"
+  ],
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2"
+  }
+}
