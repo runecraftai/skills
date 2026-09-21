@@ -9,7 +9,6 @@
     "Code Quality & Testing": [
       "code-review-and-quality",
       "test-driven-development",
-      "doubt-driven-development",
       "debugging-and-error-recovery",
       "typescript-patterns",
       "code-simplification",

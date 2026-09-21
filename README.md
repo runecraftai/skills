@@ -56,7 +56,6 @@ The catalog is the source of truth for these categories; descriptions below come
 | Agent Skills | `context-engineering` | Optimizes agent context setup so sessions start with the right information. |
 | Code Quality & Testing | `code-review-and-quality` | Reviews correctness, readability, architecture, security, and performance with severity labels. |
 | Code Quality & Testing | `test-driven-development` | Drives implementation with failing tests first, then passing tests and refactoring. |
-| Code Quality & Testing | `doubt-driven-development` | Applies adversarial review to non-trivial decisions before they stand. |
 | Code Quality & Testing | `debugging-and-error-recovery` | Guides systematic reproduce, localize, reduce, fix, and guard debugging. |
 | Code Quality & Testing | `typescript-patterns` | Covers type-safe TypeScript patterns including unions, generics, and narrowing. |
 | Code Quality & Testing | `code-simplification` | Simplifies code for clarity while preserving exact behavior. |
