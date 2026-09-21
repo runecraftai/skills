@@ -30,7 +30,7 @@ Task arrives
     ├── New project/feature/change? ────→ spec-driven
     ├── Implementing code? ─────────────→ spec-driven
     │   ├── TypeScript code? ──────────→ typescript-patterns
-    │   ├── Stakes high / unfamiliar code? ──→ doubt-driven-development
+    │   ├── Stakes high / unfamiliar code? ──→ verified-implementation
     │   └── Driving a loop? ──────────────→ spec-loop
     │       ├── Need a plan/spec first? ────→ spec-driven
     │       └── Verify the executed work? ───→ spec-driven
@@ -152,7 +152,7 @@ For a complete feature, the typical skill sequence is:
 1.  interview-me                → Extract what the user actually wants
 2.  idea-refine                 → Refine vague ideas
 3.  spec-driven                 → Specify, design, and break into verifiable chunks
-4.  doubt-driven-development    → Cross-examine non-trivial decisions in-flight
+4.  verified-implementation    → Verify the implementation with an independent fresh-context verifier
 5.  test-driven-development     → Prove each slice works
 6.  code-review-and-quality     → Review before merge
 7.  code-simplification         → Reduce unnecessary complexity while preserving behavior
@@ -170,7 +170,7 @@ Not every task needs every skill. A bug fix might only need: `debugging-and-erro
 | Define | idea-refine | Refine ideas through structured divergent and convergent thinking |
 | Define | spec-driven | Specify, design, and break work into verifiable tasks before code |
 | Build | typescript-patterns | Type-safe, maintainable TypeScript patterns |
-| Build | doubt-driven-development | Adversarial fresh-context review of every non-trivial decision |
+| Build | verified-implementation | Verify the implementation with an independent fresh-context verifier |
 | Verify | test-driven-development | Failing test first, then make it pass |
 | Verify | debugging-and-error-recovery | Reproduce → localize → fix → guard |
 | Review | code-review-and-quality | Five-axis review with quality gates |

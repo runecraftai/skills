@@ -56,7 +56,6 @@ The catalog is the source of truth for these categories; descriptions below come
 | Agent Skills | `context-engineering` | Optimizes agent context setup so sessions start with the right information. |
 | Code Quality & Testing | `code-review-and-quality` | Reviews correctness, readability, architecture, security, and performance with severity labels. |
 | Code Quality & Testing | `test-driven-development` | Drives implementation with failing tests first, then passing tests and refactoring. |
-| Code Quality & Testing | `doubt-driven-development` | Applies adversarial review to non-trivial decisions before they stand. |
 | Code Quality & Testing | `debugging-and-error-recovery` | Guides systematic reproduce, localize, reduce, fix, and guard debugging. |
 | Code Quality & Testing | `typescript-patterns` | Covers type-safe TypeScript patterns including unions, generics, and narrowing. |
 | Code Quality & Testing | `code-simplification` | Simplifies code for clarity while preserving exact behavior. |
@@ -74,6 +73,9 @@ The catalog is the source of truth for these categories; descriptions below come
 | Planning & Specification | `spec-loop` | Executes specification artifacts milestone by milestone with verification gates. |
 | Planning & Specification | `idea-refine` | Turns raw ideas into sharp, actionable concepts through divergent and convergent thinking. |
 | Planning & Specification | `interview-me` | Extracts underlying intent through a focused one-question-at-a-time interview. |
+| Planning & Specification | `idea-discovery` | Interviews an unshaped idea into a verdict plus a design document that someone else can plan from. |
+| Planning & Specification | `task-cutting` | Turns decided work into tasks a builder can act on: slices with observable criteria, grounded in the code. |
+| Planning & Specification | `verified-implementation` | Extracts a checklist from a planned work item, builds it, and proves every check with an independent verifier. |
 | Design & Architecture | `api-and-interface-design` | Guides stable API and interface design with clear contracts that are hard to misuse. |
 | Design & Architecture | `frontend-ui-engineering` | Builds production-quality, accessible, responsive user-facing UIs. |
 | Design & Architecture | `browser-testing-with-devtools` | Tests in real browsers via Chrome DevTools MCP. |

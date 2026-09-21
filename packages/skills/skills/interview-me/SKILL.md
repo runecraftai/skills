@@ -7,7 +7,7 @@ description: >
   EN triggers: /interview, "interview me", "grill me", "are we sure?", "stress-test my thinking".
   PT triggers: /entrevista, "me entrevista", "tenho certeza?", questiona minhas premissas.
   Do NOT use for: well-specified asks (route to /spec-driven instead), or after the spec is written
-  (use /doubt-driven-development to stress-test a finished plan).
+  (use /verified-implementation to verify a finished plan).
 license: MIT
 ---
 
@@ -19,7 +19,7 @@ What people ask for and what they actually want are different things. They ask f
 
 The cheapest moment to find this gap is before any plan, spec, or code exists. Once you've started building, switching costs are real, and the user will rationalize the wrong thing into a "good enough" thing. The misfit gets locked in.
 
-This skill closes the gap before it costs anything. The other Define-phase skills assume you already know roughly what you want: `idea-refine` generates variations from an idea, `spec-driven` writes the requirements down, `doubt-driven-development` stress-tests a plan after you've drafted one. Interview-me is the part before all of those, where you ask one question at a time, with your best guess attached, until you can predict what the user is going to say before they say it.
+This skill closes the gap before it costs anything. The other Define-phase skills assume you already know roughly what you want: `idea-refine` generates variations from an idea, `spec-driven` writes the requirements down, `verified-implementation` verifies a plan after you've drafted one. Interview-me is the part before all of those, where you ask one question at a time, with your best guess attached, until you can predict what the user is going to say before they say it.
 
 ## When to Use
 
@@ -190,7 +190,7 @@ Two questions in, the agent has discovered the actual ask isn't "a dashboard." I
 - **`idea-refine`**: downstream. If the confirmed intent is "I want X but I don't know how to scope it," hand off to `idea-refine` to generate variations against the now-explicit intent.
 - **`spec-driven`**: downstream. If the confirmed intent is concrete ("I want X for Y users with Z success criteria"), hand off to `spec-driven` to write it down.
 - **`spec-driven` tasks phase**: two hops downstream of this skill (after the spec).
-- **`doubt-driven-development`**: opposite end of the timeline. Interview-me is pre-decision intent extraction; doubt-driven is post-decision artifact review. Both catch divergence, but at different moments.
+- **`verified-implementation`**: opposite end of the timeline. Interview-me is pre-decision intent extraction; verified-implementation is post-decision artifact verification. Both catch divergence, but at different moments.
 - **Framework-fact verification**: orthogonal. Interview-me clarifies what the user wants; verifying facts about frameworks against official docs is separate work. They don't compete.
 
 ## Common Rationalizations
