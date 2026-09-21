@@ -97,12 +97,17 @@ Support varies across agents.
 
 ## Body content
 
-The Markdown body has no format restrictions. Recommended sections:
+The Markdown body has no format restrictions. Recommended sections (use when applicable, in this order):
 
-- Step-by-step instructions
-- Examples of inputs and outputs
-- Common edge cases
-- Anti-patterns to avoid
+1. `## Overview` — one-paragraph summary.
+2. `## When to Use` — concrete scenarios; examples belong inline here.
+3. Domain-specific workflow sections (e.g. `## Steps`, `## Process`).
+4. `## Common Rationalizations` — why someone might skip a step.
+5. `## Red Flags` — warning signs of misapplication.
+6. `## Verification` — how to confirm correct output.
+7. `## See Also` — related skills or references.
+
+Do NOT create `## Triggers` or `## Do not use for` sections — triggers and anti-triggers belong in the frontmatter `description` (the only field the agent sees at load time). Do NOT create a `## Validation checklist` section — validation is owned by the bundled validator and eval loops. Do NOT create a segregated `## Example` section — examples belong inline in workflow sections.
 
 The full body is loaded once the skill is activated. Keep it focused. Move deep content to `references/`.
 

@@ -320,7 +320,7 @@ def check_skill(skill_path: str) -> dict:
             "name_matches_folder",
             names_match,
             f"name '{name_str}' {'matches' if names_match else 'does NOT match'} folder '{folder_name}'.",
-            severity=SEVERITY_WARNING,
+            severity=SEVERITY_ERROR,
         )
 
     # 7. description field
@@ -402,7 +402,7 @@ def check_skill(skill_path: str) -> dict:
         body_line_count <= BODY_MAX_LINES,
         f"SKILL.md body: {body_line_count} lines "
         f"{'(good)' if body_line_count <= BODY_MAX_LINES else f'(>{BODY_MAX_LINES} — consider moving detail to references/)'}",
-        severity=SEVERITY_WARNING if body_line_count > BODY_MAX_LINES else SEVERITY_ERROR,
+        severity=SEVERITY_ERROR if body_line_count > BODY_MAX_LINES else SEVERITY_WARNING,
     )
     has_examples = bool(re.search(r"(?i)(example|user says|trigger phrase|use case)", body))
     add(

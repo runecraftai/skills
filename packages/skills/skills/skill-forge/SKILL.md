@@ -167,7 +167,27 @@ Forbidden:
 - Do not wrap prose at arbitrary column widths; let sentences flow.
 - Code blocks may wrap for readability.
 
-### 3.3 Supporting files
+### 3.3 Canonical body sections
+
+When applicable, use these sections in this order:
+
+1. `## Overview` — one-paragraph summary of what the skill does.
+2. `## When to Use` — concrete scenarios; examples belong inline here.
+3. Domain-specific workflow sections (e.g. `## Steps`, `## Process`).
+4. `## Common Rationalizations` — why someone might skip a step and why they shouldn't.
+5. `## Red Flags` — warning signs that the skill is being misapplied.
+6. `## Verification` — how to confirm the skill produced correct output.
+7. `## See Also` — related skills or references.
+
+Do NOT create these sections:
+
+- `## Triggers` or `## Do not use for` — triggers and anti-triggers belong in the frontmatter `description`, which is the only field the agent sees at load time. A body section is read after the skill has already loaded and cannot drive triggering.
+- `## Validation checklist` — validation is owned by the bundled validator and the OPTIMIZE eval loops; a prose checklist is a weaker duplicate.
+- A segregated `## Example` section — examples belong inline in the workflow sections where they are relevant.
+
+Not every skill needs all sections. Omit sections that do not apply. The order above is for sections that are present.
+
+### 3.4 Supporting files
 
 For each `references/*.md` or `scripts/*`:
 - Reference it from SKILL.md with a clear WHEN clause.
