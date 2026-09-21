@@ -12,7 +12,7 @@ license: CC-BY-4.0
 metadata:
   version: 1.0.0
   author: Tech Leads Club - github.com/tech-leads-club
-  upstream: "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club)"
+  upstream: "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-discover @ v0.9.0"
 ---
 
 # Idea Discovery

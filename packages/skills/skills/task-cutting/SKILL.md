@@ -13,7 +13,7 @@ license: CC-BY-4.0
 metadata:
   version: 1.0.0
   author: Tech Leads Club - github.com/tech-leads-club
-  upstream: "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club)"
+  upstream: "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-plan @ v0.2.0"
 ---
 
 # Task Cutting
@@ -77,7 +77,7 @@ A surface is anything outside the system that meets it. Each kind carries the sa
 | document or copy | structure, tone, depth, what the reader does next |
 | collection being organised | grouping criterion, naming, ordering, duplicates, the exception |
 
-**The walk finds gaps. It does not write criteria.** Each item resolves to a criterion already in the source, `existing`, `n/a`, or `Unresolved`. A landing that would need new behaviour is a question, never a numbered line.
+**The walk finds gaps. It does not write criteria.** Each item resolves to a criterion **already in the source or already written from it**, to something the code already does (`existing - <what>`), to `n/a - <reason>`, or to `Unresolved <n>`. The `n/a` escape is mandatory and it is what stops the list from inventing scope: a webhook has no empty state, and saying so costs a line. A landing that would need new behaviour is a question, never a numbered line.
 
 **Record in `## Observable`** in the task, one row per item.
 
