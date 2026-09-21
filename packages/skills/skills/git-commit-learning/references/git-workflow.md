@@ -1,26 +1,10 @@
----
-name: git-workflow-and-versioning
-description: >
-  Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, splitting uncommitted work in a messy working tree into clean atomic commits, opening or reviewing a pull request (PR), pushing to a remote, or when you need to organize work across multiple parallel streams. Use when cutting a release, choosing a semantic version bump, tagging, or writing a changelog
-  EN triggers: /git, git workflow and versioning.
-  PT triggers: /git, git workflow and versioning.
-  Do NOT use for: tasks outside this skill's scope.
-license: MIT
+# Git Workflow Fundamentals
+
+Detailed reference for the Git workflow principles summarized in SKILL.md. Load this when you need the full mechanics of any section.
+
 ---
 
-# Git Workflow and Versioning
-
-## Overview
-
-Git is your safety net. Treat commits as save points, branches as sandboxes, and history as documentation. With AI agents generating code at high speed, disciplined version control is the mechanism that keeps changes manageable, reviewable, and reversible.
-
-## When to Use
-
-Always. Every code change flows through git.
-
-## Core Principles
-
-### Trunk-Based Development (Recommended)
+## Trunk-Based Development
 
 Keep `main` always deployable. Work in short-lived feature branches that merge back within 1-3 days. Long-lived development branches are hidden costs — they diverge, create merge conflicts, and delay integration. DORA research consistently shows trunk-based development correlates with high-performing engineering teams.
 
@@ -30,27 +14,15 @@ main ──●──●──●──●──●──●──●──●─
          ●──●─╱    ●──╱    ← short-lived feature branches (1-3 days)
 ```
 
-This is the recommended default. Teams using gitflow or long-lived branches can adapt the principles (atomic commits, small changes, descriptive messages) to their branching model — the commit discipline matters more than the specific branching strategy.
-
 - **Dev branches are costs.** Every day a branch lives, it accumulates merge risk.
 - **Release branches are acceptable.** When you need to stabilize a release while main moves forward.
 - **Feature flags > long branches.** Prefer deploying incomplete work behind flags rather than keeping it on a branch for weeks.
 
-### 1. Commit Early, Commit Often
+Teams using gitflow or long-lived branches can adapt the principles (atomic commits, small changes, descriptive messages) to their branching model — the commit discipline matters more than the specific branching strategy.
 
-Each successful increment gets its own commit. Don't accumulate large uncommitted changes.
+---
 
-```
-Work pattern:
-  Implement slice → Test → Verify → Commit → Next slice
-
-Not this:
-  Implement everything → Hope it works → Giant commit
-```
-
-Commits are save points. If the next change breaks something, you can revert to the last known-good state instantly.
-
-### 2. Atomic Commits
+## Atomic Commits
 
 Each commit does one logical thing:
 
@@ -67,23 +39,7 @@ git log --oneline
 x1y2z3a Add task feature, fix sidebar, update deps, refactor utils
 ```
 
-### 3. Descriptive Messages
-
-Commit messages explain the *why*, not just the *what*:
-
-```
-# Good: Explains intent
-feat: add email validation to registration endpoint
-
-Prevents invalid email formats from reaching the database.
-Uses Zod schema validation at the route handler level,
-consistent with existing validation patterns in auth.ts.
-
-# Bad: Describes what's obvious from the diff
-update auth.ts
-```
-
-**Format:**
+**Commit message format:**
 ```
 <type>: <short description>
 
@@ -98,34 +54,11 @@ update auth.ts
 - `docs` — Documentation only
 - `chore` — Tooling, dependencies, config
 
-### 4. Keep Concerns Separate
+Commit messages explain the *why*, not just the *what*. This skill's RPI template (in SKILL.md) extends this with structured context for AI-learnable commits.
 
-Don't combine formatting changes with behavior changes. Don't combine refactors with features. Each type of change should be a separate commit — and ideally a separate PR:
-
-```
-# Good: Separate concerns
-git commit -m "refactor: extract validation logic to shared utility"
-git commit -m "feat: add phone number validation to registration"
-
-# Bad: Mixed concerns
-git commit -m "refactor validation and add phone number field"
-```
-
-**Separate refactoring from feature work.** A refactoring change and a feature change are two different changes — submit them separately. This makes each change easier to review, revert, and understand in history. Small cleanups (renaming a variable) can be included in a feature commit at reviewer discretion.
-
-### 5. Size Your Changes
-
-Target ~100 lines per commit/PR. Changes over ~1000 lines should be split. See the splitting strategies in `code-review-and-quality` for how to break down large changes.
-
-```
-~100 lines  → Easy to review, easy to revert
-~300 lines  → Acceptable for a single logical change
-~1000 lines → Split into smaller changes
-```
+---
 
 ## Branching Strategy
-
-### Feature Branches
 
 ```
 main (always deployable)
@@ -140,14 +73,15 @@ main (always deployable)
 - Delete branches after merge
 - Prefer feature flags over long-lived branches for incomplete features
 
-### Branch Naming
-
+**Branch naming:**
 ```
 feature/<short-description>   → feature/task-creation
 fix/<short-description>       → fix/duplicate-tasks
 chore/<short-description>     → chore/update-deps
 refactor/<short-description>  → refactor/auth-module
 ```
+
+---
 
 ## Working with Worktrees
 
@@ -175,6 +109,8 @@ Benefits:
 - If one experiment fails, delete the worktree — nothing is lost
 - Changes are isolated until explicitly merged
 
+---
+
 ## The Save Point Pattern
 
 ```
@@ -192,6 +128,8 @@ Agent starts work
 ```
 
 This pattern means you never lose more than one increment of work. If an agent goes off the rails, `git reset --hard HEAD` takes you back to the last successful state.
+
+---
 
 ## Change Summaries
 
@@ -212,6 +150,8 @@ POTENTIAL CONCERNS:
 ```
 
 This pattern catches wrong assumptions early and gives reviewers a clear map of the change. The "DIDN'T TOUCH" section is especially important — it shows you exercised scope discipline and didn't go on an unsolicited renovation.
+
+---
 
 ## Pre-Commit Hygiene
 
@@ -246,11 +186,15 @@ Automate this with git hooks:
 }
 ```
 
+---
+
 ## Handling Generated Files
 
 - **Commit generated files** only if the project expects them (e.g., `package-lock.json`, Prisma migrations)
 - **Don't commit** build output (`dist/`, `.next/`), environment files (`.env`), or IDE config (`.vscode/settings.json` unless shared)
 - **Have a `.gitignore`** that covers: `node_modules/`, `dist/`, `.env`, `.env.local`, `*.pem`
+
+---
 
 ## Using Git for Debugging
 
@@ -272,6 +216,8 @@ git blame src/services/task.ts
 git log --grep="validation" --oneline
 ```
 
+---
+
 ## Release & Versioning
 
 Commits are how *you* track change; a **version** is how your *consumers* track it. The moment anything else depends on your code — another team, a published package, a deployed client — "latest on main" stops being a sufficient answer to "what am I running, and is it safe to upgrade?" A version number and a changelog are the contract that answers it.
@@ -286,9 +232,9 @@ For anything with consumers, version `MAJOR.MINOR.PATCH` and let the number carr
   PATCH  bug fix, backward-compatible — safe to upgrade
 ```
 
-The number is a promise, so make the code match it. A "patch" that changes behavior consumers relied on is a major change wearing a disguise (Hyrum's Law — see the `api-and-interface-design` skill). When unsure whether a change is breaking, assume it is; a surprise major is far cheaper than a broken consumer.
+The number is a promise, so make the code match it. A "patch" that changes behavior consumers relied on is a major change wearing a disguise (Hyrum's Law). When unsure whether a change is breaking, assume it is; a surprise major is far cheaper than a broken consumer.
 
-### Tag the release, and let the tag be the source of truth
+### Tag the release
 
 A release is an immutable point in history, not a moving branch. Tag it so it can always be reproduced:
 
@@ -315,37 +261,11 @@ A changelog is not `git log`. It's the curated, consumer-facing answer to "what 
 
 Write the entry in the same change that makes the change, while the impact is fresh — not reconstructed from commit archaeology at release time. Breaking changes get a migration note and a deprecation window (follow the `deprecation-and-migration` skill); shipping the actual release is the `shipping-and-launch` skill's job — this section is the versioning contract that feeds it.
 
-## Common Rationalizations
+---
 
-| Rationalization | Reality |
-|---|---|
-| "I'll commit when the feature is done" | One giant commit is impossible to review, debug, or revert. Commit each slice. |
-| "The message doesn't matter" | Messages are documentation. Future you (and future agents) will need to understand what changed and why. |
-| "I'll squash it all later" | Squashing destroys the development narrative. Prefer clean incremental commits from the start. |
-| "Branches add overhead" | Short-lived branches are free and prevent conflicting work from colliding. Long-lived branches are the problem — merge within 1-3 days. |
-| "I'll split this change later" | Large changes are harder to review, riskier to deploy, and harder to revert. Split before submitting, not after. |
-| "I don't need a .gitignore" | Until `.env` with production secrets gets committed. Set it up immediately. |
-| "It's just a small fix, bump the patch" | Check what consumers can observe. A behavior change they relied on is a major, whatever the diff size. |
-| "The changelog is just the commit log" | Commits are for you; the changelog is for consumers, curated by impact. Generating one from raw commits buries what matters. |
-| "We'll write the changelog at release time" | By then the impact is reconstructed from memory and half of it is missing. Write the entry with the change. |
-
-## Red Flags
-
-- Large uncommitted changes accumulating
-- Commit messages like "fix", "update", "misc"
-- Formatting changes mixed with behavior changes
-- No `.gitignore` in the project
-- Committing `node_modules/`, `.env`, or build artifacts
-- Long-lived branches that diverge significantly from main
-- Force-pushing to shared branches
-- A breaking change shipped under a minor or patch version bump
-- A release with no tag, or a version number hand-edited out of sync with the tag
-- A user-facing release with no changelog entry, or a changelog that's just dumped commit messages
-
-## Verification
+## Verification Checklist
 
 For every commit:
-
 - [ ] Commit does one logical thing
 - [ ] Message explains the why, follows type conventions
 - [ ] Tests pass before committing
@@ -354,7 +274,6 @@ For every commit:
 - [ ] `.gitignore` covers standard exclusions
 
 For every release (anything with consumers):
-
 - [ ] The version bump matches the change: breaking → major, additive → minor, fix → patch
-- [ ] The release is tagged, and the version is derived from the tag, not hand-edited out of sync
-- [ ] The changelog has a curated, human-readable entry grouped by impact for this version
+- [ ] The release is tagged, and the version is derived from the tag
+- [ ] The changelog has a curated, human-readable entry grouped by impact

@@ -67,16 +67,13 @@ The catalog is the source of truth for these categories; descriptions below come
 | Security & Reliability | `observability-and-instrumentation` | Instruments code so production behavior is visible and diagnosable. |
 | Delivery & Repository | `shipping-and-launch` | Prepares production launches with rollout, monitoring, and rollback planning. |
 | Delivery & Repository | `git-worktree` | Uses isolated Git worktrees for parallel feature branches. |
-| Delivery & Repository | `git-commit-learning` | Extracts reusable project lessons from Git history and commits. |
+| Delivery & Repository | `git-commit-learning` | Extracts reusable project lessons from Git history and commits, and covers Git workflow fundamentals including atomic commits, branching strategy, worktrees, and semantic versioning. |
 | Delivery & Repository | `deprecation-and-migration` | Manages deprecation and migration of old systems, APIs, and features. |
 | Delivery & Repository | `ci-cd-and-automation` | Automates CI/CD pipeline setup and maintenance. |
-| Delivery & Repository | `git-workflow-and-versioning` | Manages Git workflows and semantic versioning strategies. |
-| Planning & Specification | `spec-driven` | Plans and implements work through adaptive specification, design, tasks, and execution phases. |
+| Planning & Specification | `spec-driven` | Plans and implements work through adaptive specification, design, tasks, and execution phases. Covers capability mapping, structured spec templates, vertical slicing, task sizing, and output file conventions. |
 | Planning & Specification | `spec-loop` | Executes specification artifacts milestone by milestone with verification gates. |
 | Planning & Specification | `idea-refine` | Turns raw ideas into sharp, actionable concepts through divergent and convergent thinking. |
 | Planning & Specification | `interview-me` | Extracts underlying intent through a focused one-question-at-a-time interview. |
-| Planning & Specification | `spec-driven-development` | Creates specs before coding with structured phases and gates. |
-| Planning & Specification | `planning-and-task-breakdown` | Breaks complex features into dependency-graph task breakdowns. |
 | Design & Architecture | `api-and-interface-design` | Guides stable API and interface design with clear contracts that are hard to misuse. |
 | Design & Architecture | `frontend-ui-engineering` | Builds production-quality, accessible, responsive user-facing UIs. |
 | Design & Architecture | `browser-testing-with-devtools` | Tests in real browsers via Chrome DevTools MCP. |

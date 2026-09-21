@@ -7,11 +7,11 @@ description: >
   (STATE.md), test-coverage-matrix-driven tests, self-improving lessons layer. Stack-agnostic. Use
   when planning features (requirements, design, task breakdown), implementing with verification
   and atomic commits, or validating against a spec. Triggers (PT/EN): "specify feature", "vamos
-  especificar", "discutir feature", "discutir este caso", "design", "design da feature",
-  "tarefas", "quebrar em tarefas", "implementar", "build", "validar", "verify work", "UAT",
-  "validar implementação", "record decision", "pause work", "pausar trabalho", "resume work",
-  "retomar trabalho". Do NOT use for architecture decomposition analysis (use architecture skills)
-  or technical design docs (Complex scope: gray areas + architecture-focused design).
+  especificar", "discutir feature", "design", "design da feature", "tarefas",
+  "quebrar em tarefas", "implementar", "build", "validar", "verify work", "UAT",
+  "validar implementação", "/spec", "/planning", "planning and task breakdown",
+  "break work into tasks". Do NOT use for architecture decomposition analysis (use architecture
+  skills) or technical design docs (Complex scope: gray areas + architecture-focused design).
 license: CC-BY-4.0
 metadata:
   version: 5.0.0
@@ -86,7 +86,59 @@ Plan and implement features with precision. Granular tasks. Clear dependencies. 
 
 1. Specify → (Design) → (Tasks) → Execute (depth auto-sized)
 
-**Resume work:**
+### Capability Mapping (Pre-Specify)
+
+Most requests describe one capability. If this one does, skip this phase and go straight to Specify — it exists for the exception, not the rule, and puts no hierarchy on single-capability features.
+
+**Decompose before specifying when a single requirement bundles several independently testable capabilities:**
+- The requirement names distinct capabilities with their own consumers or data (e.g. identity, billing, notifications, reporting)
+- Acceptance criteria cluster into groups that could ship and be verified separately
+- One capability could be cut or replaced without rewriting the others' requirements
+
+**Propose a capability map before writing any spec.** Small and reviewable — a module table plus a build order, not a project plan:
+
+```markdown
+# Capability Map: [Initiative Name]
+
+| Module id | Responsibility | Depends on |
+|---|---|---|
+| identity | Accounts, sessions, SSO | — |
+| billing | Plans, invoices, payments | identity |
+| notifications | Email and webhook fan-out | identity |
+| reporting | Usage dashboards | billing, notifications |
+
+Build order: identity → billing, notifications → reporting
+```
+
+- **Stable module ids.** Kebab-case, chosen once, never renamed mid-initiative. Specs, plans, and downstream commands select work by these ids instead of guessing which spec is active.
+- **Dependency direction, no cycles.** Arrows point one way. If two modules each need the other, they are one module.
+- **Interfaces live at the boundary.** The map records that `billing` depends on `identity`; the contract between them belongs in the provider module's spec.
+
+**The map is gated like every phase.** The human reviews module boundaries, dependency direction, and build order before any module spec is written.
+
+**Then recurse per module.** Run Specify → Plan → Tasks → Implement for each module in dependency order. Each module gets its own spec, scoped to that module's objective, boundaries, and success criteria. Save the approved map at the project root and each module's spec alongside it, named by module id (`SPEC-identity.md`, `SPEC-billing.md`) — the map, not filename guessing, is the index of what exists.
+
+### Plan Document and Output Files
+
+**Plan document:** Save the implementation plan to `tasks/plan.md`. This is always a markdown file — design decisions, risks, and open questions don't map cleanly onto individual tracker issues.
+
+**Task list:** Record each task in the **task list target** (defined below). Create the `tasks/` directory if it does not exist.
+
+**Never overwrite an incomplete plan.** Before writing `tasks/plan.md` or `tasks/todo.md`, check whether they already exist and still contain unchecked tasks:
+
+- Same work being replanned (the user asked to revise or extend this plan) → update the existing files in place.
+- Different work → **stop and ask.** The unchecked tasks may be mid-build in another session. Do not delete, overwrite, or rename the existing files on your own; present the conflict and let the user decide.
+
+The same rule applies to an external task list target: never bulk-close or delete another plan's open tracker items to make room for new ones.
+
+**Task list target:** Where tasks and checkpoints are recorded.
+
+- **Default: a checklist-style markdown file at `tasks/todo.md`.** This is the convention downstream tooling expects. Use it unless the project says otherwise.
+- **External tracker:** if the project's agent rules (`CLAUDE.md`, `AGENTS.md`, etc.) or the user designate an issue tracker (e.g. GitHub Issues, Jira, Linear), create one tracker item per task instead of writing `tasks/todo.md`. Map the task structure onto the tracker's fields. Record Step 5 checkpoints as tracker items too.
+
+When using an external tracker, note it in `tasks/plan.md` so downstream steps know where to look.
+
+### Resume work:
 
 Read `.specs/STATE.md` — Handoff section for in-flight state, Decisions section to re-confirm active constraints — then propose the next step.
 
@@ -172,3 +224,59 @@ Be conversational, not robotic. Don't interrupt workflow—add as a natural clos
 ## Code Analysis
 
 Use available tools with graceful degradation. See [code-analysis.md](references/code-analysis.md).
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "This is simple, I don't need a spec" | Simple tasks don't need *long* specs, but they still need acceptance criteria. A two-line spec is fine. |
+| "I'll write the spec after I code it" | That's documentation, not specification. The spec's value is in forcing clarity *before* code. |
+| "The spec will slow us down" | A 15-minute spec prevents hours of rework. Waterfall in 15 minutes beats debugging in 15 hours. |
+| "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec. |
+| "I'll figure it out as I go" | That's how you end up with a tangled mess and rework. 10 minutes of planning saves hours. |
+| "The tasks are obvious" | Write them down anyway. Explicit tasks surface hidden dependencies and forgotten edge cases. |
+| "Planning is overhead" | Planning is the task. Implementation without a plan is just typing. |
+| "I can hold it all in my head" | Context windows are finite. Written plans survive session boundaries and compaction. |
+| "It's one big feature; splitting it is overhead" | If acceptance criteria cluster into independently testable groups, a ten-line capability map is the cheap alternative. |
+
+## Red Flags
+
+- Starting to write code without any written requirements
+- Asking "should I just start building?" before clarifying what "done" means
+- Implementing features not mentioned in any spec or task list
+- Making architectural decisions without documenting them
+- Skipping the spec because "it's obvious what to build"
+- One spec whose requirements span several independently testable capabilities
+- Module boundaries or build order decided implicitly during implementation
+- Starting implementation without a written task list
+- Overwriting a `tasks/plan.md` or `tasks/todo.md` that still has unchecked tasks for different work, without asking
+- Tasks that say "implement the feature" without acceptance criteria
+- No verification steps in the plan
+- All tasks are XL-sized (8+ files) — break them down
+- No checkpoints between tasks
+- Dependency order isn't considered
+
+## Verification
+
+Before proceeding to implementation, confirm:
+
+- [ ] The spec covers all core areas (objective, tech stack, commands, project structure, code style, testing strategy, boundaries, success criteria)
+- [ ] The human has reviewed and approved the spec
+- [ ] Success criteria are specific and testable
+- [ ] Boundaries (Always/Ask First/Never) are defined
+- [ ] The spec is saved to a file in the repository
+- [ ] If the request bundles several independently testable capabilities, a capability map (module ids, dependency direction, build order) was approved before any module spec was written
+- [ ] Every task has acceptance criteria and a verification step
+- [ ] Task dependencies are identified and ordered correctly
+- [ ] Tasks are recorded in the task list target (default `tasks/todo.md`)
+- [ ] No pre-existing incomplete plan was overwritten without explicit user confirmation
+- [ ] No task touches more than ~5 files
+- [ ] Checkpoints exist between major phases
+
+## See Also
+
+Acceptance criteria are per-task and answer "did we build the right thing?". They sit on top of the project-wide Definition of Done, the standing bar every task clears before it counts as done. See `../../references/definition-of-done.md`.
+
+- **`git-commit-learning`** — for writing AI-learnable commit messages during Execute.
+- **`spec-driven-development`** — absorbed into this skill. Its gated workflow, capability mapping, and detailed spec structure are now part of the Specify phase.
+- **`planning-and-task-breakdown`** — absorbed into this skill. Its dependency-graph mapping, vertical slicing, task sizing, and output file conventions are now part of the Tasks phase.
