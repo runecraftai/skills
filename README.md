@@ -74,6 +74,9 @@ The catalog is the source of truth for these categories; descriptions below come
 | Planning & Specification | `spec-loop` | Executes specification artifacts milestone by milestone with verification gates. |
 | Planning & Specification | `idea-refine` | Turns raw ideas into sharp, actionable concepts through divergent and convergent thinking. |
 | Planning & Specification | `interview-me` | Extracts underlying intent through a focused one-question-at-a-time interview. |
+| Planning & Specification | `idea-discovery` | Interviews an unshaped idea into a verdict plus a design document that someone else can plan from. |
+| Planning & Specification | `task-cutting` | Turns decided work into tasks a builder can act on: slices with observable criteria, grounded in the code. |
+| Planning & Specification | `verified-implementation` | Extracts a checklist from a planned work item, builds it, and proves every check with an independent verifier. |
 | Design & Architecture | `api-and-interface-design` | Guides stable API and interface design with clear contracts that are hard to misuse. |
 | Design & Architecture | `frontend-ui-engineering` | Builds production-quality, accessible, responsive user-facing UIs. |
 | Design & Architecture | `browser-testing-with-devtools` | Tests in real browsers via Chrome DevTools MCP. |

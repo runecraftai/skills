@@ -32,7 +32,10 @@
       "spec-driven",
       "spec-loop",
       "idea-refine",
-      "interview-me"
+      "interview-me",
+      "idea-discovery",
+      "task-cutting",
+      "verified-implementation"
     ],
     "Design & Architecture": [
       "api-and-interface-design",
