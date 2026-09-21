@@ -5,7 +5,7 @@ description: >
   EN triggers: /documentation, documentation and adrs.
   PT triggers: /documentation, documentation and adrs.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Documentation and ADRs

@@ -7,7 +7,7 @@ description: >
   EN triggers: /ship, pre-launch checklist, staged rollout, feature flag, rollback plan, monitoring.
   PT triggers: /shippar, checklist pré-lançamento, rollout gradual, feature flag, plano de rollback.
   Do NOT use for: pre-production development work, or one-off internal tools with no user exposure.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Shipping and Launch

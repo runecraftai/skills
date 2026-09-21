@@ -5,7 +5,7 @@ description: >
   EN triggers: /planning, planning and task breakdown.
   PT triggers: /planning, planning and task breakdown.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Planning and Task Breakdown

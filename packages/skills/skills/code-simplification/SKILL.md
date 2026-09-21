@@ -7,7 +7,7 @@ description: >
   PT triggers: /simplificar, reduzir complexidade, código difícil de ler, fence de Chesterton.
   Do NOT use for: behavior-changing refactors (use /spec-driven to plan), bug fixes
   (use /debug or /test-driven-development), or one-off tweaks that don't reduce concept count.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Code Simplification

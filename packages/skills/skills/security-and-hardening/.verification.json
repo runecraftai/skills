@@ -1,6 +1,10 @@
 {
   "skills": {
     "security-and-hardening": {
+      "6b06f31aae32": {
+        "evidence": "Absorbed from upstream (MIT license). Transformed to Runecraft catalog format. Upstream identity removed. License field set to MIT per Runecraft convention.",
+        "result": "verified"
+      },
       "9eac1998115f": {
         "evidence": "Absorbed from addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani). Transformed to Runecraft catalog format. Upstream identity removed.",
         "result": "verified"

@@ -8,7 +8,7 @@ description: >
   PT triggers: /revisar, revisão de código, revisão de PR, gate de merge.
   Do NOT use for: in-flight decisions on non-trivial work (that's /harden), single-line typo fixes, or
   when the user explicitly skips review.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Code Review and Quality

@@ -5,7 +5,7 @@ description: >
   EN triggers: /browser, browser testing with devtools.
   PT triggers: /browser, browser testing with devtools.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Browser Testing with DevTools

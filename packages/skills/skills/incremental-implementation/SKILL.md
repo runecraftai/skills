@@ -5,7 +5,7 @@ description: >
   EN triggers: /incremental, incremental implementation.
   PT triggers: /incremental, incremental implementation.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Incremental Implementation

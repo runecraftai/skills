@@ -8,7 +8,7 @@ description: >
   PT triggers: refinar ideia, expandir opções, brainstorm, validar premissas.
   Do NOT use for: vague ideas that need /interview-me first to extract intent, or for
   requirements that are already sharp enough for /spec-driven.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Idea Refine

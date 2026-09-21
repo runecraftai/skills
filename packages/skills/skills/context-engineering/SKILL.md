@@ -5,7 +5,7 @@ description: >
   EN triggers: /context, context engineering.
   PT triggers: /context, context engineering.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Context Engineering

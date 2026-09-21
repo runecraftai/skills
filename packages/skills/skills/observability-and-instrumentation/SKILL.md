@@ -5,7 +5,7 @@ description: >
   EN triggers: /observability, observability and instrumentation.
   PT triggers: /observability, observability and instrumentation.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Observability and Instrumentation

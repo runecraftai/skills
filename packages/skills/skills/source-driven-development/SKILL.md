@@ -5,7 +5,7 @@ description: >
   EN triggers: /source, source driven development.
   PT triggers: /source, source driven development.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Source-Driven Development

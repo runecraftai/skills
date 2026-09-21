@@ -5,7 +5,7 @@ description: >
   EN triggers: /api, api and interface design.
   PT triggers: /api, api and interface design.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # API and Interface Design

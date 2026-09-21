@@ -5,7 +5,7 @@ description: >
   EN triggers: /frontend, frontend ui engineering.
   PT triggers: /frontend, frontend ui engineering.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Frontend UI Engineering

@@ -1,6 +1,10 @@
 {
   "skills": {
     "deprecation-and-migration": {
+      "406c58aef924": {
+        "evidence": "Absorbed from upstream (MIT license). Transformed to Runecraft catalog format. Upstream identity removed. License field set to MIT per Runecraft convention.",
+        "result": "verified"
+      },
       "607f2fdda72d": {
         "evidence": "Absorbed from addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani). Transformed to Runecraft catalog format. Upstream identity removed.",
         "result": "verified"

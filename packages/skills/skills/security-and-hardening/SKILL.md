@@ -8,7 +8,7 @@ description: >
   PT triggers: /segurança, auditoria de segurança, OWASP, privilégio mínimo, validar entrada.
   Do NOT use for: non-security performance work (use /review's performance axis), or dependency
   updates that have no security exposure.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Security and Hardening

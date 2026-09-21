@@ -5,7 +5,7 @@ description: >
   EN triggers: /git, git workflow and versioning.
   PT triggers: /git, git workflow and versioning.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Git Workflow and Versioning

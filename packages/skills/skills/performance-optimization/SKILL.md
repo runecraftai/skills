@@ -5,7 +5,7 @@ description: >
   EN triggers: /performance, performance optimization.
   PT triggers: /performance, performance optimization.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Performance Optimization

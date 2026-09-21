@@ -5,7 +5,7 @@ description: >
   EN triggers: /constraint, constraint driven development.
   PT triggers: /constraint, constraint driven development.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Constraint-Driven Development

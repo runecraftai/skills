@@ -5,7 +5,7 @@ description: >
   EN triggers: /spec, spec driven development.
   PT triggers: /spec, spec driven development.
   Do NOT use for: tasks outside this skill's scope.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Spec-Driven Development
