@@ -2,7 +2,7 @@
 
 Load this file only when writing `.tasks/<name>.md` — after the cut, the grounding, the surface walk, and the sweep. Do not load it during Cut.
 
-Section headings stay as they are — the next skill refers to them by name — while the prose follows the language of the document and identifiers are never translated. The document is for humans first: `tlc-implement` copies criteria into checks, and nothing under `Unresolved` gets settled while building.
+Section headings stay as they are — the next skill refers to them by name — while the prose follows the language of the document and identifiers are never translated. The document is for humans first: `verified-implementation` copies criteria into checks, and nothing under `Unresolved` gets settled while building.
 
 Replace every placeholder with a concrete value, or omit the section. A heading with "N/A" under it does not appear.
 
@@ -13,7 +13,7 @@ Write `.tasks/<name>.md`, one file per task:
 ````markdown
 # <Title>
 
-> Build this with **tlc-implement** (`<repo-relative path, when the project vendors the skill>`).
+> Build this with **verified-implementation** (`<repo-relative path, when the project vendors the skill>`).
 > Every criterion below becomes a check with a proof, referenced by its number. Nothing under
 > `Unresolved` gets settled while building.
 
