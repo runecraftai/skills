@@ -4,3 +4,5 @@ dist/
 packages/cli/catalog/
 
 .turbo/
+
+.grimoire-lock.json
