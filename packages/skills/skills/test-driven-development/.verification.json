@@ -1,0 +1,10 @@
+{
+  "skills": {
+    "test-driven-development": {
+      "eae0a6d1eb37": {
+        "evidence": "Absorbed from addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani). Transformed to Runecraft catalog format. Upstream identity removed.",
+        "result": "verified"
+      }
+    }
+  }
+}

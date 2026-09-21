@@ -1,0 +1,10 @@
+{
+  "skills": {
+    "deprecation-and-migration": {
+      "607f2fdda72d": {
+        "evidence": "Absorbed from addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani). Transformed to Runecraft catalog format. Upstream identity removed.",
+        "result": "verified"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "skills": {
+    "documentation-and-adrs": {
+      "f4564273c296": {
+        "evidence": "Absorbed from addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani). Transformed to Runecraft catalog format. Upstream identity removed.",
+        "result": "verified"
+      }
+    }
+  }
+}

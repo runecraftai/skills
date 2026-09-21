@@ -3,7 +3,8 @@
     "Agent Skills": [
       "skill-forge",
       "using-agent-skills",
-      "memory-management"
+      "memory-management",
+      "context-engineering"
     ],
     "Code Quality & Testing": [
       "code-review-and-quality",
@@ -11,22 +12,37 @@
       "doubt-driven-development",
       "debugging-and-error-recovery",
       "typescript-patterns",
-      "code-simplification"
+      "code-simplification",
+      "constraint-driven-development",
+      "incremental-implementation",
+      "source-driven-development"
     ],
     "Security & Reliability": [
-      "security-and-hardening"
+      "security-and-hardening",
+      "observability-and-instrumentation"
     ],
     "Delivery & Repository": [
       "shipping-and-launch",
       "git-worktree",
       "git-commit-learning",
-      "deprecation-and-migration"
+      "deprecation-and-migration",
+      "ci-cd-and-automation",
+      "git-workflow-and-versioning"
     ],
     "Planning & Specification": [
       "spec-driven",
       "spec-loop",
       "idea-refine",
-      "interview-me"
+      "interview-me",
+      "spec-driven-development",
+      "planning-and-task-breakdown"
+    ],
+    "Design & Architecture": [
+      "api-and-interface-design",
+      "frontend-ui-engineering",
+      "browser-testing-with-devtools",
+      "performance-optimization",
+      "documentation-and-adrs"
     ],
     "Professional Development": [
       "linkedin-audit"
