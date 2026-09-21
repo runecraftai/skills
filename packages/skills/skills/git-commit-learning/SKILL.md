@@ -1,7 +1,7 @@
 ---
 name: git-commit-learning
 description: >
-  Transforms Git history into reusable project memory for AI agents. Guides agents to analyze git log to extract domain patterns, decisions, and lessons, and to write AI-learnable commit messages with context, intent, validation, and domain signals. Use when asked to "analyze git history", "extract project learnings from commits", "write a commit message the AI can learn from", "make commits searchable for agents", "teach agents through Git", "review commit history for context", or "extract AI lessons from PRs". Also trigger on Portuguese: "analisa o histórico", "extrai aprendizado dos commits", "cria commit para IA aprender", "faz o git virar memória". Do NOT use for generic Git commands (status, push, pull, branch), release notes, changelogs, merge conflict resolution, or code review.
+  Transforms Git history into reusable project memory for AI agents. Guides agents to analyze git log to extract domain patterns, decisions, and lessons, and to write AI-learnable commit messages with context, intent, validation, and domain signals. Also covers Git workflow fundamentals: trunk-based development, atomic commits, branching strategy, worktrees, pre-commit hygiene, semantic versioning, and changelog best practices. Use when asked to "analyze git history", "extract project learnings from commits", "write a commit message the AI can learn from", "make commits searchable for agents", "teach agents through Git", "review commit history for context", "extract AI lessons from PRs", "/git", "git workflow and versioning", "commit message", "semantic versioning", "changelog". Also trigger on Portuguese: "analisa o histórico", "extrai aprendizado dos commits", "cria commit para IA aprender", "faz o git virar memória". Do NOT use for merge conflict resolution or code review skills.
 license: CC-BY-4.0
 ---
 
@@ -244,9 +244,7 @@ Quando uma IA futura lê `git log`, ela pode:
 
 ---
 
-## Examples (PT/EN)
-
-### Exemplo em Português
+## Example
 
 ```text
 feat(api): implementa integração com Stripe conforme task CAM-42
@@ -254,7 +252,6 @@ feat(api): implementa integração com Stripe conforme task CAM-42
 [CONTEXTO]
 - Resolvida a task CAM-42 referente ao fluxo de checkout.
 - Implementação segue a Spec em docs/specs/payments-v1.md.
-- Vinculado ao Design Doc de Arquitetura de Pagamentos para conformidade com padrões do projeto.
 
 [ALTERAÇÕES ATÔMICAS]
 - Adicionado StripeService para gerenciar sessões de checkout.
@@ -272,31 +269,7 @@ feat(api): implementa integração com Stripe conforme task CAM-42
 - npm run lint — passou.
 ```
 
-### Example in English
-
-```text
-feat(api): implement Stripe integration per task CAM-42
-
-[CONTEXTO]
-- Resolves task CAM-42 for the checkout flow.
-- Implementation follows the Spec in docs/specs/payments-v1.md.
-- Aligned with the Payments Architecture Design Doc to ensure project standards.
-
-[ALTERAÇÕES ATÔMICAS]
-- Added StripeService to manage checkout sessions.
-- Created POST /payments/create-session endpoint validated by DTO.
-- Configured webhook to listen for checkout.session.completed events.
-
-[DECISÕES TÉCNICAS (Mini-ADR)]
-- Used Stripe SDK v14.x for compatibility with project rules.
-- Chose not to persist sensitive data locally, delegating security to Stripe per RFC-09.
-
-[VALIDAÇÃO]
-- npm test src/services/stripe.service.spec.ts — passed (8/8).
-- curl -X POST /payments/create-session — returned session URL (201).
-- npm run typecheck — passed.
-- npm run lint — passed.
-```
+English format is identical — translate section headers and descriptions.
 
 ---
 
@@ -345,39 +318,11 @@ Se a mudança toca múltiplos domínios, avalie:
 - São mudanças independentes em billing e catalog? → Commits separados por domínio.
 - Não tem como separar? → Use scope mais amplo e explique o motivo.
 
-```text
-refactor(events): renomeia PaymentCaptured.userId para customerId
-
-[CONTEXTO]
-- userId era ambíguo — não deixava claro se era o usuário logado ou o cliente da transação.
-
-[ALTERAÇÕES ATÔMICAS]
-- Renomeado campo userId para customerId no evento PaymentCaptured.
-- Atualizados consumidores: billing, orders, analytics.
-
-[DECISÕES TÉCNICAS (Mini-ADR)]
-- Campo de evento público — mudança precisa ser atômica para evitar inconsistência entre serviços.
-
-[VALIDAÇÃO]
-- npm test —events — passou (34/34).
-- Publishers e consumers validados com schema registry.
-```
-
 ---
 
 ## Incremental Commits
 
-Para mudanças SIGNIFICANT, proponha sequência de commits atômicos:
-
-```text
-feat(auth): adiciona contrato para logout OIDC
-feat(auth): implementa revogação de sessão local
-feat(auth): integra redirect OIDC ao fluxo de logout
-test(auth): cobre logout OIDC e fallback legado
-docs(auth): registra decisão de compatibilidade com login legado
-```
-
-Cada commit deve ser autocontido e responder às 4 perguntas RPI: de onde veio, o que foi decidido, o que foi feito, como foi comprovado.
+Para mudanças SIGNIFICANT, proponha sequência de commits atômicos. Cada commit deve ser autocontido e responder às 4 perguntas RPI: de onde veio, o que foi decidido, o que foi feito, como foi comprovado.
 
 ---
 
@@ -427,6 +372,79 @@ Quando spec-driven estiver ativo e um commit for gerado durante a fase BUILD:
 - Use os acceptance criteria da task como base para [VALIDAÇÃO]
 - Extraia decisões do design doc para [DECISÕES TÉCNICAS (Mini-ADR)]
 - Inclua o ID da task na primeira linha de [CONTEXTO]
+
+---
+
+## Git Workflow Fundamentals
+
+These principles underpin every commit. Full details: [git-workflow.md](references/git-workflow.md).
+
+**Key principles:**
+- **Trunk-based development** — Keep `main` always deployable. Short-lived feature branches (1-3 days). Feature flags > long branches.
+- **Atomic commits** — Each commit does one logical thing. Separate formatting from behavior, refactors from features.
+- **Descriptive messages** — Explain the *why*, not just the *what*. Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`.
+- **Branch naming** — `feature/<desc>`, `fix/<desc>`, `chore/<desc>`, `refactor/<desc>`.
+- **Worktrees** — For parallel AI agent work, use `git worktree add` to run multiple branches simultaneously.
+- **Save point pattern** — Commit after each testable increment; revert to last commit on failure.
+- **Pre-commit hygiene** — Check staged diff, scan for secrets, run tests/lint/typecheck before committing.
+- **Generated files** — Commit lockfiles and migrations; don't commit build output, `.env`, or IDE config.
+- **Semantic versioning** — MAJOR (breaking), MINOR (additive), PATCH (fix). Tag releases; derive version from tag.
+- **Changelog** — Consumer-facing, grouped by impact (Added/Changed/Fixed/Deprecated/Removed/Security). Write with the change, not at release time.
+
+This skill's RPI template extends these fundamentals with structured context ([CONTEXTO], [DECISÕES TÉCNICAS], [ALTERAÇÕES ATÔMICAS], [VALIDAÇÃO]) for AI-learnable commits.
+
+---
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I'll commit when the feature is done" | One giant commit is impossible to review, debug, or revert. Commit each slice. |
+| "The message doesn't matter" | Messages are documentation. Future you (and future agents) will need to understand what changed and why. |
+| "I'll squash it all later" | Squashing destroys the development narrative. Prefer clean incremental commits from the start. |
+| "Branches add overhead" | Short-lived branches are free and prevent conflicting work from colliding. Long-lived branches are the problem. |
+| "I don't need a .gitignore" | Until `.env` with production secrets gets committed. Set it up immediately. |
+| "It's just a small fix, bump the patch" | Check what consumers can observe. A behavior change they relied on is a major, whatever the diff size. |
+| "The changelog is just the commit log" | Commits are for you; the changelog is for consumers, curated by impact. |
+
+## Red Flags
+
+- Large uncommitted changes accumulating
+- Commit messages like "fix", "update", "misc"
+- Formatting changes mixed with behavior changes
+- No `.gitignore` in the project
+- Committing `node_modules/`, `.env`, or build artifacts
+- Long-lived branches that diverge significantly from main
+- Force-pushing to shared branches
+- A breaking change shipped under a minor or patch version bump
+- A release with no tag, or a version number hand-edited out of sync with the tag
+- A user-facing release with no changelog entry
+- Validation sections using subjective judgment instead of binary pass/fail
+
+## Verification
+
+For every commit:
+
+- [ ] Commit does one logical thing
+- [ ] Message explains the why, follows type conventions
+- [ ] Tests pass before committing
+- [ ] No secrets in the diff
+- [ ] No formatting-only changes mixed with behavior changes
+- [ ] `.gitignore` covers standard exclusions
+- [ ] For AI-learnable commits: [CONTEXTO], [ALTERAÇÕES ATÔMICAS], [DECISÕES TÉCNICAS], and [VALIDAÇÃO] are present with binary results
+
+For every release (anything with consumers):
+
+- [ ] The version bump matches the change: breaking → major, additive → minor, fix → patch
+- [ ] The release is tagged, and the version is derived from the tag
+- [ ] The changelog has a curated, human-readable entry grouped by impact
+
+## See Also
+
+- **`spec-driven`** — for planning and implementing features; commits during Execute follow this skill's RPI template.
+- **`git-workflow-and-versioning`** — absorbed into this skill. Its trunk-based development, atomic commits, branching strategy, worktrees, save point pattern, pre-commit hygiene, semantic versioning, and changelog practices are now part of this skill's Git Workflow Fundamentals section.
+- **`deprecation-and-migration`** — for managing deprecation windows and migration notes in releases.
+- **`shipping-and-launch`** — for production launch rollout, monitoring, and rollback planning.
 
 ---
 

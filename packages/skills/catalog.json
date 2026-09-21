@@ -26,16 +26,13 @@
       "git-worktree",
       "git-commit-learning",
       "deprecation-and-migration",
-      "ci-cd-and-automation",
-      "git-workflow-and-versioning"
+      "ci-cd-and-automation"
     ],
     "Planning & Specification": [
       "spec-driven",
       "spec-loop",
       "idea-refine",
-      "interview-me",
-      "spec-driven-development",
-      "planning-and-task-breakdown"
+      "interview-me"
     ],
     "Design & Architecture": [
       "api-and-interface-design",

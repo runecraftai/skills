@@ -81,6 +81,21 @@ Fix inline. This gate is bounded to THIS feature's stated dimensions and actual 
 
 ---
 
+## Project-Level Spec (when needed)
+
+For new projects or greenfield initiatives, the feature-level user story template below may not be the right starting point. In that case, write a project-level spec covering these six core areas before drilling into features:
+
+1. **Objective** — What are we building and why? Who is the user? What does success look like?
+2. **Commands** — Full executable commands with flags (build, test, lint, dev).
+3. **Project Structure** — Where source code lives, where tests go, where docs belong.
+4. **Code Style** — One real code snippet showing your style beats three paragraphs describing it.
+5. **Testing Strategy** — What framework, where tests live, coverage expectations.
+6. **Boundaries** — Always do / Ask first / Never do.
+
+**Reframe instructions as success criteria.** When receiving vague requirements, translate them into concrete, testable conditions and confirm with the user before proceeding.
+
+Use the feature-level template below for individual features within an established project.
+
 ## Template: `.specs/features/[feature]/spec.md`
 
 ```markdown
