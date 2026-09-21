@@ -113,7 +113,7 @@ Questions follow turn-cost rules: concrete options never open prompts; lead with
 
 ## Output
 
-Produce the artifact; do not narrate the phase. Read `references/document-format.md` when writing `.tasks/<name>.md` and `references/checklist.md` when writing `.checks/<feature>.md`. Present the cut, then the tasks, then the open questions with blocking ones first. Lead with the verdict. State decisions definitively.
+Produce the artifact; do not narrate the phase. Read `references/document-format.md` when writing `.tasks/<name>.md`. Present the cut, then the tasks, then the open questions with blocking ones first. Lead with the verdict. State decisions definitively.
 
 ## Common Rationalizations
 
