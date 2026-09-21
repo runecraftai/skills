@@ -86,7 +86,7 @@ The catalog is the source of truth for these categories; descriptions below come
 
 ## Why Grimoire
 
-- **One catalog:** skills are organized into Agent Skills, Code Quality & Testing, Delivery & Repository, Planning & Specification, Security & Reliability, and Professional Development.
+- **One catalog:** skills are organized into Agent Skills, Code Quality & Testing, Delivery & Repository, Planning & Specification, Security & Reliability, Design & Architecture, and Professional Development.
 - **Project-aware:** detection reads common project files and recommends relevant skills.
 - **Explicit installs:** existing skills are skipped by default; conflicts require an overwrite choice or `--overwrite`.
 - **Trackable work:** project installs can be recorded in `.grimoire-lock.json`.
