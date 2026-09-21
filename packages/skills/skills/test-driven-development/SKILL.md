@@ -7,7 +7,7 @@ description: >
   PT triggers: /teste, testes primeiro, provar com teste, pirâmide 80/15/5.
   Do NOT use for: production incident triage (use /debug), or cosmetic-only changes
   with no behavioral surface.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Test-Driven Development

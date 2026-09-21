@@ -1,0 +1,10 @@
+{
+  "skills": {
+    "ci-cd-and-automation": {
+      "description:": {
+        "evidence": "Absorbed from upstream (MIT license). Transformed to Runecraft catalog format. Upstream identity removed. License field set to MIT per Runecraft convention.",
+        "result": "verified"
+      }
+    }
+  }
+}

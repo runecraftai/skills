@@ -1,0 +1,14 @@
+{
+  "skills": {
+    "source-driven-development": {
+      "414cff3a920c": {
+        "evidence": "Absorbed from upstream (MIT license). Transformed to Runecraft catalog format. Upstream identity removed. License field set to MIT per Runecraft convention.",
+        "result": "verified"
+      },
+      "8e271b712e77": {
+        "evidence": "Absorbed from addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani). Transformed to Runecraft catalog format. Upstream identity removed.",
+        "result": "verified"
+      }
+    }
+  }
+}

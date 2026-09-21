@@ -8,7 +8,7 @@ description: >
   PT triggers: /entrevista, "me entrevista", "tenho certeza?", questiona minhas premissas.
   Do NOT use for: well-specified asks (route to /spec-driven instead), or after the spec is written
   (use /doubt-driven-development to stress-test a finished plan).
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Interview Me

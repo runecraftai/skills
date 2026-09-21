@@ -53,26 +53,40 @@ The catalog is the source of truth for these categories; descriptions below come
 | Agent Skills | `skill-forge` | Designs, authors, validates, and optimizes new Agent Skills. |
 | Agent Skills | `using-agent-skills` | Discovers and invokes the right Grimoire skill for a task. |
 | Agent Skills | `memory-management` | Maintains lightweight project decisions and error-pattern memory. |
+| Agent Skills | `context-engineering` | Manages context loading and session management for AI agents. |
 | Code Quality & Testing | `code-review-and-quality` | Reviews correctness, readability, architecture, security, and performance with severity labels. |
 | Code Quality & Testing | `test-driven-development` | Drives implementation with failing tests first, then passing tests and refactoring. |
 | Code Quality & Testing | `doubt-driven-development` | Applies adversarial review to non-trivial decisions before they stand. |
 | Code Quality & Testing | `debugging-and-error-recovery` | Guides systematic reproduce, localize, reduce, fix, and guard debugging. |
 | Code Quality & Testing | `typescript-patterns` | Covers type-safe TypeScript patterns including unions, generics, and narrowing. |
 | Code Quality & Testing | `code-simplification` | Simplifies code for clarity while preserving exact behavior. |
-| Delivery & Repository | `shipping-and-launch` | Prepares production launches with rollout, monitoring, and rollback planning. |
+| Code Quality & Testing | `constraint-driven-development` | Establishes project quality bars as written contracts and prevents agents from lowering them. |
+| Code Quality & Testing | `incremental-implementation` | Implements changes one vertical slice at a time with test coverage. |
+| Code Quality & Testing | `source-driven-development` | Uses source code as truth for framework-specific implementation patterns. |
 | Security & Reliability | `security-and-hardening` | Hardens code against vulnerabilities using OWASP and boundary-focused practices. |
+| Security & Reliability | `observability-and-instrumentation` | Adds monitoring, logging, and tracing for production systems. |
+| Delivery & Repository | `shipping-and-launch` | Prepares production launches with rollout, monitoring, and rollback planning. |
 | Delivery & Repository | `git-worktree` | Uses isolated Git worktrees for parallel feature branches. |
 | Delivery & Repository | `git-commit-learning` | Extracts reusable project lessons from Git history and commits. |
 | Delivery & Repository | `deprecation-and-migration` | Manages deprecation and migration of old systems, APIs, and features. |
+| Delivery & Repository | `ci-cd-and-automation` | Sets up and manages CI/CD pipelines and automated testing. |
+| Delivery & Repository | `git-workflow-and-versioning` | Manages Git workflows and semantic versioning strategies. |
 | Planning & Specification | `spec-driven` | Plans and implements work through adaptive specification, design, tasks, and execution phases. |
 | Planning & Specification | `spec-loop` | Executes specification artifacts milestone by milestone with verification gates. |
 | Planning & Specification | `idea-refine` | Turns raw ideas into sharp, actionable concepts through divergent and convergent thinking. |
 | Planning & Specification | `interview-me` | Extracts underlying intent through a focused one-question-at-a-time interview. |
+| Planning & Specification | `spec-driven-development` | Creates specs before coding with structured phases and gates. |
+| Planning & Specification | `planning-and-task-breakdown` | Breaks complex features into dependency-graph task breakdowns. |
+| Design & Architecture | `api-and-interface-design` | Guides stable API and interface design with contract-first principles. |
+| Design & Architecture | `frontend-ui-engineering` | Covers frontend-specific engineering practices and component design. |
+| Design & Architecture | `browser-testing-with-devtools` | Tests browser applications using DevTools and automation. |
+| Design & Architecture | `performance-optimization` | Profiles and optimizes application performance with Core Web Vitals. |
+| Design & Architecture | `documentation-and-adrs` | Creates documentation and architecture decision records. |
 | Professional Development | `linkedin-audit` | Audits LinkedIn profiles with scored sections, diagnostics, rewrites, and a dashboard. |
 
 ## Why Grimoire
 
-- **One catalog:** skills are organized into Agent Skills, Code Quality & Testing, Delivery & Repository, Planning & Specification, Security & Reliability, and Professional Development.
+- **One catalog:** skills are organized into Agent Skills, Code Quality & Testing, Delivery & Repository, Planning & Specification, Security & Reliability, Design & Architecture, and Professional Development.
 - **Project-aware:** detection reads common project files and recommends relevant skills.
 - **Explicit installs:** existing skills are skipped by default; conflicts require an overwrite choice or `--overwrite`.
 - **Trackable work:** project installs can be recorded in `.grimoire-lock.json`.

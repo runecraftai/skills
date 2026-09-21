@@ -8,7 +8,7 @@ description: >
   PT triggers: /depreciar, /migrar, aposentar, descontinuar, código como passivo.
   Do NOT use for: pure code quality cleanup without user impact (use /simplify), or new feature
   implementation.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Deprecation and Migration

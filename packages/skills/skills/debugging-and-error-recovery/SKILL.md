@@ -7,7 +7,7 @@ description: >
   PT triggers: /debugar, causa raiz, reproduzir e reduzir, parar a linha.
   Do NOT use for: feature implementation (use /test-driven-development), or speculative "what if"
   scenarios that aren't reproducing a real failure.
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Debugging and Error Recovery

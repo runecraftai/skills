@@ -9,7 +9,7 @@ description: >
   Do NOT use for: actual implementation work (route to the specific skill instead), unrelated
   standalone tasks outside the Runecraft catalog, or runtime-specific configuration (e.g.,
   opencode.json / Claude Code plugin paths).
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Using Agent Skills

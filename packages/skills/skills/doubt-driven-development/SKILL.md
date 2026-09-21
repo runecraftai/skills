@@ -8,7 +8,7 @@ description: >
   PT triggers: /endurecer, questionar decisão, revisar com olhos novos, "será que tô certo?".
   Do NOT use for: trivial changes where the cost of doubt exceeds the cost of a bug, or for finished
   artifact review (that's /review).
-license: CC-BY-4.0
+license: MIT
 ---
 
 # Doubt-Driven Development
