@@ -1,11 +1,11 @@
 ---
 name: incremental-implementation
 description: >
-  Delivers changes incrementally in thin, verifiable slices. Use when implementing any feature or change that touches more than one file, or when picking up the next task from a plan. Use when rolling a change out behind a feature flag, when you're about to write a large amount of code at once, or when a task feels too big to land in one step
-  EN triggers: /incremental, incremental implementation.
-  PT triggers: /incremental, incremental implementation.
-  Do NOT use for: tasks outside this skill's scope.
+  Delivers changes incrementally in thin, verifiable slices. Use when implementing any feature or change that touches more than one file, when picking up the next task from a plan, rolling a change out behind a feature flag, or when a task feels too big to land in one step. Triggers (PT/EN): "/incremental", "incremental implementation", "break this down", "deliver in slices", "implementar incrementalmente". Do NOT use for: architecture design, single-file changes, or greenfield project scaffolding.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # Incremental Implementation

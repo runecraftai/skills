@@ -1,11 +1,11 @@
 ---
 name: observability-and-instrumentation
 description: >
-  Instruments code so production behavior is visible and diagnosable. Use when adding logging, metrics, tracing, or alerting. Use when shipping any feature that runs in production and you need evidence it works. Use when production issues are reported but you can't tell what happened from the available data
-  EN triggers: /observability, observability and instrumentation.
-  PT triggers: /observability, observability and instrumentation.
-  Do NOT use for: tasks outside this skill's scope.
+  Instruments code so production behavior is visible and diagnosable. Use when adding logging, metrics, tracing, or alerting to a codebase, when shipping any feature that runs in production and you need evidence it works, or when production issues are reported but you can't tell what happened from available data. Triggers (PT/EN): "/observability", "observability and instrumentation", "add logging", "set up metrics", "instrumentar código". Do NOT use for: debugging specific failures (use debugging-and-error-recovery), error handling logic, or alerting rule configuration.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # Observability and Instrumentation

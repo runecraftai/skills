@@ -1,11 +1,11 @@
 ---
 name: context-engineering
 description: >
-  Optimizes agent context setup. Use when starting a new session, when agent output quality degrades, when switching between tasks, or when you need to configure rules files and context for a project
-  EN triggers: /context, context engineering.
-  PT triggers: /context, context engineering.
-  Do NOT use for: tasks outside this skill's scope.
+  Optimizes agent context setup so sessions start with the right information. Use when starting a new session, when agent output quality degrades, when switching between tasks, or when configuring rules files and project context for AI agents. Triggers (PT/EN): "/context", "context engineering", "set up agent context", "configure rules", "configurar contexto". Do NOT use for: application configuration, deployment setup, or feature implementation.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # Context Engineering
