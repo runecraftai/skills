@@ -1,11 +1,11 @@
 ---
 name: frontend-ui-engineering
 description: >
-  Builds production-quality, accessible, responsive user-facing UIs. Use when building or modifying interfaces and pages, creating components, implementing layouts, meeting WCAG accessibility requirements, managing state, or when the output needs to look and feel production-quality rather than AI-generated
-  EN triggers: /frontend, frontend ui engineering.
-  PT triggers: /frontend, frontend ui engineering.
-  Do NOT use for: tasks outside this skill's scope.
+  Builds production-quality, accessible, responsive user-facing UIs. Use when building or modifying interfaces and pages, creating components, implementing layouts, meeting WCAG accessibility requirements, managing frontend state, or when output needs to look and feel production-quality rather than AI-generated. Triggers (PT/EN): "/frontend", "frontend ui engineering", "build this component", "create the UI", "construir interface". Do NOT use for: backend API implementation, database schema design, or mobile-native UIs.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # Frontend UI Engineering

@@ -1,11 +1,11 @@
 ---
 name: source-driven-development
 description: >
-  Grounds every implementation decision in official documentation. Use when you want to verify an approach against the official docs before implementing it, or when you want authoritative, source-cited code free from outdated patterns. Use when building with any framework or library where correctness matters
-  EN triggers: /source, source driven development.
-  PT triggers: /source, source driven development.
-  Do NOT use for: tasks outside this skill's scope.
+  Grounds every implementation decision in official documentation. Use when verifying an approach against official docs before implementing, when building with a framework where correctness matters, or when you want authoritative, source-cited code free from outdated patterns. Triggers (PT/EN): "/source", "source driven development", "check the docs", "verify against official docs", "verificar documentação". Do NOT use for: API contract design (use api-and-interface-design), code review, or writing tests.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # Source-Driven Development

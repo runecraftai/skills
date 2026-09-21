@@ -1,11 +1,11 @@
 ---
 name: performance-optimization
 description: >
-  Optimizes application performance across frontend, backend, queries, and databases. Use when performance requirements exist, when you suspect performance regressions, when Core Web Vitals or load times need improvement, when N+1 query patterns need fixing, or when profiling reveals bottlenecks
-  EN triggers: /performance, performance optimization.
-  PT triggers: /performance, performance optimization.
-  Do NOT use for: tasks outside this skill's scope.
+  Optimizes application performance across frontend, backend, queries, and databases. Use when performance requirements exist, when you suspect performance regressions, when Core Web Vitals or load times need improvement, when N+1 query patterns need fixing, or when profiling reveals bottlenecks. Triggers (PT/EN): "/performance", "performance optimization", "optimize this", "improve load times", "otimizar performance". Do NOT use for: security hardening (use security-and-hardening), accessibility compliance, or feature implementation.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # Performance Optimization

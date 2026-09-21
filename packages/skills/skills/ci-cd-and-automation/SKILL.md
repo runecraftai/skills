@@ -1,11 +1,11 @@
 ---
 name: ci-cd-and-automation
 description: >
-  Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or establish deployment strategies.
-  EN triggers: /ci, ci cd and automation.
-  PT triggers: /ci, ci cd and automation.
-  Do NOT use for: tasks outside this skill's scope.
+  Automates CI/CD pipeline setup and maintenance. Use when setting up or modifying build and deployment pipelines, automating quality gates, configuring test runners in CI, or establishing deployment strategies. Triggers (PT/EN): "/ci", "ci cd and automation", "set up the pipeline", "configure CI", "configurar o pipeline". Do NOT use for: local development environment setup, application code logic, or cloud infrastructure provisioning.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # CI/CD and Automation

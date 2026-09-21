@@ -1,11 +1,11 @@
 ---
 name: api-and-interface-design
 description: >
-  Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend
-  EN triggers: /api, api and interface design.
-  PT triggers: /api, api and interface design.
-  Do NOT use for: tasks outside this skill's scope.
+  Guides stable API and interface design with clear contracts that are hard to misuse. Use when designing REST or GraphQL endpoints, defining type contracts between modules, establishing boundaries between frontend and backend, or reviewing an existing API for consistency. Triggers (PT/EN): "/api", "api and interface design", "design this endpoint", "define the API contract", "revisar a API". Do NOT use for: backend business logic implementation, database schema design, or frontend component styling.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # API and Interface Design

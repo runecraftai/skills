@@ -1,11 +1,11 @@
 ---
 name: documentation-and-adrs
 description: >
-  Records decisions and documentation. Use when you need to document an architecture decision (ADR) or the reasoning behind a design choice, when changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase
-  EN triggers: /documentation, documentation and adrs.
-  PT triggers: /documentation, documentation and adrs.
-  Do NOT use for: tasks outside this skill's scope.
+  Records decisions and documentation so context survives across sessions and team members. Use when documenting an architecture decision (ADR), recording the reasoning behind a design choice, changing public APIs, shipping features, or capturing context that future engineers and agents will need. Triggers (PT/EN): "/documentation", "documentation and adrs", "write an ADR", "document this decision", "documentar decisão". Do NOT use for: code comments or inline JSDoc, API reference generation, or writing user-facing guides.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # Documentation and ADRs

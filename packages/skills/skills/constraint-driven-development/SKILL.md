@@ -1,11 +1,11 @@
 ---
 name: constraint-driven-development
 description: >
-  Establishes a project's quality bar as a written contract and stops agents quietly lowering it. Interviews the user on which dimensions matter, supplies sane default thresholds when they have no number in mind, records everything in CONSTRAINTS.md, and watches the diff for a weakened bar — new @ts-ignore or eslint-disable suppressions, skipped or deleted tests, assertions stripped out, unimplemented stubs, thresholds edited down. Use when no quality bar is written down, when the user says "set up constraints" or "define our standards", when the user wants dimensions they care about — accessibility, web performance, coverage — set up as enforced constraints, when an agent keeps silencing checks or skipping tests to get to green, when you need a coverage or performance threshold and don't know what number to pick, or when an agent writes more code than anyone will read
-  EN triggers: /constraint, constraint driven development.
-  PT triggers: /constraint, constraint driven development.
-  Do NOT use for: tasks outside this skill's scope.
+  Establishes a project's quality bar as a written contract and stops agents quietly lowering it. Interviews the user on which dimensions matter, supplies sane default thresholds, records everything in CONSTRAINTS.md, and watches the diff for a weakened bar — new @ts-ignore or eslint-disable suppressions, skipped or deleted tests, assertions stripped out, unimplemented stubs, thresholds edited down. Use when no quality bar is written down, when the user says "set up constraints" or "define our standards", when you need coverage or performance thresholds enforced, or when an agent keeps silencing checks to get to green. Triggers (PT/EN): "/constraint", "constraint driven development", "set up constraints", "define our standards", "definir padrões". Do NOT use for: code review (use code-review-and-quality), test strategy design (use test-driven-development), or linting configuration.
 license: MIT
+metadata:
+  version: 1.0.0
+  upstream: "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani)"
 ---
 
 # Constraint-Driven Development
