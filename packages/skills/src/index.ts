@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { detectStack } from "./detect.js";
@@ -10,15 +10,13 @@ import { readRegistry, findSkill } from "./registry.js";
 import { readLockfile, updateLock, writeLockfile } from "./lockfile.js";
 import { isTargetId, resolveSkillsDir, TARGETS } from "./targets.js";
 import { runInteractive } from "./ui.js";
-import { homedir as osHomedir } from "node:os";
-import { mkdir, mkdtemp, rename, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { mkdtemp, rename, rm } from "node:fs/promises";
 import { rankSkills } from "../../core/src/index.js";
 import { downloadSkill, loadRemoteCatalog } from "./remote-catalog.js";
 
 const packageRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const catalogDir = existsSync(join(packageRoot, "skills")) ? join(packageRoot, "skills") : resolve(packageRoot, "../../skills/skills");
-const usage = `grimoire — browse and install agent skills\n\nUsage:\n  grimoire                         interactive catalog (default)\n  grimoire install -s <skill> -t <agent>   noninteractive install\n  grimoire list|search [query]     browse the catalog\n  grimoire detect                  recommend skills for this project\n  grimoire status                  show project lockfile\n\nAgents: ${TARGETS.map((t) => t.id).join(", ")}\nOptions: --global --target-dir <dir> --overwrite --help --version`;
+const usage = `grimoire — browse and install agent skills\n\nUsage:\n  grimoire                         interactive catalog (default)\n  grimoire install -s <skill> -t <agent>   local catalog install\n  grimoire install <id> --target <agent>   remote catalog install\n  grimoire list|search [query]     browse the catalog\n  grimoire list --available        list remote catalog skills\n  grimoire list --installed        list lock-tracked installs\n  grimoire remove <id> --target <agent>   remove an installed skill\n  grimoire update [id|--all]       update lock-tracked installs\n  grimoire audit [--json]          verify installed files against lock\n  grimoire detect                  recommend skills for this project\n  grimoire status                  show project lockfile\n\nAgents: ${TARGETS.map((t) => t.id).join(", ")}\nOptions: --global --target-dir <dir> --overwrite --offline --help --version`;
 function value(args: string[], flag: string): string | undefined { const i = args.indexOf(flag); return i < 0 ? undefined : args[i + 1]; }
 function print(skills: ReturnType<typeof readRegistry>, query = "") { for (const s of skills.filter((s) => !query || `${s.name} ${s.description} ${s.category}`.toLowerCase().includes(query.toLowerCase()))) console.log(`${s.name} [${s.category}] — ${s.description.split("\n")[0]}`); }
 function version() { try { return JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8")).version; } catch { return "0.0.0"; } }
@@ -30,7 +28,7 @@ async function main() {
   if (command === "list" || command === "search" || command === "install" || command === "update" || command === "audit" || command === "remove") {
     const local = readRegistry(catalogDir);
     let remote;
-    try { remote = await loadRemoteCatalog({ cacheFile: join(process.env.XDG_CACHE_HOME ?? join(osHomedir(), ".cache"), "runecraft", "grimoire", "registry.json"), offline: args.includes("--offline") }); }
+    try { remote = await loadRemoteCatalog({ cacheFile: join(process.env.XDG_CACHE_HOME ?? join(homedir(), ".cache"), "runecraft", "grimoire", "registry.json"), offline: args.includes("--offline") }); }
     catch (error) { if (args.includes("--offline") || command === "update" || (command === "install" && !args.includes("-s") && !args.includes("--skill")) || (command === "remove" && !args.includes("--force"))) throw error; }
     if (remote) {
       if (remote.warning) console.error(remote.warning);
