@@ -31,7 +31,7 @@ async function main() {
     const local = readRegistry(catalogDir);
     let remote;
     try { remote = await loadRemoteCatalog({ cacheFile: join(process.env.XDG_CACHE_HOME ?? join(osHomedir(), ".cache"), "runecraft", "grimoire", "registry.json"), offline: args.includes("--offline") }); }
-    catch (error) { if (args.includes("--offline") || command === "update" || (command === "install" && !args.includes("-s") && !args.includes("--skill"))) throw error; }
+    catch (error) { if (args.includes("--offline") || command === "update" || (command === "install" && !args.includes("-s") && !args.includes("--skill")) || (command === "remove" && !args.includes("--force"))) throw error; }
     if (remote) {
       if (remote.warning) console.error(remote.warning);
       const skills = remote.registry.skills;
@@ -70,6 +70,13 @@ async function main() {
       }
     }
     if (command === "list" || command === "search") { print(local, command === "search" ? args.slice(1).join(" ") : ""); return 0; }
+    if (command === "remove" && args.includes("--force")) {
+      const id = args.find((a) => !a.startsWith("-") && a !== "remove"); if (!id) throw new Error("remove requires a skill id");
+      const projectDir = resolve(process.cwd()), lock = readLockfile(projectDir), entry = lock.skills[id], target = value(args, "--target");
+      const targets = target ? [target] : entry?.agents ?? []; if (!targets.length) throw new Error("specify --target for --force removal");
+      for (const t of targets) { if (!isTargetId(t)) throw new Error(`unknown target: ${t}`); removeSkill(id, entry?.targets?.[t] ? resolve(entry.targets[t], "..") : resolveSkillsDir(t, { home: homedir(), projectDir, global: !entry })); }
+      if (entry) { if (target) { entry.agents = entry.agents.filter((x) => x !== target); delete entry.targets?.[target]; if (!entry.agents.length) delete lock.skills[id]; } else delete lock.skills[id]; writeLockfile(projectDir, lock); } return 0;
+    }
     if (["update", "audit", "remove"].includes(command)) throw new Error(`${command} requires a lock-tracked remote install; command not yet available for this catalog mode`);
   }
   const registry = readRegistry(catalogDir);

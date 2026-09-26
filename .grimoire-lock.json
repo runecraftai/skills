@@ -1,7 +1,10 @@
 {
-  "version": 1,
-  "generated": "2026-09-26T19:09:17.015Z",
+  "version": 2,
+  "generated": "2026-09-26T19:53:21.250Z",
   "registry": "runecraftai/grimoire",
+  "catalogUrl": "",
+  "catalogId": "runecraftai/skills",
+  "revision": "legacy",
   "skills": {
     "beta": {
       "version": "0.1.0",
@@ -14,7 +17,7 @@
     "spec-driven": {
       "version": "5.0.0",
       "hash": "sha256:0190b4f986d1ceb6e41974b04fc97f9c4dd062ef32d4432abdcfc606ddb08b21",
-      "installed": "2026-09-26T19:09:16.962Z",
+      "installed": "2026-09-26T19:53:21.250Z",
       "agents": [
         "pi"
       ]
