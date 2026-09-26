@@ -1,0 +1,27 @@
+{
+  "name": "@runecraft/grimoire-mcp",
+  "version": "1.0.0",
+  "description": "On-demand MCP server for the Runecraft skill catalog",
+  "type": "module",
+  "bin": {
+    "grimoire-mcp": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20.12.0"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --target=node --outdir=dist && chmod +x dist/index.js",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "@types/node": "^26.2.0",
+    "typescript": "^7.0.2"
+  }
+}
