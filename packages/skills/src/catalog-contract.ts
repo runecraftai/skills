@@ -3,7 +3,7 @@ import { lstat, mkdir, readFile, readdir, rm, writeFile, copyFile } from "node:f
 import { join, relative, resolve, sep } from "node:path";
 
 export type CatalogFile = { path: string; size: number; sha256: string };
-export type CatalogSkill = { id: string; version: string; category: string; description: string; license: string; attribution: { name: string; url: string; text: string }[]; entrypoint: string; files: CatalogFile[]; contentSha256: string };
+export type CatalogSkill = { id: string; name: string; version: string; category: string; description: string; license: string; attribution: { name: string; url: string; text: string }[]; entrypoint: string; files: CatalogFile[]; contentSha256: string };
 export type CatalogRegistry = { schemaVersion:  1; catalogVersion: string; revision: string; generatedAt: string; skills: CatalogSkill[] };
 const LICENSES = new Set(["MIT", "CC-BY-4.0"]);
 const EXCLUDED = new Set([".git", ".svn", ".hg", ".DS_Store", "Thumbs.db", "__pycache__", ".cache", "node_modules", ".turbo"]);
@@ -33,10 +33,11 @@ export function validateRegistry(value: unknown): asserts value is CatalogRegist
   const seenPaths = new Set<string>();
   for (const skill of value.skills) {
     if (!isRecord(skill)) throw new Error("Invalid skill entry: not an object");
-    if (Object.keys(skill).sort().join(",") !== "attribution,category,contentSha256,description,entrypoint,files,id,license,version") throw new Error(`Invalid skill schema: unexpected keys for ${skill.id ?? "<unknown>"}`);
+    if (Object.keys(skill).sort().join(",") !== "attribution,category,contentSha256,description,entrypoint,files,id,license,name,version") throw new Error(`Invalid skill schema: unexpected keys for ${skill.id ?? "<unknown>"}`);
     if (!nonempty(skill.id)) throw new Error("Skill entry missing id");
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(skill.id)) throw new Error(`Invalid skill id format: ${skill.id}`);
     if (ids.has(skill.id)) throw new Error(`Duplicate skill id: ${skill.id}`);
+    if (!nonempty(skill.name)) throw new Error(`Missing name for skill ${skill.id}`);
     if (!nonempty(skill.version)) throw new Error(`Missing version for skill ${skill.id}`);
     if (!nonempty(skill.category)) throw new Error(`Missing category for skill ${skill.id}`);
     if (categories.has(skill.category + "\0" + skill.id)) throw new Error(`Duplicate category membership: ${skill.id} in ${skill.category}`);
@@ -129,7 +130,7 @@ export async function generateCatalog(options: { skillsRoot: string; outputRoot:
     }
     await walk(dir);
     files.sort((a, b) => a.path.localeCompare(b.path, "en"));
-    const skill: CatalogSkill = { id, version: fm.version || "1.0.0", category: categoryById.get(id)!, description: fm.description.trim(), license: fm.license!, attribution: [{ name, url: `https://github.com/${attributionUrl || "runecraftai/skills"}`, text: attributionText }], entrypoint: "SKILL.md", files, contentSha256: directoryDigest(content) };
+    const skill: CatalogSkill = { id, name: fm.name || id, version: fm.version || "1.0.0", category: categoryById.get(id)!, description: fm.description.trim(), license: fm.license!, attribution: [{ name, url: `https://github.com/${attributionUrl || "runecraftai/skills"}`, text: attributionText }], entrypoint: "SKILL.md", files, contentSha256: directoryDigest(content) };
     skills.push(skill);
     for (const file of files) {
       const destination = join(staging, id, ...file.path.split("/"));

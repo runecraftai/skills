@@ -3,7 +3,7 @@ import { lstat, mkdir, open, readFile, realpath, rename, rm } from "node:fs/prom
 import { dirname, isAbsolute, join, resolve, sep } from "node:path";
 
 export type FileRecord = { path: string; size: number; sha256: string };
-export type Skill = { id: string; version: string; category: string; description: string; license: string; attribution: { name: string; url: string; text: string }[]; entrypoint: string; files: FileRecord[]; contentSha256: string };
+export type Skill = { id: string; name: string; version: string; category: string; description: string; license: string; attribution: { name: string; url: string; text: string }[]; entrypoint: string; files: FileRecord[]; contentSha256: string };
 export type Registry = { schemaVersion:  1; catalogVersion: string; revision: string; generatedAt: string; skills: Skill[] };
 export function normalizePath(path: string): string {
   if (!path || path.startsWith("/") || /^[A-Za-z]:/.test(path) || path.includes("\\") || /[\u0000-\u001f\u007f]/.test(path)) throw new Error(`Invalid path: ${path}`);
@@ -22,8 +22,8 @@ export function validateRegistry(v: unknown): asserts v is Registry {
   if(!record(v)) throw new Error("Invalid registry"); keys(v,"catalogVersion,generatedAt,revision,schemaVersion,skills");
   if(v.schemaVersion!==1 || !nonempty(v.catalogVersion)||!nonempty(v.revision)||!nonempty(v.generatedAt)||Number.isNaN(Date.parse(v.generatedAt))||!Array.isArray(v.skills)) throw new Error("Invalid registry schema");
   const ids=new Set<string>();
-  for(const s of v.skills){ if(!record(s)) throw new Error("Invalid skill"); keys(s,"attribution,category,contentSha256,description,entrypoint,files,id,license,version");
-    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s.id)||ids.has(s.id)||![s.version,s.category,s.description,s.license,s.entrypoint].every(nonempty)||!Array.isArray(s.files)||!Array.isArray(s.attribution)||!s.attribution.length||! /^[a-f0-9]{64}$/.test(s.contentSha256)) throw new Error(`Invalid skill ${s.id}`); ids.add(s.id);
+  for(const s of v.skills){ if(!record(s)) throw new Error("Invalid skill"); keys(s,"attribution,category,contentSha256,description,entrypoint,files,id,license,name,version");
+    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s.id)||ids.has(s.id)||![s.name,s.version,s.category,s.description,s.license,s.entrypoint].every(nonempty)||!Array.isArray(s.files)||!Array.isArray(s.attribution)||!s.attribution.length||! /^[a-f0-9]{64}$/.test(s.contentSha256)) throw new Error(`Invalid skill ${s.id}`); ids.add(s.id);
     const paths=new Set<string>(); for(const f of s.files){ if(!record(f)) throw new Error("Invalid file record"); keys(f,"path,sha256,size"); normalizePath(f.path); if(paths.has(f.path)||!Number.isSafeInteger(f.size)||f.size<0||!/^[a-f0-9]{64}$/.test(f.sha256)) throw new Error("Invalid file record"); for(const p of paths) if(p.startsWith(f.path+"/")||f.path.startsWith(p+"/")) throw new Error("Path collision"); paths.add(f.path); }
     if(!paths.has(s.entrypoint)) throw new Error("Missing entrypoint");
     for(const a of s.attribution) if(!record(a)||Object.keys(a).sort().join(",")!=="name,text,url"||![a.name,a.text].every(nonempty)||typeof a.url!=="string"||new URL(a.url).protocol!=="https:") throw new Error("Invalid attribution");

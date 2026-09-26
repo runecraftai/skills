@@ -1,11 +1,12 @@
 {
   "schemaVersion": 1,
   "catalogVersion": "1.1.1",
-  "revision": "1229436ba4d0be1aef3293063c73100849280d45",
-  "generatedAt": "2026-09-21T21:14:17.000Z",
+  "revision": "90dcdf28cfa2145420ce986a14dd71a88c679e48",
+  "generatedAt": "2026-09-26T18:53:07.000Z",
   "skills": [
     {
       "id": "api-and-interface-design",
+      "name": "api-and-interface-design",
       "version": "1.0.0",
       "category": "Design & Architecture",
       "description": "Guides stable API and interface design with clear contracts that are hard to misuse. Use when designing REST or GraphQL endpoints, defining type contracts between modules, establishing boundaries between frontend and backend, or reviewing an existing API for consistency. Triggers (PT/EN): \"/api\", \"api and interface design\", \"design this endpoint\", \"define the API contract\", \"revisar a API\". Do NOT use for: backend business logic implementation, database schema design, or frontend component styling.",
@@ -14,7 +15,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -29,6 +30,7 @@
     },
     {
       "id": "browser-testing-with-devtools",
+      "name": "browser-testing-with-devtools",
       "version": "1.0.0",
       "category": "Design & Architecture",
       "description": "Tests in real browsers via Chrome DevTools MCP. Use when building or debugging anything that runs in a browser — inspect the DOM, capture console errors, analyze network requests, profile performance, or verify visual output with real runtime data. Requires the chrome-devtools MCP server. Triggers (PT/EN): \"/browser\", \"browser testing with devtools\", \"test this page\", \"inspect the DOM\", \"testar no navegador\". Do NOT use for: unit testing, API testing, or headless browser automation (use Playwright instead).",
@@ -37,7 +39,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -52,6 +54,7 @@
     },
     {
       "id": "ci-cd-and-automation",
+      "name": "ci-cd-and-automation",
       "version": "1.0.0",
       "category": "Delivery & Repository",
       "description": "Automates CI/CD pipeline setup and maintenance. Use when setting up or modifying build and deployment pipelines, automating quality gates, configuring test runners in CI, or establishing deployment strategies. Triggers (PT/EN): \"/ci\", \"ci cd and automation\", \"set up the pipeline\", \"configure CI\", \"configurar o pipeline\". Do NOT use for: local development environment setup, application code logic, or cloud infrastructure provisioning.",
@@ -60,7 +63,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -75,6 +78,7 @@
     },
     {
       "id": "code-review-and-quality",
+      "name": "code-review-and-quality",
       "version": "1.0.0",
       "category": "Code Quality & Testing",
       "description": "Conducts multi-axis code review (correctness, readability, architecture, security, performance) with severity labels (Blocker, Required, Optional, Nit, FYI). Use before merging any change, after a feature implementation, or when reviewing code from another agent or human. EN triggers: /review, code review, PR review, merge gate, five-axis review, severity labels. PT triggers: /revisar, revisão de código, revisão de PR, gate de merge. Do NOT use for: in-flight decisions on non-trivial work (that's /harden), single-line typo fixes, or when the user explicitly skips review.",
@@ -83,7 +87,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -98,6 +102,7 @@
     },
     {
       "id": "code-simplification",
+      "name": "code-simplification",
       "version": "1.0.0",
       "category": "Code Quality & Testing",
       "description": "Simplifies code for clarity while preserving exact behavior (Chesterton's Fence, Rule of 500). Use when refactoring without changing behavior, or when code has accumulated unnecessary complexity. EN triggers: /simplify, simplify this, reduce complexity, \"is this too clever?\", Chesterton's Fence. PT triggers: /simplificar, reduzir complexidade, código difícil de ler, fence de Chesterton. Do NOT use for: behavior-changing refactors (use /spec-driven to plan), bug fixes (use /debug or /test-driven-development), or one-off tweaks that don't reduce concept count.",
@@ -106,7 +111,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -121,6 +126,7 @@
     },
     {
       "id": "constraint-driven-development",
+      "name": "constraint-driven-development",
       "version": "1.0.0",
       "category": "Code Quality & Testing",
       "description": "Establishes a project's quality bar as a written contract and stops agents quietly lowering it. Interviews the user on which dimensions matter, supplies sane default thresholds, records everything in CONSTRAINTS.md, and watches the diff for a weakened bar — new @ts-ignore or eslint-disable suppressions, skipped or deleted tests, assertions stripped out, unimplemented stubs, thresholds edited down. Use when no quality bar is written down, when the user says \"set up constraints\" or \"define our standards\", when you need coverage or performance thresholds enforced, or when an agent keeps silencing checks to get to green. Triggers (PT/EN): \"/constraint\", \"constraint driven development\", \"set up constraints\", \"define our standards\", \"definir padrões\". Do NOT use for: code review (use code-review-and-quality), test strategy design (use test-driven-development), or linting configuration.",
@@ -129,7 +135,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -144,6 +150,7 @@
     },
     {
       "id": "context-engineering",
+      "name": "context-engineering",
       "version": "1.0.0",
       "category": "Agent Skills",
       "description": "Optimizes agent context setup so sessions start with the right information. Use when starting a new session, when agent output quality degrades, when switching between tasks, or when configuring rules files and project context for AI agents. Triggers (PT/EN): \"/context\", \"context engineering\", \"set up agent context\", \"configure rules\", \"configurar contexto\". Do NOT use for: application configuration, deployment setup, or feature implementation.",
@@ -152,7 +159,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -167,6 +174,7 @@
     },
     {
       "id": "debugging-and-error-recovery",
+      "name": "debugging-and-error-recovery",
       "version": "1.0.0",
       "category": "Code Quality & Testing",
       "description": "Guides systematic root-cause debugging in five steps: reproduce → localize → reduce → fix → guard. Use when tests fail, builds break, behavior doesn't match expectations, or you hit any unexpected error. EN triggers: /debug, \"stop the line\", five-step triage, root cause, reproduce and reduce. PT triggers: /debugar, causa raiz, reproduzir e reduzir, parar a linha. Do NOT use for: feature implementation (use /test-driven-development), or speculative \"what if\" scenarios that aren't reproducing a real failure.",
@@ -175,7 +183,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -195,6 +203,7 @@
     },
     {
       "id": "deprecation-and-migration",
+      "name": "deprecation-and-migration",
       "version": "1.0.0",
       "category": "Delivery & Repository",
       "description": "Manages deprecation and migration of old systems, APIs, or features — distinguishing compulsory vs advisory changes and treating code as liability. Use when removing dead code, retiring APIs, or migrating users between implementations. EN triggers: /deprecate, /migrate, retire this, sunset feature, \"code is liability\", compulsory vs advisory. PT triggers: /depreciar, /migrar, aposentar, descontinuar, código como passivo. Do NOT use for: pure code quality cleanup without user impact (use /simplify), or new feature implementation.",
@@ -203,7 +212,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -223,6 +232,7 @@
     },
     {
       "id": "documentation-and-adrs",
+      "name": "documentation-and-adrs",
       "version": "1.0.0",
       "category": "Design & Architecture",
       "description": "Records decisions and documentation so context survives across sessions and team members. Use when documenting an architecture decision (ADR), recording the reasoning behind a design choice, changing public APIs, shipping features, or capturing context that future engineers and agents will need. Triggers (PT/EN): \"/documentation\", \"documentation and adrs\", \"write an ADR\", \"document this decision\", \"documentar decisão\". Do NOT use for: code comments or inline JSDoc, API reference generation, or writing user-facing guides.",
@@ -231,7 +241,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -246,6 +256,7 @@
     },
     {
       "id": "frontend-ui-engineering",
+      "name": "frontend-ui-engineering",
       "version": "1.0.0",
       "category": "Design & Architecture",
       "description": "Builds production-quality, accessible, responsive user-facing UIs. Use when building or modifying interfaces and pages, creating components, implementing layouts, meeting WCAG accessibility requirements, managing frontend state, or when output needs to look and feel production-quality rather than AI-generated. Triggers (PT/EN): \"/frontend\", \"frontend ui engineering\", \"build this component\", \"create the UI\", \"construir interface\". Do NOT use for: backend API implementation, database schema design, or mobile-native UIs.",
@@ -254,7 +265,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -269,6 +280,7 @@
     },
     {
       "id": "git-commit-learning",
+      "name": "git-commit-learning",
       "version": "1.0.0",
       "category": "Delivery & Repository",
       "description": "Transforms Git history into reusable project memory for AI agents. Guides agents to analyze git log to extract domain patterns, decisions, and lessons, and to write AI-learnable commit messages with context, intent, validation, and domain signals. Also covers Git workflow fundamentals: trunk-based development, atomic commits, branching strategy, worktrees, pre-commit hygiene, semantic versioning, and changelog best practices. Use when asked to \"analyze git history\", \"extract project learnings from commits\", \"write a commit message the AI can learn from\", \"make commits searchable for agents\", \"teach agents through Git\", \"review commit history for context\", \"extract AI lessons from PRs\", \"/git\", \"git workflow and versioning\", \"commit message\", \"semantic versioning\", \"changelog\". Also trigger on Portuguese: \"analisa o histórico\", \"extrai aprendizado dos commits\", \"cria commit para IA aprender\", \"faz o git virar memória\". Do NOT use for merge conflict resolution or code review skills.",
@@ -277,7 +289,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -302,6 +314,7 @@
     },
     {
       "id": "git-worktree",
+      "name": "git-worktree",
       "version": "1.0.0",
       "category": "Delivery & Repository",
       "description": "Use git worktrees for parallel feature branches without stashing or cloning. Creates isolated working directories from a single local clone. EN triggers: /worktree, git worktree, parallel branches, multiple features, isolate work. PT triggers: /worktree, branches paralelas, trabalho isolado, múltiplas features. Do NOT use for: simple single-branch work, fixing merge conflicts, or repos where disk space is extremely constrained.",
@@ -310,7 +323,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -325,6 +338,7 @@
     },
     {
       "id": "idea-discovery",
+      "name": "idea-discovery",
       "version": "1.0.0",
       "category": "Planning & Specification",
       "description": "Interviews an unshaped idea into a verdict plus a design document (decisions, flows, schema, contracts) that someone else can plan from without having been in the room. Refuses to converge early; has a verdict gate that decides whether to build at all. Use when the user says \"research this\", \"help me understand this problem\", \"should we build this\", \"discovery\", \"explore this problem\", \"figure out if we should do X\", or \"idea discovery\". Do NOT use to cut a finished design into tasks (use task-cutting), to implement (use verified-implementation), or to refine an already-understood idea (use idea-refine).",
@@ -333,7 +347,7 @@
         {
           "name": "Tech Leads Club - github.com/tech-leads-club",
           "url": "https://github.com/tech-leads-club/agent-skills",
-          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-discover @ v0.9.0; catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-discover @ v0.9.0; catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -353,6 +367,7 @@
     },
     {
       "id": "idea-refine",
+      "name": "idea-refine",
       "version": "1.0.0",
       "category": "Planning & Specification",
       "description": "Refines raw ideas into sharp, actionable concepts through structured divergent and convergent thinking. Use when an idea is still vague, when you need to stress-test assumptions before committing to a plan, or when you want to expand options before converging on one. EN triggers: /ideate, \"refine this idea\", \"stress-test my plan\", brainstorm, expand options. PT triggers: refinar ideia, expandir opções, brainstorm, validar premissas. Do NOT use for: vague ideas that need /interview-me first to extract intent, or for requirements that are already sharp enough for /spec-driven.",
@@ -361,7 +376,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -376,6 +391,7 @@
     },
     {
       "id": "incremental-implementation",
+      "name": "incremental-implementation",
       "version": "1.0.0",
       "category": "Code Quality & Testing",
       "description": "Delivers changes incrementally in thin, verifiable slices. Use when implementing any feature or change that touches more than one file, when picking up the next task from a plan, rolling a change out behind a feature flag, or when a task feels too big to land in one step. Triggers (PT/EN): \"/incremental\", \"incremental implementation\", \"break this down\", \"deliver in slices\", \"implementar incrementalmente\". Do NOT use for: architecture design, single-file changes, or greenfield project scaffolding.",
@@ -384,7 +400,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -399,6 +415,7 @@
     },
     {
       "id": "interview-me",
+      "name": "interview-me",
       "version": "1.0.0",
       "category": "Planning & Specification",
       "description": "Extracts what the user actually wants through one-question-at-a-time interview until ~95% confidence about the underlying intent. Use when an ask is underspecified, when the user explicitly invokes it, or when you catch yourself silently filling in ambiguous requirements before any plan, spec, or code exists. EN triggers: /interview, \"interview me\", \"grill me\", \"are we sure?\", \"stress-test my thinking\". PT triggers: /entrevista, \"me entrevista\", \"tenho certeza?\", questiona minhas premissas. Do NOT use for: well-specified asks (route to /spec-driven instead), or after the spec is written (use /verified-implementation to verify a finished plan).",
@@ -407,7 +424,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -422,6 +439,7 @@
     },
     {
       "id": "linkedin-audit",
+      "name": "linkedin-audit",
       "version": "1.0.0",
       "category": "Professional Development",
       "description": "Audita o perfil do LinkedIn (notas 0-10 em 8 seções, diagnósticos diretos, reescritas sugeridas) e gera um dashboard HTML standalone com as cores do LinkedIn. Use when the user asks for LinkedIn profile analysis or audit, \"avalia meu perfil\", \"melhora meu LinkedIn\", \"audita meu LinkedIn\", \"dashboard do LinkedIn\", or provides LinkedIn data, exported resume, profile photo or cover photo. Do NOT use for writing standalone posts, feed content, prospecting or job search without a profile analysis request.",
@@ -430,7 +448,7 @@
         {
           "name": "runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -450,6 +468,7 @@
     },
     {
       "id": "memory-management",
+      "name": "memory-management",
       "version": "1.0.0",
       "category": "Agent Skills",
       "description": "Lightweight agent memory for non-Guild projects. Maintains project decisions and error patterns in a flat .agent-memory/ directory so future sessions can learn from past work. EN triggers: /memory, agent memory, project memory, remember this, record decision, capture learning. PT triggers: /memória, memória do agente, memória do projeto, lembrar disso, registrar decisão, capturar aprendizado. Do NOT use for: Guild projects (use guild-commit-learning), large knowledge bases, or replacing a proper wiki.",
@@ -458,7 +477,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -473,6 +492,7 @@
     },
     {
       "id": "observability-and-instrumentation",
+      "name": "observability-and-instrumentation",
       "version": "1.0.0",
       "category": "Security & Reliability",
       "description": "Instruments code so production behavior is visible and diagnosable. Use when adding logging, metrics, tracing, or alerting to a codebase, when shipping any feature that runs in production and you need evidence it works, or when production issues are reported but you can't tell what happened from available data. Triggers (PT/EN): \"/observability\", \"observability and instrumentation\", \"add logging\", \"set up metrics\", \"instrumentar código\". Do NOT use for: debugging specific failures (use debugging-and-error-recovery), error handling logic, or alerting rule configuration.",
@@ -481,7 +501,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -496,6 +516,7 @@
     },
     {
       "id": "performance-optimization",
+      "name": "performance-optimization",
       "version": "1.0.0",
       "category": "Design & Architecture",
       "description": "Optimizes application performance across frontend, backend, queries, and databases. Use when performance requirements exist, when you suspect performance regressions, when Core Web Vitals or load times need improvement, when N+1 query patterns need fixing, or when profiling reveals bottlenecks. Triggers (PT/EN): \"/performance\", \"performance optimization\", \"optimize this\", \"improve load times\", \"otimizar performance\". Do NOT use for: security hardening (use security-and-hardening), accessibility compliance, or feature implementation.",
@@ -504,7 +525,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -519,6 +540,7 @@
     },
     {
       "id": "security-and-hardening",
+      "name": "security-and-hardening",
       "version": "1.0.0",
       "category": "Security & Reliability",
       "description": "Hardens code against vulnerabilities using the OWASP Top 10 and a three-tier boundary system (input, processing, output). Use when handling user input, authentication, data storage, or external integrations. EN triggers: /security, security audit, OWASP, three-tier boundary, least privilege, input validation. PT triggers: /segurança, auditoria de segurança, OWASP, privilégio mínimo, validar entrada. Do NOT use for: non-security performance work (use /review's performance axis), or dependency updates that have no security exposure.",
@@ -527,7 +549,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -542,6 +564,7 @@
     },
     {
       "id": "shipping-and-launch",
+      "name": "shipping-and-launch",
       "version": "1.0.0",
       "category": "Delivery & Repository",
       "description": "Prepares production launches with a pre-launch checklist, staged rollout, monitoring, and a rollback strategy — plus feature flag lifecycle (off → internal → beta → GA). Use when deploying a feature to production for the first time, releasing a significant change, or planning a rollout. EN triggers: /ship, pre-launch checklist, staged rollout, feature flag, rollback plan, monitoring. PT triggers: /shippar, checklist pré-lançamento, rollout gradual, feature flag, plano de rollback. Do NOT use for: pre-production development work, or one-off internal tools with no user exposure.",
@@ -550,7 +573,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -565,6 +588,7 @@
     },
     {
       "id": "skill-forge",
+      "name": "skill-forge",
       "version": "1.0.0",
       "category": "Agent Skills",
       "description": "Designs, authors, validates, and optimizes new Agent Skills from scratch. Use when creating a new skill, packaging a workflow as a skill, improving a skill's triggering accuracy, or evaluating whether a skill improves output quality. Covers the full lifecycle: DISCOVER, DESIGN, AUTHOR, VALIDATE, OPTIMIZE, DELIVER. Produces skills that follow the open SKILL.md format (YAML frontmatter + Markdown body, progressive disclosure, validation loops). EN triggers: /forge, create a skill, write a skill, build a skill, new skill, author a skill, package this as a skill, validate a skill, improve skill triggering, optimize skill description, evaluate skill quality. PT triggers: /forge, criar uma skill, escrever uma skill, construir uma skill, nova skill, empacotar como skill, validar skill, melhorar disparo, otimizar descrição de skill. Do NOT use for: discovering which existing skill to apply (use a dispatch/meta skill), planning feature implementation, or designing software architecture.",
@@ -573,7 +597,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -623,6 +647,7 @@
     },
     {
       "id": "source-driven-development",
+      "name": "source-driven-development",
       "version": "1.0.0",
       "category": "Code Quality & Testing",
       "description": "Grounds every implementation decision in official documentation. Use when verifying an approach against official docs before implementing, when building with a framework where correctness matters, or when you want authoritative, source-cited code free from outdated patterns. Triggers (PT/EN): \"/source\", \"source driven development\", \"check the docs\", \"verify against official docs\", \"verificar documentação\". Do NOT use for: API contract design (use api-and-interface-design), code review, or writing tests.",
@@ -631,7 +656,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -646,6 +671,7 @@
     },
     {
       "id": "spec-driven",
+      "name": "spec-driven",
       "version": "5.0.0",
       "category": "Planning & Specification",
       "description": "Planning and implementation with 4 adaptive phases — Specify, Design, Tasks, Execute. Auto-sizes depth by complexity. Atomic tasks with verification criteria, atomic git commits, requirement traceability. Independent Verifier (author != verifier, evidence-or-zero), decision log (STATE.md), test-coverage-matrix-driven tests, self-improving lessons layer. Stack-agnostic. Use when planning features (requirements, design, task breakdown), implementing with verification and atomic commits, or validating against a spec. Triggers (PT/EN): \"specify feature\", \"vamos especificar\", \"discutir feature\", \"design\", \"design da feature\", \"tarefas\", \"quebrar em tarefas\", \"implementar\", \"build\", \"validar\", \"verify work\", \"UAT\", \"validar implementação\", \"/spec\", \"/planning\", \"planning and task breakdown\", \"break work into tasks\". Do NOT use for architecture decomposition analysis (use architecture skills) or technical design docs (Complex scope: gray areas + architecture-focused design).",
@@ -654,7 +680,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -734,6 +760,7 @@
     },
     {
       "id": "spec-loop",
+      "name": "spec-loop",
       "version": "1.0.0",
       "category": "Planning & Specification",
       "description": "Drive the execution of every .specs/ artifact to completion — milestone by\nmilestone, task by task, with verification gates, atomic commits and STATE.md\nprogress tracking. Use when user says \"execute the specs\", \"run the plan\",\n\"loop the milestones\", \"executar as specs\", \"rodar o plano\", \"começar a\nexecutar\", \"siga o roadmap\", or when a tlc-spec-driven project has pending\ntasks.md items and the user wants autonomous execution.",
@@ -742,7 +769,7 @@
         {
           "name": "runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -757,6 +784,7 @@
     },
     {
       "id": "task-cutting",
+      "name": "task-cutting",
       "version": "1.0.0",
       "category": "Planning & Specification",
       "description": "Turns already-decided work (a PRD, design doc, RFC, or thread) into tasks a builder can act on without guessing: slices that each prove something, grounded in the code, with intent, observable criteria carrying concrete values, the boundary, what the change disturbs, and only the hard-to-reverse decisions. Walks every surface the work exposes and sweeps nine unwritten-requirement dimensions. Use when the user says \"write the task\", \"cut this PRD into tasks\", \"turn this design doc into work\", \"break this into tasks\", or \"task cutting\". Do NOT use for discovery itself (use idea-discovery — a one-line ticket is a decision; a blank wish is not) or to implement (use verified-implementation).",
@@ -765,7 +793,7 @@
         {
           "name": "Tech Leads Club - github.com/tech-leads-club",
           "url": "https://github.com/tech-leads-club/agent-skills",
-          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-plan @ v0.2.0; catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-plan @ v0.2.0; catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -785,6 +813,7 @@
     },
     {
       "id": "test-driven-development",
+      "name": "test-driven-development",
       "version": "1.0.0",
       "category": "Code Quality & Testing",
       "description": "Drives development with tests — fail first, then make them pass, then refactor. Use when implementing any logic, fixing any bug, or changing any behavior. EN triggers: /test, write tests first, TDD, prove it, 80/15/5 pyramid, Beyonce Rule. PT triggers: /teste, testes primeiro, provar com teste, pirâmide 80/15/5. Do NOT use for: production incident triage (use /debug), or cosmetic-only changes with no behavioral surface.",
@@ -793,7 +822,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -808,6 +837,7 @@
     },
     {
       "id": "typescript-patterns",
+      "name": "typescript-patterns",
       "version": "1.0.0",
       "category": "Code Quality & Testing",
       "description": "TypeScript best practices and patterns for type-safe, maintainable code. Covers discriminated unions, generics, const assertions, type narrowing, and common anti-patterns. Extends (does not override) project tsconfig. EN triggers: /typescript, TypeScript patterns, TS best practices, type safety, discriminated unions, generics, type narrowing. PT triggers: /typescript, padrões TypeScript, boas práticas TS, segurança de tipos, unions discriminadas, genéricos. Do NOT use for: JavaScript-only projects, runtime performance, or replacing project tsconfig rules.",
@@ -816,7 +846,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -831,6 +861,7 @@
     },
     {
       "id": "using-agent-skills",
+      "name": "using-agent-skills",
       "version": "1.0.0",
       "category": "Agent Skills",
       "description": "Discovers and invokes the right @runecraft/grimoire skill for the current task. Use when starting a session, when a request is ambiguous about which workflow to apply, or when you need to pick among the 19-skill Runecraft catalog. EN triggers: /skill, which skill, pick a skill, what skill should I use, skill discovery, meta skill. PT triggers: qual skill, qual habilidade, descobrir skill, qual fluxo usar. Do NOT use for: actual implementation work (route to the specific skill instead), unrelated standalone tasks outside the Runecraft catalog, or runtime-specific configuration (e.g., opencode.json / Claude Code plugin paths).",
@@ -839,7 +870,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -854,6 +885,7 @@
     },
     {
       "id": "verified-implementation",
+      "name": "verified-implementation",
       "version": "1.0.0",
       "category": "Planning & Specification",
       "description": "Implements work already planned: extracts a checklist of named proofs from a planned work item, builds it, and proves every check with an independent verifier (author != verifier). Use when the user says \"extract a checklist\", \"build this ticket\", \"implement this spec\", \"implement this\", or \"verified implementation\". Do NOT use when nobody has decided what to build (use idea-discovery), to design the work (use task-cutting), or for general coding without a planned artifact.",
@@ -862,7 +894,7 @@
         {
           "name": "Tech Leads Club - github.com/tech-leads-club",
           "url": "https://github.com/tech-leads-club/agent-skills",
-          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-implement @ v0.1.0; catalog source revision 1229436ba4d0be1aef3293063c73100849280d45."
+          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-implement @ v0.1.0; catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
         }
       ],
       "entrypoint": "SKILL.md",
