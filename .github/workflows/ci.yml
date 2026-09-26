@@ -23,7 +23,8 @@ jobs:
       - run: bun run lint
       - name: Verify generated catalog is up to date
         run: |
-          node -e 'const r = require("./packages/skills/catalog/v1/registry.json"); console.log(`CATALOG_REVISION=${r.revision}\nCATALOG_GENERATED_AT=${r.generatedAt}`)' >> "$GITHUB_ENV"
+          export CATALOG_REVISION=$(node -e 'console.log(require("./packages/skills/catalog/v1/registry.json").revision)')
+          export CATALOG_GENERATED_AT=$(node -e 'console.log(require("./packages/skills/catalog/v1/registry.json").generatedAt)')
           bun run --cwd packages/skills catalog:generate
           git diff --exit-code -- packages/skills/catalog/v1/registry.json packages/skills/catalog.json packages/skills/catalog/v1/skills
           test -z "$(git status --porcelain -- packages/skills/catalog/v1/registry.json packages/skills/catalog.json packages/skills/catalog/v1/skills)"
