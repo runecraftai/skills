@@ -40,9 +40,12 @@ async function launchTui(global: boolean): Promise<number> {
   catch (error) { console.error(`grimoire: OpenTUI could not load (${error instanceof Error ? error.message : String(error)}); install optional platform dependencies and use Node >=26.4.0 with FFI or Bun >=1.3.0`); return 1; }
 }
 async function main() {
-  const args = process.argv.slice(2); if (!args.length || (args[0] === "--global" && args.length === 1)) return launchTui(args.includes("--global"));
-  if (args.includes("--help") || args.includes("-h")) { console.log(usage); return 0; }
-  if (args.includes("--version")) { console.log(version()); return 0; }
+  const raw = process.argv.slice(2); const global = raw.includes("--global"); const args = raw.filter((a) => a !== "--global"); if (!args.length) return launchTui(global);
+  if (args.includes("--help") || args.includes("-h") || args.includes("--version")) {
+    if (args.includes("--version") && !args.includes("--help") && args.length === 1) { console.log(version()); return 0; }
+    console.log(usage); return 0;
+  }
+
   const command = args[0];
   if (command === "list" || command === "search" || command === "install" || command === "update" || command === "audit" || command === "remove") {
     const local = readRegistry(catalogDir);
@@ -75,7 +78,7 @@ async function main() {
         const id = args.find((a) => !a.startsWith("-") && a !== "install"); const selected = skills.find((s) => s.id === id); if (!selected) throw new Error(`unknown skill: ${id ?? "(missing id)"}`);
         if (args.includes("--version") && selected.version !== value(args, "--version")) throw new Error(`requested version not available: ${value(args, "--version")}`);
         const target = value(args, "--target") ?? "pi"; if (!isTargetId(target)) throw new Error(`unknown target: ${target}`);
-        const projectDir = resolve(process.cwd()), global = args.includes("--global"); const targetDir = resolveSkillsDir(target, { home: homedir(), projectDir, global });
+        const projectDir = resolve(process.cwd()); const targetDir = resolveSkillsDir(target, { home: homedir(), projectDir, global });
         const scratch = await mkdtemp(join(tmpdir(), "grimoire-remote-")); try {
           const staged = await downloadSkill(selected, process.env.GRIMOIRE_CATALOG_URL ?? "https://cdn.jsdelivr.net/gh/runecraftai/skills@stable/packages/skills/catalog/v1/registry.json");
           await rename(staged, join(scratch, selected.id));
@@ -110,7 +113,6 @@ async function main() {
   const target = value(args, "-t") ?? value(args, "--target");
   if (!names.length || !target || !isTargetId(target)) throw new Error(`noninteractive install requires --skill and --target (${TARGETS.map((t) => t.id).join(", ")})`);
   const unknown = names.filter((n) => !findSkill(catalogDir, n)); if (unknown.length) throw new Error(`unknown skill(s): ${unknown.join(", ")}`);
-  const global = args.includes("--global");
   const projectDir = resolve(process.cwd());
   const dir = value(args, "--target-dir") ?? resolveSkillsDir(target, { home: homedir(), projectDir, global });
   const result = installSkills({ catalogDir, targetDir: resolve(dir), names, overwrite: args.includes("--overwrite") });
