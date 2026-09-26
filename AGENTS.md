@@ -6,19 +6,19 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 
 - Grimoire is the unified agent-skill catalog and installer, published as **`@runecraft/grimoire`** (see `packages/skills/package.json`).
 - Content layout: one folder per skill under `packages/skills/skills/` (each with `SKILL.md` + optional `references/`, `scripts/`, `.skill-meta.json`); shared docs under `packages/skills/references/` (`definition-of-done.md`, `testing-patterns.md`).
-- `packages/skills/` publishes the catalog and `grimoire` executable; `packages/core/` is the private shared client core. `catalog.json` is a generated taxonomy (rebuilt by `catalog:generate` from the validated registry). Catalog contract: [`packages/skills/catalog/README.md`](packages/skills/catalog/README.md).
+- `packages/skills/` publishes the catalog and `grimoire` executable; `packages/core/` is the private shared client core; `packages/mcp/` publishes `@runecraft/grimoire-mcp`, a stdio-first MCP server. `catalog.json` is a generated taxonomy (rebuilt by `catalog:generate` from the validated registry). Catalog contract: [`packages/skills/catalog/README.md`](packages/skills/catalog/README.md).
 
 ## Identity rules (hard constraints)
 
-- The npm package name must stay exactly `@runecraft/grimoire`; the only executable is `grimoire`.
+- The `@runecraft/grimoire` package name and `grimoire` executable are fixed; `@runecraft/grimoire-mcp` is the separate MCP server package with its own `grimoire-mcp` executable.
 - The seed `LICENSE` carries `Copyright (c) 2026 Arcanum` verbatim — leave it untouched unless a maintainer decides otherwise.
 
 ## Validation
 
 - `npm pack --dry-run --workspace @runecraft/grimoire` — confirms the catalog, metadata, references, and installer are packaged.
-- `bun run test` — unit tests for both packages (temp dirs only; never real user dirs).
-- `bun run build` — bundles `packages/skills/dist/grimoire.js`.
-- `bun run typecheck` — typechecks both packages.
+- `bun run test` — unit tests for all packages (temp dirs only; never real user dirs).
+- `bun run build` — bundles `packages/skills/dist/grimoire.js` and `packages/mcp/dist/index.js`.
+- `bun run typecheck` — typechecks all packages.
 - `bun run --cwd packages/skills catalog:generate` — rebuilds `catalog/v1/registry.json`, copies allowlisted skill files, and regenerates `catalog.json` from the validated registry.
 - `python3 packages/skills/skills/skill-forge/scripts/validate.py packages/skills/skills/skill-forge` — SKILL.md structure validator (23 checks; 1 pre-existing warning, not a failure).
 - New skills must ship `SKILL.md` + `references/` and follow the skill-forge conventions.
