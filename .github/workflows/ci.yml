@@ -40,7 +40,7 @@ jobs:
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2
         with:
           bun-version: 1.4.2
-      - uses: actions/setup-node@49933ea5288caeba8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         if: matrix.runtime == 'node'
         with:
           node-version: 26.4.0
