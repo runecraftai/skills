@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, lstat, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fetchRegistry, rankSkills, validateRegistry, type Registry } from "../src/index.js";
+import { fetchRegistry, rankSkills, validateRegistry, verifyFiles, writeCacheFile, type Registry, type Skill } from "../src/index.js";
 
 const registry = JSON.parse(await readFile(new URL("../../skills/catalog/v1/registry.json", import.meta.url), "utf8")) as Registry;
 const fixtures:[string,string][]=[
@@ -12,5 +12,22 @@ describe("shared core",()=>{
  test("validates generated registry and rejects malformed schema",()=>{expect(()=>validateRegistry(registry)).not.toThrow();expect(()=>validateRegistry({...registry, extra:true})).toThrow();});
  test.each(fixtures)("ranks %s first",(query,id)=>expect(rankSkills(query,registry.skills)[0]?.skill.id).toBe(id));
  test("irrelevant query has no matches",()=>expect(rankSkills("quantum underwater basket weaving",registry.skills)).toEqual([]));
+ const fileContent="hello, world";
+ const fileBytes=new TextEncoder().encode(fileContent);
+ const fileSha256="09ca7e4eaa6e8ae9c7d261167129184883644d07dfba7cbfbc4c8a2e08360d5b";
+ const contentSha256="6fcc67306fbb8beb38f1ed56fe8afeebeba02d611209c6bf9299f8650d15aa42";
+ const skill:Skill={id:"test-skill",version:"1.0.0",category:"test",description:"test",license:"MIT",attribution:[{name:"test",text:"test",url:"https://example.com"}],entrypoint:"index.js",files:[{path:"index.js",size:fileBytes.length,sha256:fileSha256}],contentSha256};
+ describe("verifyFiles",()=>{
+   test("rejects symlink in path",async()=>{const dir=await mkdtemp(join(tmpdir(),"verify-symlink-"));try{await writeFile(join(dir,"index.js"),fileContent);const link=join(dir,"link.js");await symlink("index.js",link);const badSkill={...skill,files:[{path:"link.js",size:fileBytes.length,sha256:fileSha256}]};await expect(verifyFiles(badSkill,dir)).rejects.toThrow("Symlink rejected");}finally{await rm(dir,{recursive:true,force:true});}});
+   test("rejects path escaping root",async()=>{const dir=await mkdtemp(join(tmpdir(),"verify-escape-"));try{await expect(verifyFiles({...skill,files:[{path:"../safe.txt",size:4,sha256:"3efb1646466c31e8741b1c6b6e051b4f8e0b6b5c4e0a5d3a3c8a8c9c5d5e5f5a"}],contentSha256:"3efb1646466c31e8741b1c6b6e051b4f8e0b6b5c4e0a5d3a3c8a8c9c5d5e5f5a"},dir)).rejects.toThrow("Invalid path");}finally{await rm(dir,{recursive:true,force:true});}});
+   test("rejects digest mismatch",async()=>{const dir=await mkdtemp(join(tmpdir(),"verify-digest-"));try{await writeFile(join(dir,"index.js"),fileContent);const badSkill={...skill,files:[{path:"index.js",size:13,sha256:"0000000000000000000000000000000000000000000000000000000000000000"}],contentSha256:"0000000000000000000000000000000000000000000000000000000000000000"};await expect(verifyFiles(badSkill,dir)).rejects.toThrow("Digest mismatch");}finally{await rm(dir,{recursive:true,force:true});}});
+   test("succeeds on valid files",async()=>{const dir=await mkdtemp(join(tmpdir(),"verify-valid-"));try{await writeFile(join(dir,"index.js"),fileContent);await expect(verifyFiles(skill,dir)).resolves.toBeUndefined();}finally{await rm(dir,{recursive:true,force:true});}});
+ });
+ describe("writeCacheFile",()=>{
+   test("writes file atomically with correct permissions",async()=>{const dir=await mkdtemp(join(tmpdir(),"writecache-"));try{const dest=await writeCacheFile(dir,"reg1","rev1",skill,"index.js",fileBytes);const content=await readFile(dest,"utf8");expect(content).toBe(fileContent);const st=await lstat(dest);expect(st.mode&0o777).toBe(0o600);const parentSt=await lstat(join(dir,"reg1","rev1","test-skill"));expect(parentSt.mode&0o777).toBe(0o700);}finally{await rm(dir,{recursive:true,force:true});}});
+   test("rejects file not in allowlist",async()=>{const dir=await mkdtemp(join(tmpdir(),"writecache-reject-"));try{await expect(writeCacheFile(dir,"reg1","rev1",skill,"unknown.js",new TextEncoder().encode("nope"))).rejects.toThrow("File not allowlisted");}finally{await rm(dir,{recursive:true,force:true});}});
+   test("rejects digest mismatch",async()=>{const dir=await mkdtemp(join(tmpdir(),"writecache-digest-"));try{await expect(writeCacheFile(dir,"reg1","rev1",skill,"index.js",new TextEncoder().encode("wrong data"))).rejects.toThrow("digest mismatch");}finally{await rm(dir,{recursive:true,force:true});}});
+   test("rejects symlink cache root",async()=>{const real=await mkdtemp(join(tmpdir(),"writecache-symlink-real-"));const link=real+"-link";try{await symlink(real,link);await expect(writeCacheFile(link,"reg1","rev1",skill,"index.js",fileBytes)).rejects.toThrow("Symlink");}finally{await rm(real,{recursive:true,force:true});await rm(link,{force:true}).catch(()=>{});}});
+ });
  test("revalidates and serves warm registry stale on network failure",async()=>{const dir=await mkdtemp(join(tmpdir(),"grimoire-core-"));try{const cache=join(dir,"registry.json"),url="https://example.invalid/registry.json";await writeFile(cache,JSON.stringify({registry,checkedAt:0}));const result=await fetchRegistry({url,cacheFile:cache,now:1_000_000,ttlMs:1,fetcher:async()=>{throw Error("offline")}});expect(result.freshness).toBe("stale");expect(result.warning).toContain("stale");}finally{await rm(dir,{recursive:true,force:true});}});
 });
