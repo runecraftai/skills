@@ -1,50 +1,50 @@
 {
   "categories": {
-    "Agent Skills": [
-      "skill-forge",
-      "using-agent-skills",
-      "memory-management",
-      "context-engineering"
+    "Design & Architecture": [
+      "api-and-interface-design",
+      "browser-testing-with-devtools",
+      "documentation-and-adrs",
+      "frontend-ui-engineering",
+      "performance-optimization"
+    ],
+    "Delivery & Repository": [
+      "ci-cd-and-automation",
+      "deprecation-and-migration",
+      "git-commit-learning",
+      "git-worktree",
+      "shipping-and-launch"
     ],
     "Code Quality & Testing": [
       "code-review-and-quality",
-      "test-driven-development",
-      "debugging-and-error-recovery",
-      "typescript-patterns",
       "code-simplification",
       "constraint-driven-development",
+      "debugging-and-error-recovery",
       "incremental-implementation",
-      "source-driven-development"
+      "source-driven-development",
+      "test-driven-development",
+      "typescript-patterns"
     ],
-    "Security & Reliability": [
-      "security-and-hardening",
-      "observability-and-instrumentation"
-    ],
-    "Delivery & Repository": [
-      "shipping-and-launch",
-      "git-worktree",
-      "git-commit-learning",
-      "deprecation-and-migration",
-      "ci-cd-and-automation"
+    "Agent Skills": [
+      "context-engineering",
+      "memory-management",
+      "skill-forge",
+      "using-agent-skills"
     ],
     "Planning & Specification": [
-      "spec-driven",
-      "spec-loop",
+      "idea-discovery",
       "idea-refine",
       "interview-me",
-      "idea-discovery",
+      "spec-driven",
+      "spec-loop",
       "task-cutting",
       "verified-implementation"
     ],
-    "Design & Architecture": [
-      "api-and-interface-design",
-      "frontend-ui-engineering",
-      "browser-testing-with-devtools",
-      "performance-optimization",
-      "documentation-and-adrs"
-    ],
     "Professional Development": [
       "linkedin-audit"
+    ],
+    "Security & Reliability": [
+      "observability-and-instrumentation",
+      "security-and-hardening"
     ]
   }
 }
