@@ -32,12 +32,31 @@ export function validateRegistry(value: unknown): asserts value is CatalogRegist
   const categories = new Set<string>();
   const seenPaths = new Set<string>();
   for (const skill of value.skills) {
-    if (!isRecord(skill) || Object.keys(skill).sort().join(",") !== "attribution,category,contentSha256,description,entrypoint,files,id,license,version" || !nonempty(skill.id) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(skill.id) || ids.has(skill.id) || !nonempty(skill.version) || !nonempty(skill.category) || categories.has(skill.category + "\0" + skill.id) || !nonempty(skill.description) || !LICENSES.has(String(skill.license)) || !Array.isArray(skill.attribution) || !skill.attribution.length || !nonempty(skill.entrypoint) || !Array.isArray(skill.files) || !/^[a-f0-9]{64}$/.test(String(skill.contentSha256))) throw new Error("Invalid skill schema or duplicate id/category membership");
+    if (!isRecord(skill)) throw new Error("Invalid skill entry: not an object");
+    if (Object.keys(skill).sort().join(",") !== "attribution,category,contentSha256,description,entrypoint,files,id,license,version") throw new Error(`Invalid skill schema: unexpected keys for ${skill.id ?? "<unknown>"}`);
+    if (!nonempty(skill.id)) throw new Error("Skill entry missing id");
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(skill.id)) throw new Error(`Invalid skill id format: ${skill.id}`);
+    if (ids.has(skill.id)) throw new Error(`Duplicate skill id: ${skill.id}`);
+    if (!nonempty(skill.version)) throw new Error(`Missing version for skill ${skill.id}`);
+    if (!nonempty(skill.category)) throw new Error(`Missing category for skill ${skill.id}`);
+    if (categories.has(skill.category + "\0" + skill.id)) throw new Error(`Duplicate category membership: ${skill.id} in ${skill.category}`);
+    if (!nonempty(skill.description)) throw new Error(`Missing description for skill ${skill.id}`);
+    if (!LICENSES.has(String(skill.license))) throw new Error(`Unsupported license for skill ${skill.id}: ${skill.license}`);
+    if (!Array.isArray(skill.attribution) || !skill.attribution.length) throw new Error(`Missing or empty attribution for skill ${skill.id}`);
+    if (!nonempty(skill.entrypoint)) throw new Error(`Missing entrypoint for skill ${skill.id}`);
+    if (!Array.isArray(skill.files)) throw new Error(`Missing files array for skill ${skill.id}`);
+    if (!/^[a-f0-9]{64}$/.test(String(skill.contentSha256))) throw new Error(`Invalid contentSha256 for skill ${skill.id}`);
     ids.add(skill.id); categories.add(skill.category + "\0" + skill.id);
     const paths = new Set<string>();
     const bytes: { path: string; bytes: Uint8Array }[] = [];
     for (const file of skill.files) {
-      if (!isRecord(file) || Object.keys(file).sort().join(",") !== "path,sha256,size" || typeof file.path !== "string" || normalizeCatalogPath(file.path) !== file.path || paths.has(file.path) || !Number.isSafeInteger(file.size) || Number(file.size) < 0 || !/^[a-f0-9]{64}$/.test(String(file.sha256))) throw new Error("Invalid file entry or path collision");
+      if (!isRecord(file)) throw new Error(`Invalid file entry in skill ${skill.id}: not an object`);
+      if (Object.keys(file).sort().join(",") !== "path,sha256,size") throw new Error(`Invalid file entry schema in skill ${skill.id}: unexpected keys`);
+      if (typeof file.path !== "string") throw new Error(`File entry in skill ${skill.id} missing path string`);
+      if (normalizeCatalogPath(file.path) !== file.path) throw new Error(`Invalid file path in skill ${skill.id}: ${file.path}`);
+      if (paths.has(file.path)) throw new Error(`Duplicate file path in skill ${skill.id}: ${file.path}`);
+      if (!Number.isSafeInteger(file.size) || Number(file.size) < 0) throw new Error(`Invalid file size for ${file.path} in skill ${skill.id}`);
+      if (!/^[a-f0-9]{64}$/.test(String(file.sha256))) throw new Error(`Invalid sha256 for file ${file.path} in skill ${skill.id}`);
       for (const existing of paths) if (existing.startsWith(`${file.path}/`) || file.path.startsWith(`${existing}/`)) throw new Error("Path collision");
       paths.add(file.path);
       const key = `${skill.id}/${file.path}`;
