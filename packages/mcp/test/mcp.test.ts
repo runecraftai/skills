@@ -8,7 +8,7 @@ import type { Registry } from "../../core/src/index.js";
 const body = new TextEncoder().encode("---\nname: demo\ndescription: secret-description\n---\n# Demo skill\n" + "x".repeat(24_500));
 const ref = new TextEncoder().encode("# Reference\n" + "y".repeat(51_000));
 const record = (path: string, bytes: Uint8Array) => ({path,size:bytes.length,sha256:createHash("sha256").update(bytes).digest("hex")});
-const skill = {id:"demo",version:"1.0.0",category:"Tools",description:"A short demo for testing",license:"MIT",attribution:[{name:"Test",url:"https://example.com",text:"Test attribution"}],entrypoint:"SKILL.md",files:[record("SKILL.md",body),record("references/guide.md",ref)],contentSha256:"0".repeat(64)};
+const skill = {id:"demo",name:"Demo Skill",version:"1.0.0",category:"Tools",description:"A short demo for testing",license:"MIT",attribution:[{name:"Test",url:"https://example.com",text:"Test attribution"}],entrypoint:"SKILL.md",files:[record("SKILL.md",body),record("references/guide.md",ref)],contentSha256:"0".repeat(64)};
 const registry: Registry={schemaVersion:1,catalogVersion:"1.0.0",revision:"rev1",generatedAt:"2026-01-01T00:00:00Z",skills:[skill]};
 const handlers=createHandlers({catalog:async()=>({registry,freshness:"fresh"}),fetchFile:async(_r,_i,p)=>p==="SKILL.md"?body:ref,cacheDir:"/tmp/grimoire-mcp-test"});
 

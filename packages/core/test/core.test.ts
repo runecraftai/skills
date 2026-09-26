@@ -16,7 +16,7 @@ describe("shared core",()=>{
  const fileBytes=new TextEncoder().encode(fileContent);
  const fileSha256="09ca7e4eaa6e8ae9c7d261167129184883644d07dfba7cbfbc4c8a2e08360d5b";
  const contentSha256="6fcc67306fbb8beb38f1ed56fe8afeebeba02d611209c6bf9299f8650d15aa42";
- const skill:Skill={id:"test-skill",version:"1.0.0",category:"test",description:"test",license:"MIT",attribution:[{name:"test",text:"test",url:"https://example.com"}],entrypoint:"index.js",files:[{path:"index.js",size:fileBytes.length,sha256:fileSha256}],contentSha256};
+ const skill:Skill={id:"test-skill",name:"Test Skill",version:"1.0.0",category:"test",description:"test",license:"MIT",attribution:[{name:"test",text:"test",url:"https://example.com"}],entrypoint:"index.js",files:[{path:"index.js",size:fileBytes.length,sha256:fileSha256}],contentSha256};
  describe("verifyFiles",()=>{
    test("rejects symlink in path",async()=>{const dir=await mkdtemp(join(tmpdir(),"verify-symlink-"));try{await writeFile(join(dir,"index.js"),fileContent);const link=join(dir,"link.js");await symlink("index.js",link);const badSkill={...skill,files:[{path:"link.js",size:fileBytes.length,sha256:fileSha256}]};await expect(verifyFiles(badSkill,dir)).rejects.toThrow("Symlink rejected");}finally{await rm(dir,{recursive:true,force:true});}});
    test("rejects path escaping root",async()=>{const dir=await mkdtemp(join(tmpdir(),"verify-escape-"));try{await expect(verifyFiles({...skill,files:[{path:"../safe.txt",size:4,sha256:"3efb1646466c31e8741b1c6b6e051b4f8e0b6b5c4e0a5d3a3c8a8c9c5d5e5f5a"}],contentSha256:"3efb1646466c31e8741b1c6b6e051b4f8e0b6b5c4e0a5d3a3c8a8c9c5d5e5f5a"},dir)).rejects.toThrow("Invalid path");}finally{await rm(dir,{recursive:true,force:true});}});

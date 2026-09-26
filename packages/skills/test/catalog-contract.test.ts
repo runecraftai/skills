@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { directoryDigest, normalizeCatalogPath, parseFrontmatter, validateRegistry, validateTaxonomy, verifySkillFiles, type CatalogRegistry, type CatalogSkill } from "../src/catalog-contract.js";
 
 const digest = (bytes: string) => createHash("sha256").update(bytes).digest("hex");
-const goodSkill = (id = "sample"): CatalogSkill => ({ id, version: "1.0.0", category: "Testing", description: "Display only", license: "MIT", attribution: [{ name: "Runecraft", url: "https://github.com/runecraftai/skills", text: "Copyright Runecraft." }], entrypoint: "SKILL.md", files: [{ path: "SKILL.md", size: 4, sha256: digest("body") }], contentSha256: directoryDigest([{ path: "SKILL.md", bytes: Buffer.from("body") }]) });
+const goodSkill = (id = "sample"): CatalogSkill => ({ id, name: "Sample Skill", version: "1.0.0", category: "Testing", description: "Display only", license: "MIT", attribution: [{ name: "Runecraft", url: "https://github.com/runecraftai/skills", text: "Copyright Runecraft." }], entrypoint: "SKILL.md", files: [{ path: "SKILL.md", size: 4, sha256: digest("body") }], contentSha256: directoryDigest([{ path: "SKILL.md", bytes: Buffer.from("body") }]) });
 const registry = (...skills: CatalogSkill[]): CatalogRegistry => ({ schemaVersion: 1, catalogVersion: "1.0.0", revision: "abc", generatedAt: "2026-09-26T00:00:00.000Z", skills });
 
 describe("strict catalog contract", () => {

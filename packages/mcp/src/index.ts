@@ -40,7 +40,7 @@ export function createHandlers(options: { catalog: () => Promise<Catalog>; fetch
       if (typeof query !== "string" || query.length > 300) throw new Error("query must be at most 300 characters");
       if (!Number.isInteger(limit) || limit < 1 || limit > 5) throw new Error("limit must be between 1 and 5");
       const { registry } = await catalog();
-      const skills = rankSkills(query, registry.skills).slice(0, limit).map(({skill, score, matchQuality}) => ({ id: skill.id, name: skill.id, category: skill.category, description: skill.description.slice(0, 100), score, matchQuality, version: skill.version }));
+      const skills = rankSkills(query, registry.skills).slice(0, limit).map(({skill, score, matchQuality}) => ({ id: skill.id, name: skill.name, category: skill.category, description: skill.description.slice(0, 100), score, matchQuality, version: skill.version }));
       return bounded({ skills }, MAX.search);
     },
     async read_skill({ id, revision }: { id: string; revision?: string }) {
@@ -114,8 +114,7 @@ export async function createServer(handlersOverride?: ReturnType<typeof createHa
   let cached: Catalog | undefined;
   const load = async (): Promise<Catalog> => {
     if(cached) return cached;
-    const dir=join(homedir(),".cache/runecraft/grimoire-mcp");
-    const result=await fetchRegistry({url:registryUrl,cacheFile:join(dir,"registry.json")});
+    const result=await fetchRegistry({url:registryUrl,cacheFile:join(CACHE,"registry.json")});
     cached={registry:result.registry,freshness:result.freshness,warning:result.warning}; return cached;
   };
   const handlers=handlersOverride ?? createHandlers({catalog:load,fetchFile:async(revision,id,path)=>{
