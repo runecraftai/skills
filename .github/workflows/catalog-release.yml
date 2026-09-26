@@ -1,0 +1,133 @@
+name: Catalog release
+
+on:
+  push:
+    tags:
+      - "catalog-v*"
+
+concurrency:
+  group: catalog-stable-pointer
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - name: Validate skill content
+        run: |
+          find packages/skills/skills -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' skill; do
+            python3 packages/skills/skills/skill-forge/scripts/validate.py "$skill"
+          done
+      - name: Semgrep security gate
+        run: |
+          python3 -m pip install --disable-pip-version-check semgrep==1.131.0
+          semgrep scan --config p/secrets --config p/command-injection --config p/ci --error packages/skills/skills
+      - name: Gitleaks secret gate
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: OSV-Scanner payload dependency gate
+        run: |
+          go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.2.2
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          bash packages/skills/scripts/scan-skill-dependencies.sh
+
+  build:
+    needs: security
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.ref }}
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - name: Build and strictly verify immutable catalog
+        run: bun run packages/skills/scripts/build-release-catalog.ts
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+      - name: Package content snapshot
+        run: tar -czf packages/skills/release-artifact/catalog-content.tar.gz -C packages/skills/release-artifact catalog
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: catalog-release
+          path: packages/skills/release-artifact
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: catalog-release
+          path: release
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version-file: package.json
+      - name: Attest registry and content snapshot
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be
+        with:
+          subject-path: |
+            release/catalog/v1/registry.json
+            release/catalog-content.tar.gz
+      - name: Verify provenance before publishing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh attestation verify release/catalog/v1/registry.json --repo "${GITHUB_REPOSITORY}"
+          gh attestation verify release/catalog-content.tar.gz --repo "${GITHUB_REPOSITORY}"
+      - name: Verify published CDN bytes (release gate)
+        run: bun run packages/skills/scripts/verify-published-catalog.ts
+        env:
+          CATALOG_TAG: ${{ github.ref_name }}
+          CATALOG_ARTIFACT_DIR: release/catalog/v1
+      - name: Update branch-based stable pointer
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch origin catalog-stable; then
+            git checkout -B catalog-stable origin/catalog-stable
+          else
+            git checkout --orphan catalog-stable
+            git rm -rf .
+          fi
+          mkdir -p packages/skills/catalog/v1
+          cp release/stable.json packages/skills/catalog/v1/stable.json
+          git add packages/skills/catalog/v1/stable.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(catalog): advance stable pointer to ${GITHUB_REF_NAME}"
+            git push origin HEAD:catalog-stable
+          fi
+      - name: Publish release metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            release/catalog-content.tar.gz \
+            release/catalog/v1/registry.sha256 \
+            --title "Catalog ${GITHUB_REF_NAME#catalog-v}" \
+            --notes "Immutable catalog snapshot. CDN files are served from the matching tag. Stable pointer: https://cdn.jsdelivr.net/gh/${GITHUB_REPOSITORY}@catalog-stable/packages/skills/catalog/v1/stable.json. jsDelivr controls pointer revalidation TTL; it is not guaranteed to be 900 seconds."

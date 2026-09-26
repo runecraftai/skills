@@ -31,6 +31,8 @@
     "lint": "bun run typecheck",
     "test": "bun test",
     "catalog:generate": "bun run scripts/generate-catalog.ts",
+    "catalog:release:build": "bun run scripts/build-release-catalog.ts",
+    "catalog:release:verify": "bun run scripts/verify-published-catalog.ts",
     "typecheck": "tsc --noEmit",
     "prepack": "bun run build",
     "prepublishOnly": "bun run build"
