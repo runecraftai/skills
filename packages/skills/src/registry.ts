@@ -23,7 +23,8 @@ export function readRegistry(catalogDir: string): RegistrySkill[] {
   return readdirSync(catalogDir, { withFileTypes: true }).filter((e) => e.isDirectory() && existsSync(join(catalogDir, e.name, "SKILL.md"))).map((e) => {
     const dir = join(catalogDir, e.name); let meta: Partial<RegistrySkill> = {};
     try { meta = JSON.parse(readFileSync(join(dir, ".skill-meta.json"), "utf8")); } catch {}
-    const front = frontmatter(readFileSync(join(dir, "SKILL.md"), "utf8"));
+    let front: ReturnType<typeof frontmatter> = {};
+    try { front = frontmatter(readFileSync(join(dir, "SKILL.md"), "utf8")); } catch {}
     return { name: meta.name ?? front.name ?? e.name, description: meta.description ?? front.description ?? "", version: meta.version ?? "0.1.0", dir, category: categories.get(e.name) ?? "Other" };
   }).sort((a, b) => a.name.localeCompare(b.name));
 }

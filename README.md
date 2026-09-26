@@ -13,7 +13,7 @@
   <a href="https://github.com/runecraftai/skills/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-f0b86e" alt="MIT license"></a>
 </p>
 
-Grimoire puts reusable `SKILL.md` workflows in the right place for your agent. Browse by category, detect what your project needs, choose skills, and confirm before anything is installed.
+Grimoire puts reusable `SKILL.md` workflows in the right place for your agent. Browse the local catalog in a full-screen terminal UI, detect what your project needs, and confirm before anything is installed.
 
 ## Start here
 
@@ -23,7 +23,7 @@ npx @runecraft/grimoire
 bunx @runecraft/grimoire
 ```
 
-The interactive flow is the default. Choose a category to expand it, use space to toggle skills, and press Backspace or ArrowLeft to return to the category list while keeping your choices. Revisit categories before continuing; selected skills are installed after you choose a destination and confirm installation.
+No-argument `grimoire` opens the full-screen local catalog. Search with `/`, move with `j`/`k`, toggle selection with Space, choose a target with `t`, install with `i`, safely remove a verified managed copy with `u`, and quit with `q`. Both stdin and stdout must be TTYs; non-interactive environments should use the scriptable commands below. The TUI runs on Node >=26.4.0 (the launcher enables FFI) or Bun >=1.3.0. For Bun, use `bunx @runecraft/grimoire`.
 
 ## Supported agents
 
@@ -89,7 +89,7 @@ The catalog is the source of truth for these categories; descriptions below come
 
 - **One catalog:** skills are organized into Agent Skills, Code Quality & Testing, Delivery & Repository, Planning & Specification, Security & Reliability, Design & Architecture, and Professional Development.
 - **Project-aware:** detection reads common project files and recommends relevant skills.
-- **Explicit installs:** existing skills are skipped by default; conflicts require an overwrite choice or `--overwrite`.
+- **Explicit installs:** the TUI installs only absent skills and never overwrites; existing or uncertain copies are left untouched. Scriptable local installs still skip conflicts by default and support explicit `--overwrite`.
 - **Trackable work:** project installs can be recorded in `.grimoire-lock.json`.
 
 ## Development

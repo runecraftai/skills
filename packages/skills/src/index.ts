@@ -4,24 +4,43 @@ import { existsSync, readFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 import { detectStack } from "./detect.js";
 import { installSkills, removeSkill, skillHash } from "./install.js";
 import { readRegistry, findSkill } from "./registry.js";
 import { readLockfile, updateLock, writeLockfile } from "./lockfile.js";
 import { isTargetId, resolveSkillsDir, TARGETS } from "./targets.js";
-import { runInteractive } from "./ui.js";
 import { mkdtemp, rename, rm } from "node:fs/promises";
 import { rankSkills } from "../../core/src/index.js";
 import { downloadSkill, loadRemoteCatalog } from "./remote-catalog.js";
 
 const packageRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const catalogDir = existsSync(join(packageRoot, "skills")) ? join(packageRoot, "skills") : resolve(packageRoot, "../../skills/skills");
-const usage = `grimoire — browse and install agent skills\n\nUsage:\n  grimoire                         interactive catalog (default)\n  grimoire install -s <skill> -t <agent>   local catalog install\n  grimoire install <id> --target <agent>   remote catalog install\n  grimoire list|search [query]     browse the catalog\n  grimoire list --available        list remote catalog skills\n  grimoire list --installed        list lock-tracked installs\n  grimoire remove <id> --target <agent>   remove an installed skill\n  grimoire update [id|--all]       update lock-tracked installs\n  grimoire audit [--json]          verify installed files against lock\n  grimoire detect                  recommend skills for this project\n  grimoire status                  show project lockfile\n\nAgents: ${TARGETS.map((t) => t.id).join(", ")}\nOptions: --global --target-dir <dir> --overwrite --offline --help --version`;
+const usage = `grimoire — full-screen catalog and installer\n\nRuntime: Node >=26.4.0 with FFI, or Bun >=1.3.0. The interactive TUI requires stdin and stdout TTYs.\n\nUsage:\n  grimoire                         full-screen local catalog (default)\n  grimoire install -s <skill> -t <agent>   local catalog install\n  grimoire install <id> --target <agent>   remote catalog install\n  grimoire list|search [query]     browse the catalog\n  grimoire list --available        list remote catalog skills\n  grimoire list --installed        list lock-tracked installs\n  grimoire remove <id> --target <agent>   remove an installed skill\n  grimoire update [id|--all]       update lock-tracked installs\n  grimoire audit [--json]          verify installed files against lock\n  grimoire detect                  recommend skills for this project\n  grimoire status                  show project lockfile\n\nAgents: ${TARGETS.map((t) => t.id).join(", ")}\nOptions: --global --target-dir <dir> --overwrite --offline --help --version`;
 function value(args: string[], flag: string): string | undefined { const i = args.indexOf(flag); return i < 0 ? undefined : args[i + 1]; }
 function print(skills: ReturnType<typeof readRegistry>, query = "") { for (const s of skills.filter((s) => !query || `${s.name} ${s.description} ${s.category}`.toLowerCase().includes(query.toLowerCase()))) console.log(`${s.name} [${s.category}] — ${s.description.split("\n")[0]}`); }
 function version() { try { return JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8")).version; } catch { return "0.0.0"; } }
+async function launchTui(global: boolean): Promise<number> {
+  if (!process.stdin.isTTY || !process.stdout.isTTY) { console.error("grimoire: interactive terminal required (stdin and stdout must both be TTYs)"); return 1; }
+  if ((process.stdout.columns ?? 80) < 40 || (process.stdout.rows ?? 24) < 12) { console.error("grimoire: terminal too small for the interactive catalog (minimum 40x12)"); return 1; }
+  if (process.versions.bun) {
+    const [major, minor] = process.versions.bun.split(".").map(Number);
+    if (major < 1 || (major === 1 && minor < 3)) { console.error("grimoire: interactive TUI requires Bun >=1.3.0 or Node >=26.4.0 with FFI"); return 1; }
+  } else {
+    const [major, minor] = process.versions.node.split(".").map(Number);
+    if (major < 26 || (major === 26 && minor < 4)) { console.error("grimoire: interactive TUI requires Node >=26.4.0 with FFI or Bun >=1.3.0"); return 1; }
+    if (!process.execArgv.includes("--experimental-ffi") && process.env.GRIMOIRE_FFI_REEXEC !== "1") {
+      const child = spawnSync(process.execPath, ["--experimental-ffi", fileURLToPath(import.meta.url), ...(global ? ["--global"] : [])], { stdio: "inherit", env: { ...process.env, GRIMOIRE_FFI_REEXEC: "1" } });
+      if (child.error) { console.error(`grimoire: unable to start Node with --experimental-ffi (${child.error.message})`); return 1; }
+      return child.status ?? 1;
+    }
+    if (!process.execArgv.includes("--experimental-ffi")) { console.error("grimoire: OpenTUI FFI launcher did not enable --experimental-ffi"); return 1; }
+  }
+  try { const { runTui } = await import("./tui.js"); return await runTui({ catalogDir, home: homedir(), projectDir: resolve(process.cwd()), global }); }
+  catch (error) { console.error(`grimoire: OpenTUI could not load (${error instanceof Error ? error.message : String(error)}); install optional platform dependencies and use Node >=26.4.0 with FFI or Bun >=1.3.0`); return 1; }
+}
 async function main() {
-  const args = process.argv.slice(2); if (!args.length || args[0] === "--global") return runInteractive({ catalogDir, home: homedir(), projectDir: resolve(process.cwd()), global: args.includes("--global") });
+  const args = process.argv.slice(2); if (!args.length || (args[0] === "--global" && args.length === 1)) return launchTui(args.includes("--global"));
   if (args.includes("--help") || args.includes("-h")) { console.log(usage); return 0; }
   if (args.includes("--version")) { console.log(version()); return 0; }
   const command = args[0];
