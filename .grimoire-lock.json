@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "generated": "2026-09-02T20:25:06.989Z",
+  "generated": "2026-09-26T15:14:38.906Z",
   "registry": "runecraftai/grimoire",
   "skills": {
     "beta": {
       "version": "0.1.0",
       "hash": "sha256:247e1f7348551bf9ee980f380fe8543ec74b9d920a0eeb9437cadbb9a6d28f8d",
-      "installed": "2026-09-02T20:25:06.989Z",
+      "installed": "2026-09-26T15:14:38.906Z",
       "agents": [
         "custom"
       ]
     },
     "spec-driven": {
       "version": "5.0.0",
-      "hash": "sha256:eae7e59d05a418358c8e2561ae7ab1ac0c1a27c320e89bd34cba9a5f81f24745",
-      "installed": "2026-09-02T20:25:06.927Z",
+      "hash": "sha256:0190b4f986d1ceb6e41974b04fc97f9c4dd062ef32d4432abdcfc606ddb08b21",
+      "installed": "2026-09-26T15:14:38.858Z",
       "agents": [
         "pi"
       ]

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "catalogVersion", "revision", "generatedAt", "skills"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "catalogVersion": { "type": "string", "minLength": 1 },
+    "revision": { "type": "string", "minLength": 1 },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "version", "category", "description", "license", "attribution", "entrypoint", "files", "contentSha256"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, "version": { "type": "string", "minLength": 1 },
+          "category": { "type": "string", "minLength": 1 }, "description": { "type": "string", "minLength": 1 },
+          "license": { "enum": ["MIT", "CC-BY-4.0"] },
+          "attribution": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["name", "url", "text"], "properties": { "name": { "type": "string", "minLength": 1 }, "url": { "type": "string", "format": "uri" }, "text": { "type": "string", "minLength": 1 } } } },
+          "entrypoint": { "type": "string", "minLength": 1 }, "files": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["path", "size", "sha256"], "properties": { "path": { "type": "string", "minLength": 1 }, "size": { "type": "integer", "minimum": 0 }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } } },
+          "contentSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    }
+  }
+}

@@ -6,7 +6,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 
 - Grimoire is the unified agent-skill catalog and installer, published as **`@runecraft/grimoire`** (see `packages/skills/package.json`).
 - Content layout: one folder per skill under `packages/skills/skills/` (each with `SKILL.md` + optional `references/`, `scripts/`, `.skill-meta.json`); shared docs under `packages/skills/references/` (`definition-of-done.md`, `testing-patterns.md`).
-- The single package combines the catalog and `grimoire` executable in `packages/skills/`; category metadata is in `packages/skills/catalog.json`.
+- The single package combines the catalog and `grimoire` executable in `packages/skills/`; `catalog.json` is a generated taxonomy (rebuilt by `catalog:generate` from the validated registry). Catalog contract: [`packages/skills/catalog/README.md`](packages/skills/catalog/README.md).
 
 ## Identity rules (hard constraints)
 
@@ -19,6 +19,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 - `bun run test` — unit tests for both packages (temp dirs only; never real user dirs).
 - `bun run build` — bundles `packages/skills/dist/grimoire.js`.
 - `bun run typecheck` — typechecks both packages.
+- `bun run --cwd packages/skills catalog:generate` — rebuilds `catalog/v1/registry.json`, copies allowlisted skill files, and regenerates `catalog.json` from the validated registry.
 - `python3 packages/skills/skills/skill-forge/scripts/validate.py packages/skills/skills/skill-forge` — SKILL.md structure validator (23 checks; 1 pre-existing warning, not a failure).
 - New skills must ship `SKILL.md` + `references/` and follow the skill-forge conventions.
 
