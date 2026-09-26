@@ -21,7 +21,7 @@ export function updateLock(lock: Lockfile, name: string, entry: LockedSkill): Lo
   const existing = lock.skills[name];
   lock.generated = new Date().toISOString();
   lock.skills[name] = existing
-    ? { ...entry, agents: [...new Set([...existing.agents, ...entry.agents])] }
+    ? { ...existing, ...entry, agents: [...new Set([...existing.agents, ...entry.agents])] }
     : entry;
   return lock;
 }
