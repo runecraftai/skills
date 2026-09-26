@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "Grimoire skill catalog and installer",
   "packageManager": "bun@1.4.0",
-  "workspaces": ["packages/skills"],
+  "workspaces": ["packages/skills", "packages/core"],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

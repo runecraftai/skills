@@ -6,7 +6,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 
 - Grimoire is the unified agent-skill catalog and installer, published as **`@runecraft/grimoire`** (see `packages/skills/package.json`).
 - Content layout: one folder per skill under `packages/skills/skills/` (each with `SKILL.md` + optional `references/`, `scripts/`, `.skill-meta.json`); shared docs under `packages/skills/references/` (`definition-of-done.md`, `testing-patterns.md`).
-- The single package combines the catalog and `grimoire` executable in `packages/skills/`; `catalog.json` is a generated taxonomy (rebuilt by `catalog:generate` from the validated registry). Catalog contract: [`packages/skills/catalog/README.md`](packages/skills/catalog/README.md).
+- `packages/skills/` publishes the catalog and `grimoire` executable; `packages/core/` is the private shared client core. `catalog.json` is a generated taxonomy (rebuilt by `catalog:generate` from the validated registry). Catalog contract: [`packages/skills/catalog/README.md`](packages/skills/catalog/README.md).
 
 ## Identity rules (hard constraints)
 
