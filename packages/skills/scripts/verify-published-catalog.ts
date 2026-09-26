@@ -10,11 +10,22 @@ const base = `https://cdn.jsdelivr.net/gh/runecraftai/skills@${tag}/packages/ski
 const artifact = process.env.CATALOG_ARTIFACT_DIR ?? join(root, "release-artifact/catalog/v1");
 const registryBytes = await readFile(join(artifact, "registry.json"));
 const registry = JSON.parse(registryBytes.toString("utf8"));
-const check = async (path: string, expected: Uint8Array) => {
-  const response = await fetch(`${base}/${path}`, { redirect: "error", signal: AbortSignal.timeout(30_000) });
-  if (!response.ok) throw new Error(`CDN fetch failed for ${path}: HTTP ${response.status}`);
-  const actual = new Uint8Array(await response.arrayBuffer());
-  if (Buffer.compare(Buffer.from(actual), Buffer.from(expected)) !== 0) throw new Error(`Published bytes differ: ${path}`);
+const MAX_ATTEMPTS = 3;
+const check = async (path: string, expected: Uint8Array): Promise<void> => {
+  let lastError: Error | undefined;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch(`${base}/${path}`, { redirect: "error", signal: AbortSignal.timeout(30_000) });
+      if (!response.ok) throw new Error(`CDN fetch failed for ${path}: HTTP ${response.status}`);
+      const actual = new Uint8Array(await response.arrayBuffer());
+      if (Buffer.compare(Buffer.from(actual), Buffer.from(expected)) !== 0) throw new Error(`Published bytes differ: ${path}`);
+      return;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < MAX_ATTEMPTS) await new Promise((r) => setTimeout(r, 1000 * attempt));
+    }
+  }
+  throw lastError!;
 };
 await check("registry.json", registryBytes);
 for (const skill of registry.skills) for (const file of skill.files) {

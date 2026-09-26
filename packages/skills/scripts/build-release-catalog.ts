@@ -28,9 +28,12 @@ for (const skill of current.skills) for (const file of skill.files) {
 await rm(rebuilt, { recursive: true, force: true });
 const registry = await readFile(join(source, "registry.json"));
 const sha256 = createHash("sha256").update(registry).digest("hex");
+const contentDigest = createHash("sha256");
+for (const skill of [...current.skills].sort((a, b) => a.id.localeCompare(b.id))) contentDigest.update(skill.contentSha256, "hex");
+const contentSha256 = contentDigest.digest("hex");
 const artifactRoot = join(root, "release-artifact");
 await mkdir(join(artifactRoot, "catalog"), { recursive: true });
 await cp(source, join(artifactRoot, "catalog/v1"), { recursive: true });
-await writeFile(join(artifactRoot, "stable.json"), `${JSON.stringify({ schemaVersion: 1, catalogVersion: version, revision, registry: `https://cdn.jsdelivr.net/gh/runecraftai/skills@${tag}/packages/skills/catalog/v1/registry.json`, sha256 }, null, 2)}\n`);
+await writeFile(join(artifactRoot, "stable.json"), `${JSON.stringify({ schemaVersion: 1, catalogVersion: version, revision, registry: `https://cdn.jsdelivr.net/gh/runecraftai/skills@${tag}/packages/skills/catalog/v1/registry.json`, sha256, contentSha256 }, null, 2)}\n`);
 await writeFile(join(artifactRoot, "catalog/v1/registry.sha256"), `${sha256}  registry.json\n`);
 console.log(`Built ${tag} catalog (${sha256})`);
