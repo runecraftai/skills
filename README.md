@@ -42,7 +42,9 @@ grimoire install -s spec-driven -t pi       # install without the TUI
 grimoire install -s skill-forge -t codex --overwrite
 ```
 
-The executable is `grimoire`. Run `grimoire --help` for all options. Repeat `-s` to install multiple skills; use `--target-dir` for an isolated destination.
+The executable is `grimoire`. Run `grimoire --help` for all options. Repeat `-s` to install multiple skills; use `--target-dir` for an isolated destination. Remote catalog commands include `search <intent>`, `install <id> --target pi`, `list --available`, `list --installed`, `update`, `remove <id> --target pi`, and `audit`. `--offline` uses a cached known revision and does not imply freshness. The CLI keeps the bundled catalog as a local fallback.
+
+The CLI and `@runecraft/grimoire-mcp` coexist. CLI installs deliberately copy files into an agent's native skill directory, where that agent may inject skill descriptions. The MCP is for on-demand discovery and does not install skills; the CLI does not configure MCP.
 
 ## Available skills
 
