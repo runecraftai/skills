@@ -104,6 +104,7 @@ export function buildTuiFrame(model: FrameInput, bounds?: { previewMax: number }
   const rows: string[][] = [];
   if (wide || (model.mode !== "target" && model.pane === "list")) {
     const list: string[] = ["SKILLS"];
+    let selectedIndex = 0;
     for (const category of model.categories) {
       const entries = model.skills.filter((skill) => skill.category === category.name);
       if (!entries.length) continue;
@@ -112,12 +113,12 @@ export function buildTuiFrame(model: FrameInput, bounds?: { previewMax: number }
         const marked = skill.id === model.highlighted ? (skill.selected ? "●◉" : "●") : skill.selected ? "◉" : "○";
         const status = ({ absent: "absent", "managed-clean": "clean", "managed-modified": "modified", "existing-unmanaged/unknown": "unknown", "unreadable/error": "error" } as Record<string, string>)[skill.status] ?? skill.status;
         list.push(`  ${marked} ${skill.name}  ${status}`);
+        if (skill.id === model.highlighted) selectedIndex = list.length - 1;
       }
     }
     const noticeRows = !wide && model.pane === "list" ? model.notice.flatMap((line) => wrap(line, inner)) : [];
     const noticeTake = Math.min(noticeRows.length, bodyHeight > 1 ? bodyHeight - 1 : bodyHeight);
     const listHeight = bodyHeight - noticeTake;
-    const selectedIndex = Math.max(0, list.findIndex((row) => row.includes(focused?.name ?? "\0")));
     const start = Math.max(0, Math.min(list.length - listHeight, selectedIndex - Math.floor(listHeight / 2)));
     rows.push([...list.slice(start, start + listHeight), ...noticeRows.slice(0, noticeTake)]);
   }
