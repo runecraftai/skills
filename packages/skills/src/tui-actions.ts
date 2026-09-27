@@ -1,8 +1,8 @@
 import { lstatSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { installSkills, skillHash } from "./install.js";
-import { readLockfile, writeLockfile, type LockedSkill } from "./lockfile.js";
-import { loadTuiSnapshot, readTreeManifest, tuiOwnershipKey, type OwnedRecord, type TuiContext } from "./tui-model.js";
+import { clearScopeOwnership, readLockfile, tuiOwnershipKey, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { loadTuiSnapshot, readTreeManifest, type TuiContext } from "./tui-model.js";
 
 export interface ActionResult { succeeded: Array<{ id: string; destination: string }>; failed: Array<{ id: string; destination: string; reason: string }>; }
 function fail(result: ActionResult, id: string, destination: string, reason: string) { result.failed.push({ id, destination, reason }); }
@@ -10,7 +10,6 @@ function sameManifest(left: Record<string, string>, right: Record<string, string
   const a = Object.keys(left).sort(), b = Object.keys(right).sort();
   return a.length === b.length && a.every((key, index) => key === b[index] && left[key] === right[key]);
 }
-type OwnedLockEntry = LockedSkill & { tuiTargets?: Record<string, OwnedRecord> };
 export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" | "remove", confirm = false): ActionResult {
   const result: ActionResult = { succeeded: [], failed: [] };
   if (!confirm) return result;
@@ -31,7 +30,7 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
         phase = "lock";
         const lock = readLockfile(ctx.projectDir);
         const key = id.split("/").at(-1)!;
-        const entry: OwnedLockEntry = lock.skills[key] ?? { version: skill.version, hash: "", installed: new Date().toISOString(), agents: [] };
+        const entry: LockedSkill = lock.skills[key] ?? { version: skill.version, hash: "", installed: new Date().toISOString(), agents: [] };
         const files = actual;
         entry.tuiTargets ??= {};
         entry.tuiTargets[tuiOwnershipKey(before.target, before.scope)] = { destination: resolve(status.destination), scope: before.scope, files, identity: id };
@@ -57,17 +56,9 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
       rmSync(status.destination, { recursive: true, force: false });
     } catch (error) { fail(result, id, status.destination, error instanceof Error ? error.message : String(error)); continue; }
     try {
-      const lock = readLockfile(ctx.projectDir), key = id.split("/").at(-1)!, entry = lock.skills[key] as OwnedLockEntry | undefined;
+      const lock = readLockfile(ctx.projectDir), key = id.split("/").at(-1)!, entry = lock.skills[key];
       if (entry) {
-        const ownedKey = tuiOwnershipKey(before.target, before.scope);
-        if (entry.tuiTargets) delete entry.tuiTargets[ownedKey];
-        const retained = Object.entries(entry.tuiTargets ?? {}).filter(([candidate]) => candidate.startsWith(`${before.target}:`));
-        if (entry.tuiTargets && !Object.keys(entry.tuiTargets).length) delete entry.tuiTargets;
-        if (retained.length) { if (entry.targets) entry.targets[before.target] = retained[0][1].destination; }
-        else {
-          if (entry.targets) { delete entry.targets[before.target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
-          entry.agents = entry.agents.filter((target) => target !== before.target);
-        }
+        clearScopeOwnership(entry, before.target, before.scope);
         if (!entry.agents.length && !entry.tuiTargets && !entry.targets) delete lock.skills[key];
       }
       writeLockfile(ctx.projectDir, lock); result.succeeded.push({ id, destination: status.destination });

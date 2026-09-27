@@ -8,8 +8,8 @@ import { spawnSync } from "node:child_process";
 import { detectStack } from "./detect.js";
 import { installSkills, removeSkill, skillHash } from "./install.js";
 import { readRegistry, findSkill } from "./registry.js";
-import { readLockfile, updateLock, writeLockfile } from "./lockfile.js";
-import { isTargetId, resolveSkillsDir, TARGETS } from "./targets.js";
+import { clearScopeOwnership, readLockfile, tuiOwnershipKey, updateLock, verifyOwnedRecord, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { isTargetId, resolveSkillsDir, TARGETS, type TargetId } from "./targets.js";
 import { mkdtemp, rename, rm } from "node:fs/promises";
 import { rankSkills } from "../../core/src/index.js";
 import { downloadSkill, loadRemoteCatalog } from "./remote-catalog.js";
@@ -20,6 +20,27 @@ const usage = `grimoire — full-screen catalog and installer\n\nRuntime: Node >
 function value(args: string[], flag: string): string | undefined { const i = args.indexOf(flag); return i < 0 ? undefined : args[i + 1]; }
 function print(skills: ReturnType<typeof readRegistry>, query = "") { for (const s of skills.filter((s) => !query || `${s.name} ${s.description} ${s.category}`.toLowerCase().includes(query.toLowerCase()))) console.log(`${s.name} [${s.category}] — ${s.description.split("\n")[0]}`); }
 function version() { try { return JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8")).version; } catch { return "0.0.0"; } }
+function scopeRemovalDir(entry: LockedSkill | undefined, target: TargetId, scope: "project" | "global", projectDir: string): string {
+  const record = entry?.tuiTargets?.[tuiOwnershipKey(target, scope)];
+  if (record) return resolve(record.destination, "..");
+  const hasTargetRecords = Object.keys(entry?.tuiTargets ?? {}).some((key) => key.startsWith(`${target}:`));
+  if (scope === "project" && !hasTargetRecords && entry?.targets?.[target]) return resolve(entry.targets[target], "..");
+  return resolveSkillsDir(target, { home: homedir(), projectDir, global: scope === "global" });
+}
+function removeCommand(args: string[], global: boolean): void {
+  const id = args.find((a) => !a.startsWith("-") && a !== "remove"); if (!id) throw new Error("remove requires a skill id");
+  const projectDir = resolve(process.cwd()), lock = readLockfile(projectDir), entry = lock.skills[id], target = value(args, "--target");
+  if (!entry && !args.includes("--force")) throw new Error("refusing to remove an unmanaged skill without --force");
+  const targets = (target ? [target] : entry?.agents ?? []).map((candidate) => { if (!isTargetId(candidate)) throw new Error(`unknown target: ${candidate}`); return candidate; });
+  if (!targets.length) throw new Error("specify --target for --force removal");
+  const scope = global ? "global" as const : "project" as const;
+  for (const t of targets) removeSkill(id, scopeRemovalDir(entry, t, scope, projectDir));
+  if (entry) {
+    for (const t of targets) clearScopeOwnership(entry, t, scope);
+    if (!entry.agents.length && !entry.tuiTargets && !entry.targets) delete lock.skills[id];
+    writeLockfile(projectDir, lock);
+  }
+}
 async function launchTui(global: boolean): Promise<number> {
   if (!process.stdin.isTTY || !process.stdout.isTTY) { console.error("grimoire: interactive terminal required (stdin and stdout must both be TTYs)"); return 1; }
   if ((process.stdout.columns ?? 80) < 40 || (process.stdout.rows ?? 24) < 12) { console.error("grimoire: terminal too small for the interactive catalog (minimum 40x12)"); return 1; }
@@ -58,18 +79,23 @@ async function main() {
       if (command === "search") { const ranked = rankSkills(args.slice(1).filter((a) => !a.startsWith("--")).join(" "), skills); for (const r of ranked) console.log(`${r.skill.id} [${r.skill.category}] — ${r.skill.description}`); return 0; }
       if (command === "list" && args.includes("--available")) { for (const s of skills) console.log(`${s.id} [${s.category}] — ${s.description}`); return 0; }
       if (command === "list" && args.includes("--installed")) { const lock = readLockfile(resolve(process.cwd())); for (const [id, entry] of Object.entries(lock.skills)) console.log(`${id} [${entry.agents.join(", ")}] ${entry.version}`); return 0; }
-      if (command === "remove") {
-        const id = args.find((a) => !a.startsWith("-") && a !== "remove"); if (!id) throw new Error("remove requires a skill id");
-        const projectDir = resolve(process.cwd()), lock = readLockfile(projectDir), entry = lock.skills[id], target = value(args, "--target");
-        if (!entry && !args.includes("--force")) throw new Error("refusing to remove an unmanaged skill without --force");
-        const targets = target ? [target] : entry?.agents ?? []; if (!targets.length) throw new Error("specify --target for --force removal");
-        for (const t of targets) { if (!isTargetId(t)) throw new Error(`unknown target: ${t}`); removeSkill(id, entry?.targets?.[t] ? resolve(entry.targets[t], "..") : resolveSkillsDir(t, { home: homedir(), projectDir, global: !entry })); }
-        if (entry) { if (target) { entry.agents = entry.agents.filter((x) => x !== target); delete entry.targets?.[target]; if (!entry.agents.length) delete lock.skills[id]; } else delete lock.skills[id]; writeLockfile(projectDir, lock); } return 0;
-      }
+      if (command === "remove") { removeCommand(args, global); return 0; }
       if (command === "audit") {
         const lock = readLockfile(resolve(process.cwd())), issues: string[] = [];
-        for (const [id, entry] of Object.entries(lock.skills)) for (const [target, location] of Object.entries(entry.targets ?? {})) for (const [path, expected] of Object.entries(entry.fileHashes ?? {})) {
-          try { const actual = createHash("sha256").update(readFileSync(join(location, path))).digest("hex"); if (actual !== expected) issues.push(`${id}/${path}: tampered (${target})`); } catch { issues.push(`${id}/${path}: missing (${target})`); }
+        for (const [id, entry] of Object.entries(lock.skills)) {
+          const owned = entry.tuiTargets ?? {};
+          const ownedLocations = new Set(Object.values(owned).map((record) => resolve(record.destination)));
+          for (const [key, record] of Object.entries(owned)) {
+            const { modified, missing } = verifyOwnedRecord(record);
+            for (const path of modified) issues.push(`${id}/${path}: tampered (${key})`);
+            for (const path of missing) issues.push(`${id}/${path}: missing (${key})`);
+          }
+          for (const [target, location] of Object.entries(entry.targets ?? {})) {
+            if (ownedLocations.has(resolve(location))) continue;
+            for (const [path, expected] of Object.entries(entry.fileHashes ?? {})) {
+              try { const actual = createHash("sha256").update(readFileSync(join(location, path))).digest("hex"); if (actual !== expected) issues.push(`${id}/${path}: tampered (${target})`); } catch { issues.push(`${id}/${path}: missing (${target})`); }
+            }
+          }
         }
         if (args.includes("--json")) console.log(JSON.stringify({ issues, revision: remote.registry.revision }, null, 2)); else console.log(issues.length ? issues.join("\\n") : "No tracked install issues found."); return issues.length ? 1 : 0;
       }
@@ -84,19 +110,13 @@ async function main() {
           await rename(staged, join(scratch, selected.id));
           const result = installSkills({ catalogDir: scratch, targetDir, names: [selected.id], overwrite: args.includes("--overwrite") });
           if (result.failed.length) throw new Error(result.failed[0].error);
-          if (!global) { const lock = readLockfile(projectDir); lock.catalogUrl = process.env.GRIMOIRE_CATALOG_URL ?? "https://cdn.jsdelivr.net/gh/runecraftai/skills@stable/packages/skills/catalog/v1/registry.json"; lock.revision = remote.registry.revision; lock.skills[selected.id] = { version: selected.version, hash: selected.contentSha256, contentSha256: selected.contentSha256, fileHashes: Object.fromEntries(selected.files.map((f) => [f.path, f.sha256])), installed: new Date().toISOString(), agents: [...new Set([...(lock.skills[selected.id]?.agents ?? []), target])], targets: { ...(lock.skills[selected.id]?.targets ?? {}), [target]: `${targetDir}/${selected.id}` }, license: selected.license, attribution: selected.attribution }; writeLockfile(projectDir, lock); }
+          if (!global) { const lock = readLockfile(projectDir); lock.catalogUrl = process.env.GRIMOIRE_CATALOG_URL ?? "https://cdn.jsdelivr.net/gh/runecraftai/skills@stable/packages/skills/catalog/v1/registry.json"; lock.revision = remote.registry.revision; updateLock(lock, selected.id, { version: selected.version, hash: selected.contentSha256, contentSha256: selected.contentSha256, fileHashes: Object.fromEntries(selected.files.map((f) => [f.path, f.sha256])), installed: new Date().toISOString(), agents: [...new Set([...(lock.skills[selected.id]?.agents ?? []), target])], targets: { ...(lock.skills[selected.id]?.targets ?? {}), [target]: `${targetDir}/${selected.id}` }, license: selected.license, attribution: selected.attribution }); writeLockfile(projectDir, lock); }
           console.log(`${result.installed.length ? "installed" : result.overwritten.length ? "updated" : "already installed"}: ${selected.id}`); return 0;
         } finally { await rm(scratch, { recursive: true, force: true }); }
       }
     }
     if (command === "list" || command === "search") { print(local, command === "search" ? args.slice(1).join(" ") : ""); return 0; }
-    if (command === "remove" && args.includes("--force")) {
-      const id = args.find((a) => !a.startsWith("-") && a !== "remove"); if (!id) throw new Error("remove requires a skill id");
-      const projectDir = resolve(process.cwd()), lock = readLockfile(projectDir), entry = lock.skills[id], target = value(args, "--target");
-      const targets = target ? [target] : entry?.agents ?? []; if (!targets.length) throw new Error("specify --target for --force removal");
-      for (const t of targets) { if (!isTargetId(t)) throw new Error(`unknown target: ${t}`); removeSkill(id, entry?.targets?.[t] ? resolve(entry.targets[t], "..") : resolveSkillsDir(t, { home: homedir(), projectDir, global: !entry })); }
-      if (entry) { if (target) { entry.agents = entry.agents.filter((x) => x !== target); delete entry.targets?.[target]; if (!entry.agents.length) delete lock.skills[id]; } else delete lock.skills[id]; writeLockfile(projectDir, lock); } return 0;
-    }
+    if (command === "remove" && args.includes("--force")) { removeCommand(args, global); return 0; }
     if (["update", "audit", "remove"].includes(command)) throw new Error(`${command} requires a lock-tracked remote install; command not yet available for this catalog mode`);
   }
   const registry = readRegistry(catalogDir);
@@ -105,7 +125,14 @@ async function main() {
     const lock = readLockfile(resolve(process.cwd()));
     const entries = Object.entries(lock.skills);
     if (!entries.length) { console.log("No tracked project installations."); return 0; }
-    for (const [name, entry] of entries) console.log(`${name} [${entry.agents.join(", ")}] ${entry.hash}`);
+    for (const [name, entry] of entries) {
+      console.log(`${name} [${entry.agents.join(", ")}] ${entry.hash}`);
+      for (const [key, record] of Object.entries(entry.tuiTargets ?? {}).sort(([a], [b]) => a.localeCompare(b))) {
+        const { modified, missing } = verifyOwnedRecord(record);
+        const parts = [...(missing.length ? [`missing: ${missing.join(", ")}`] : []), ...(modified.length ? [`modified: ${modified.join(", ")}`] : [])];
+        console.log(`  ${key} ${parts.length ? parts.join(" ") : "verified"}`);
+      }
+    }
     return 0;
   }
   if (command !== "install") throw new Error(`unknown command: ${command}`);

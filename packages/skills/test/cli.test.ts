@@ -1,10 +1,35 @@
 import { describe, expect, test } from "bun:test";
-import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { spawn, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 const CLI = join(import.meta.dir, "..", "src", "index.ts");
 const run = (args: string[]) => spawnSync("bun", ["run", CLI, ...args], { encoding: "utf8" });
+const sha256 = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
+function scopeFixture() {
+  const root = mkdtempSync(join(tmpdir(), "grimoire-scope-"));
+  const project = root, home = join(root, "home");
+  const projectDest = join(project, ".pi", "skills", "alpha"), globalDest = join(home, ".pi", "agent", "skills", "alpha");
+  mkdirSync(projectDest, { recursive: true }); mkdirSync(globalDest, { recursive: true });
+  writeFileSync(join(projectDest, "SKILL.md"), "project bytes");
+  writeFileSync(join(globalDest, "SKILL.md"), "global bytes");
+  const lock = {
+    version: 2, generated: new Date().toISOString(), registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "local",
+    skills: { alpha: {
+      version: "1.0.0", hash: "sha256:aaa", installed: new Date().toISOString(), agents: ["pi"],
+      fileHashes: { "SKILL.md": sha256("project bytes") }, targets: { pi: projectDest },
+      tuiTargets: {
+        "pi:project": { destination: projectDest, scope: "project", files: { "SKILL.md": sha256("project bytes") }, identity: "alpha" },
+        "pi:global": { destination: globalDest, scope: "global", files: { "SKILL.md": sha256("global bytes") }, identity: "alpha" },
+      },
+    } },
+  };
+  writeFileSync(join(project, ".grimoire-lock.json"), JSON.stringify(lock, null, 2));
+  const env = { ...process.env, HOME: home, XDG_CACHE_HOME: join(root, "cache"), GRIMOIRE_CATALOG_URL: "http://127.0.0.1:1/registry.json" };
+  return { root, project, home, projectDest, globalDest, env };
+}
 describe("grimoire CLI", () => {
   test("lists categorized catalog entries", () => { const r = run(["list"]); expect(r.status).toBe(0); expect(r.stdout).toContain("[Planning & Specification]"); expect(r.stdout).toContain("spec-driven"); });
   test("detect prints recommendations", () => { const dir = mkdtempSync(join(tmpdir(), "grimoire-cli-")); try { writeFileSync(join(dir, "tsconfig.json"), "{}"); const r = spawnSync("bun", ["run", CLI, "detect"], { cwd: dir, encoding: "utf8" }); expect(r.status).toBe(0); expect(r.stdout).toContain("typescript-patterns"); } finally { rmSync(dir, { recursive: true, force: true }); } });
@@ -19,5 +44,98 @@ describe("grimoire CLI", () => {
         expect(existsSync(join(project, ".grimoire-lock.json"))).toBe(false); expect(existsSync(home)).toBe(false);
       }
     } finally { rmSync(root, { recursive: true, force: true }); }
+  });
+
+  test("scriptable remove clears only the requested scope record and retains its sibling", () => {
+    const f = scopeFixture();
+    try {
+      const first = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(first.status).toBe(0);
+      expect(existsSync(f.projectDest)).toBe(false);
+      expect(existsSync(f.globalDest)).toBe(true);
+      const afterFirst = JSON.parse(readFileSync(join(f.project, ".grimoire-lock.json"), "utf8"));
+      expect(Object.keys(afterFirst.skills.alpha.tuiTargets)).toEqual(["pi:global"]);
+      expect(afterFirst.skills.alpha.targets.pi).toBe(f.globalDest);
+      expect(afterFirst.skills.alpha.agents).toContain("pi");
+      const second = spawnSync("bun", ["run", CLI, "--global", "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(second.status).toBe(0);
+      expect(existsSync(f.globalDest)).toBe(false);
+      const afterSecond = JSON.parse(readFileSync(join(f.project, ".grimoire-lock.json"), "utf8"));
+      expect(afterSecond.skills.alpha).toBeUndefined();
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("audit verifies every scope record against its own hashes", () => {
+    const f = scopeFixture();
+    try {
+      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
+      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
+      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      const clean = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(clean.status).toBe(0);
+      expect(clean.stdout).toContain("No tracked install issues found");
+      writeFileSync(join(f.globalDest, "SKILL.md"), "tampered");
+      const dirty = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(dirty.status).toBe(1);
+      expect(dirty.stdout).toContain("alpha/SKILL.md: tampered (pi:global)");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("status reports verification against each scope record's hashes", () => {
+    const f = scopeFixture();
+    try {
+      const clean = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(clean.status).toBe(0);
+      expect(clean.stdout).toContain("alpha [pi]");
+      expect(clean.stdout).toContain("pi:project verified");
+      expect(clean.stdout).toContain("pi:global verified");
+      writeFileSync(join(f.globalDest, "SKILL.md"), "tampered");
+      const dirty = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(dirty.status).toBe(0);
+      expect(dirty.stdout).toContain("pi:global modified: SKILL.md");
+      expect(dirty.stdout).toContain("pi:project verified");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("remote install preserves TUI scope ownership records", async () => {
+    const root = mkdtempSync(join(tmpdir(), "grimoire-remote-lock-"));
+    const bytes = Buffer.from("remote skill bytes!");
+    const skill = {
+      id: "test-skill", name: "Test Skill", version: "2.0.0", category: "test", description: "A test skill", license: "MIT",
+      attribution: [{ name: "Test", text: "Test skill", url: "https://example.com" }], entrypoint: "SKILL.md",
+      files: [{ path: "SKILL.md", size: bytes.length, sha256: sha256(bytes) }],
+      contentSha256: sha256(Buffer.concat([Buffer.from("SKILL.md"), Buffer.from([0]), bytes])),
+    };
+    const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test-1", generatedAt: new Date().toISOString(), skills: [skill] };
+    mkdirSync(join(root, "cache", "runecraft", "grimoire"), { recursive: true });
+    writeFileSync(join(root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+    const server = createServer((req, res) => {
+      if (req.url === "/skills/test-skill/SKILL.md") { res.writeHead(200); res.end(bytes); return; }
+      if (req.url === "/registry.json") { res.writeHead(200, { "Content-Type": "application/json" }); res.end(JSON.stringify(registry)); return; }
+      res.writeHead(404); res.end();
+    });
+    await new Promise<void>((done) => server.listen(0, "127.0.0.1", done));
+    try {
+      const port = (server.address() as { port: number }).port;
+      const dest = join(root, ".pi", "skills", "test-skill");
+      const record = { destination: dest, scope: "project", files: { "SKILL.md": sha256("seeded bytes") }, identity: "test-skill" };
+      writeFileSync(join(root, ".grimoire-lock.json"), JSON.stringify({
+        version: 2, generated: new Date().toISOString(), registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "local",
+        skills: { "test-skill": { version: "1.0.0", hash: "sha256:old", installed: new Date().toISOString(), agents: ["pi"], targets: { pi: dest }, tuiTargets: { "pi:project": record } } },
+      }, null, 2));
+      const exitCode = await new Promise<number | null>((done) => {
+        const child = spawn("bun", ["run", CLI, "install", "test-skill", "--target", "pi"], {
+          cwd: root,
+          env: { ...process.env, XDG_CACHE_HOME: join(root, "cache"), GRIMOIRE_CATALOG_URL: `http://127.0.0.1:${port}/registry.json` },
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+        child.on("close", (code) => done(code));
+      });
+      expect(exitCode).toBe(0);
+      const lock = JSON.parse(readFileSync(join(root, ".grimoire-lock.json"), "utf8"));
+      expect(lock.skills["test-skill"].tuiTargets["pi:project"]).toEqual(record);
+      expect(lock.skills["test-skill"].version).toBe("2.0.0");
+      expect(lock.skills["test-skill"].targets.pi).toBe(dest);
+    } finally { server.close(); rmSync(root, { recursive: true, force: true }); }
   });
 });
