@@ -1,6 +1,6 @@
 import { createCliRenderer } from "@opentui/core";
 import { createRoot, useKeyboard, useTerminalDimensions } from "@opentui/react";
-import { createElement as h, useEffect, useMemo, useState } from "react";
+import { createElement as h, useEffect, useMemo, useRef, useState } from "react";
 import { applyTuiBatch, type ActionResult } from "./tui-actions.js";
 import { filterTuiSkills, loadTuiSnapshot, previewText, sanitizeText, targetOptions, type TuiContext } from "./tui-model.js";
 import { initialTuiState, moveHighlight, toggleSelected, visibleBatchIds, type TuiState } from "./tui-state.js";
@@ -78,7 +78,9 @@ export function confirmGateNotice(action: "install" | "remove", actionIds: strin
   if (!confirmReviewFits(action, actionIds, destLabel, width, height, lockError)) return "Not enough room to review this action safely; deselect skills or enlarge the terminal; nothing changed.";
   return null;
 }
-export function buildTuiFrame(model: FrameInput): string[] {
+export function clampPreviewOffset(offset: number, max: number): number { return Math.max(0, Math.min(offset, max)); }
+export function buildTuiFrame(model: FrameInput, bounds?: { previewMax: number }): string[] {
+  if (bounds) bounds.previewMax = 0;
   const layout = frameLayout(model.width, model.height);
   const width = layout.w, height = layout.h, inner = layout.inner, wide = layout.wide, banner = layout.banner;
   const footer = legend(inner);
@@ -164,7 +166,9 @@ export function buildTuiFrame(model: FrameInput): string[] {
     const used = right.length;
     const contentHeight = Math.max(0, bodyHeight - used);
     const content = wrap(model.content || "[SKILL.md unavailable]", rightWidth);
-    const offset = Math.max(0, Math.min(model.previewOffset, content.length - contentHeight));
+    const previewMax = Math.max(0, content.length - contentHeight);
+    if (bounds) bounds.previewMax = previewMax;
+    const offset = clampPreviewOffset(model.previewOffset, previewMax);
     right.push(...content.slice(offset, offset + contentHeight));
     rows.push(right);
   }
@@ -195,13 +199,15 @@ export async function runTui(ctx: TuiContext): Promise<number> {
       const [gPending, setGPending] = useState(false);
       const [result, setResult] = useState<{ outcome: ActionResult; dest: string } | null>(null);
       const [snapshotVersion, setSnapshotVersion] = useState(0);
+      const scroll = useRef({ previewMax: 0 }).current;
       const { width, height } = useTerminalDimensions();
       const snapshot = useMemo(() => loadTuiSnapshot({ ...ctx, target }), [target, snapshotVersion]);
       const visible = filterTuiSkills(snapshot.skills, state.query);
+      const visibleKey = visible.map((skill) => skill.id).join("\n");
       useEffect(() => {
         if (visible.length && !visible.some((skill) => skill.id === state.highlighted)) setState((value) => ({ ...value, highlighted: visible[0].id }));
         else if (!visible.length && state.highlighted) setState((value) => ({ ...value, highlighted: "" }));
-      }, [state.highlighted, state.query, visible[0]?.id]);
+      }, [state.highlighted, visibleKey]);
       const current = visible.find((skill) => skill.id === state.highlighted) ?? visible[0];
       const destLabel = `${target} · ${snapshot.scope}`;
       useEffect(() => {
@@ -259,8 +265,8 @@ export async function runTui(ctx: TuiContext): Promise<number> {
           if (gPending) { setState((s) => ({ ...s, highlighted: visible[0]?.id ?? "", previewOffset: 0 })); setGPending(false); }
           else { setGPending(true); setTimeout(() => setGPending(false), 450); }
         }
-        if (name === "pageup") setState((s) => ({ ...s, previewOffset: Math.max(0, s.previewOffset - 12) }));
-        if (name === "pagedown") setState((s) => ({ ...s, previewOffset: s.previewOffset + 12 }));
+        if (name === "pageup") setState((s) => ({ ...s, previewOffset: clampPreviewOffset(s.previewOffset - 12, scroll.previewMax) }));
+        if (name === "pagedown") setState((s) => ({ ...s, previewOffset: clampPreviewOffset(s.previewOffset + 12, scroll.previewMax) }));
       });
       const targetInfo = targetOptions({ ...ctx, target }).find((option) => option.id === target)!;
       const actionIds = visibleBatchIds(state);
@@ -277,7 +283,7 @@ export async function runTui(ctx: TuiContext): Promise<number> {
         skills: visible.map((skill) => ({ id: skill.id, name: skill.name, category: skill.category ?? "Other", status: snapshot.statuses[skill.id]?.status ?? "unreadable/error", selected: state.selected.has(skill.id) })),
         categories: snapshot.categories, highlighted: current?.id ?? "", description: current?.description ?? "", status: current ? snapshot.statuses[current.id]?.status ?? "unreadable/error" : "unreadable/error", tags: current?.tags ?? [],
         trigger: current?.trigger ?? "Not specified — see description", files: current?.files ?? [], content: previewText(current?.content ?? null, current?.contentError), previewOffset: state.previewOffset, notice,
-      });
+      }, scroll);
       return h("text" as never, { width, height, wrapMode: "none", fg: "white" } as never, frame.join("\n"));
     }
     root = createRoot(renderer);

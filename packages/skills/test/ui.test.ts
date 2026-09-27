@@ -77,6 +77,12 @@ describe("TUI view model and actions", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("preview strips controls, normalizes CRLF, and never emits carriage returns", () => {
+    expect(previewText("one\r\ntwo")).toBe("one\ntwo");
+    expect(previewText("a\rb").includes("\r")).toBe(false);
+    expect(previewText("\u001b[31mSafe\u001b[0m text")).toBe("Safe text");
+  });
+
   test("unmanaged conflicts and malformed locks fail closed", () => {
     const f = fixture();
     try {

@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { createTestRenderer } from "@opentui/core/testing";
 import { createRoot } from "@opentui/react";
 import { createElement } from "react";
-import { buildTuiFrame, confirmGateNotice, confirmReviewFits } from "../src/tui.js";
+import { buildTuiFrame, clampPreviewOffset, confirmGateNotice, confirmReviewFits } from "../src/tui.js";
 
 function frame(width: number, height: number, pane: "list" | "preview" = "list") {
   return buildTuiFrame({
@@ -111,6 +111,37 @@ test("preview offset past the body is clamped to real content instead of an empt
   });
   expect(lines).toHaveLength(24);
   expect(lines.join("\n")).toContain("delta");
+});
+
+test("preview scroll reports its rendered bound so page-up always moves", () => {
+  const model = {
+    width: 80, height: 24, query: "", target: "pi", scope: "project", pane: "preview" as const, mode: "normal" as const,
+    skills: [{ id: "spec-driven", name: "spec-driven", category: "Planning", status: "absent", selected: false }],
+    categories: [{ name: "Planning", count: 1 }], highlighted: "spec-driven", description: "short", status: "absent",
+    tags: [], trigger: "/spec", files: [], content: Array.from({ length: 60 }, (_, i) => `body line ${i}`).join("\n"),
+    previewOffset: 100_000, notice: [] as string[],
+  };
+  const bounds = { previewMax: -1 };
+  expect(buildTuiFrame(model, bounds)).toHaveLength(24);
+  expect(bounds.previewMax).toBeGreaterThan(0);
+  expect(clampPreviewOffset(100_000, bounds.previewMax)).toBe(bounds.previewMax);
+  expect(clampPreviewOffset(bounds.previewMax - 12, bounds.previewMax)).toBeLessThan(bounds.previewMax);
+  const shortBounds = { previewMax: -1 };
+  buildTuiFrame({ ...model, content: "alpha\nbeta\ngamma\ndelta", previewOffset: 100_000 }, shortBounds);
+  expect(shortBounds.previewMax).toBe(0);
+  expect(clampPreviewOffset(100_000, shortBounds.previewMax)).toBe(0);
+});
+
+test("carriage returns never reach the rendered frame rows", () => {
+  const lines = buildTuiFrame({
+    width: 80, height: 24, query: "", target: "pi", scope: "project", pane: "preview", mode: "normal",
+    skills: [{ id: "evil", name: "evil\rname", category: "Cat", status: "absent", selected: false }],
+    categories: [{ name: "Cat", count: 1 }], highlighted: "evil", description: "desc\rmore", status: "absent",
+    tags: [], trigger: "/trig", files: [], content: "one\r\ntwo", previewOffset: 0, notice: ["bad\rnotice"],
+  });
+  expect(lines).toHaveLength(24);
+  expect(lines.every((line) => Array.from(line).length === 80)).toBe(true);
+  expect(lines.join("\n")).not.toContain("\r");
 });
 
 test("narrow list pane keeps feedback notices visible with a full catalog", () => {
