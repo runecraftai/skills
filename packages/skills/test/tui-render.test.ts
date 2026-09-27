@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { createTestRenderer } from "@opentui/core/testing";
 import { createRoot } from "@opentui/react";
 import { createElement } from "react";
-import { buildTuiFrame } from "../src/tui.js";
+import { buildTuiFrame, confirmGateNotice, confirmReviewFits } from "../src/tui.js";
 
 function frame(width: number, height: number, pane: "list" | "preview" = "list") {
   return buildTuiFrame({
@@ -71,6 +71,46 @@ test("confirm review renders its prompt, separator, and skill body at the gate m
     expect(text).toContain("# Test Driven Development");
     expect(lines.some((line) => line.startsWith("│") && /[─]{15,}│$/.test(line))).toBe(true);
   }
+});
+
+test("required description, trigger, and file index are funded before optional status", () => {
+  const text = frame(80, 16).join("\n");
+  expect(text).toContain("A workflow with a long description");
+  expect(text).toContain("Trigger");
+  expect(text).toContain("SKILL.md");
+  expect(text).not.toContain("Status:");
+});
+
+test("notice feedback stays visible at the minimum sizes", () => {
+  const notice = ["Lockfile error — mutations disabled: malformed lockfile"];
+  const build = (width: number, height: number) => buildTuiFrame({
+    width, height, query: "", target: "pi", scope: "project", pane: "list", mode: "normal",
+    skills: [{ id: "spec-driven", name: "spec-driven", category: "Planning", status: "absent", selected: false }],
+    categories: [{ name: "Planning", count: 1 }], highlighted: "spec-driven", description: "", status: "absent",
+    tags: [], trigger: "", files: [], content: "", previewOffset: 0, notice,
+  });
+  expect(build(40, 12).join("\n")).toContain("Lockfile error");
+  expect(build(80, 12).join("\n")).toContain("Lockfile error");
+});
+
+test("confirm gate counts lockfile error rows and reports the true blocker", () => {
+  const action = "install" as const, ids = ["test-driven-development"], dest = "pi · project";
+  expect(confirmReviewFits(action, ids, dest, 80, 16)).toBe(true);
+  expect(confirmReviewFits(action, ids, dest, 80, 16, "malformed lockfile")).toBe(false);
+  expect(confirmGateNotice(action, ids, dest, 80, 16)).toBeNull();
+  expect(confirmGateNotice(action, ids, dest, 79, 16)).toContain("Resize to at least 80x16");
+  expect(confirmGateNotice(action, ids, dest, 80, 16, "malformed lockfile")).toContain("Not enough room");
+});
+
+test("preview offset past the body is clamped to real content instead of an empty region", () => {
+  const lines = buildTuiFrame({
+    width: 80, height: 24, query: "", target: "pi", scope: "project", pane: "preview", mode: "normal",
+    skills: [{ id: "spec-driven", name: "spec-driven", category: "Planning", status: "absent", selected: false }],
+    categories: [{ name: "Planning", count: 1 }], highlighted: "spec-driven", description: "short", status: "absent",
+    tags: [], trigger: "/spec", files: [], content: "alpha\nbeta\ngamma\ndelta", previewOffset: 100_000, notice: [],
+  });
+  expect(lines).toHaveLength(24);
+  expect(lines.join("\n")).toContain("delta");
 });
 
 test("narrow list pane keeps feedback notices visible with a full catalog", () => {

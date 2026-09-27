@@ -1,6 +1,6 @@
 import { lstatSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { installSkills } from "./install.js";
+import { installSkills, skillHash } from "./install.js";
 import { readLockfile, writeLockfile } from "./lockfile.js";
 import { loadTuiSnapshot, readTreeManifest, type TuiContext } from "./tui-model.js";
 
@@ -30,8 +30,12 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
         const source = loadTuiSnapshot(ctx).skills.find((item) => item.id === id);
         if (!source || !Object.keys(source.manifest).length) throw new Error("catalog entry changed or could not be verified during installation");
         const files = source.manifest;
-        (entry as typeof entry & { tuiTargets?: Record<string, unknown> }).tuiTargets ??= {};
-        (entry as typeof entry & { tuiTargets: Record<string, unknown> }).tuiTargets[before.target] = { destination: resolve(status.destination), scope: before.scope, files, identity: id };
+        const owned = entry as typeof entry & { tuiTargets?: Record<string, unknown> };
+        owned.tuiTargets ??= {};
+        owned.tuiTargets[before.target] = { destination: resolve(status.destination), scope: before.scope, files, identity: id };
+        entry.targets = { ...(entry.targets ?? {}), [before.target]: resolve(status.destination) };
+        entry.fileHashes ??= { ...files };
+        entry.hash ||= skillHash(skill.dir);
         entry.agents = [...new Set([...entry.agents, before.target])]; lock.skills[key] = entry; writeLockfile(ctx.projectDir, lock);
         result.succeeded.push({ id, destination: status.destination });
       } catch (error) { fail(result, id, status.destination, `installed but lock update failed: ${error instanceof Error ? error.message : String(error)}`); }
@@ -43,11 +47,17 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
     try {
       if (lstatSync(status.destination).isSymbolicLink()) throw new Error("destination became a symlink");
       rmSync(status.destination, { recursive: true, force: false });
+    } catch (error) { fail(result, id, status.destination, error instanceof Error ? error.message : String(error)); continue; }
+    try {
       const lock = readLockfile(ctx.projectDir), key = id.split("/").at(-1)!, entry = lock.skills[key] as (typeof lock.skills[string] & { tuiTargets?: Record<string, unknown> }) | undefined;
-      if (entry?.tuiTargets) { delete entry.tuiTargets[before.target]; if (!Object.keys(entry.tuiTargets).length) delete (entry as typeof entry & { tuiTargets?: unknown }).tuiTargets; }
-      if (entry && !entry.targets?.[before.target]) { entry.agents = entry.agents.filter((target) => target !== before.target); if (!entry.agents.length && !entry.tuiTargets) delete lock.skills[key]; }
+      if (entry) {
+        if (entry.tuiTargets) { delete entry.tuiTargets[before.target]; if (!Object.keys(entry.tuiTargets).length) delete entry.tuiTargets; }
+        if (entry.targets) { delete entry.targets[before.target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
+        entry.agents = entry.agents.filter((target) => target !== before.target);
+        if (!entry.agents.length && !entry.tuiTargets && !entry.targets) delete lock.skills[key];
+      }
       writeLockfile(ctx.projectDir, lock); result.succeeded.push({ id, destination: status.destination });
-    } catch (error) { fail(result, id, status.destination, error instanceof Error ? error.message : String(error)); }
+    } catch (error) { fail(result, id, status.destination, `removed but lock update failed: ${error instanceof Error ? error.message : String(error)}`); }
   }
   return result;
 }

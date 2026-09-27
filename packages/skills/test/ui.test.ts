@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { readLockfile } from "../src/lockfile.js";
 import { tmpdir } from "node:os";
 import { applyTuiBatch } from "../src/tui-actions.js";
 import { loadTuiSnapshot, previewText } from "../src/tui-model.js";
@@ -56,6 +57,22 @@ describe("TUI view model and actions", () => {
       expect(loadTuiSnapshot(f.context).statuses.alpha.status).toBe("managed-clean");
       outcome = applyTuiBatch(f.context, ["alpha"], "remove", true);
       expect(outcome.succeeded).toHaveLength(1);
+      expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("install writes shared lock ownership and remove clears it symmetrically", () => {
+    const f = fixture();
+    try {
+      expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      const entry = readLockfile(f.projectDir).skills.alpha;
+      expect(entry.targets?.pi).toBe(resolve(f.targetDir, "alpha"));
+      expect(resolve(entry.targets!.pi, "..")).toBe(resolve(f.targetDir));
+      expect(entry.hash).not.toBe("");
+      expect(Object.keys(entry.fileHashes ?? {})).toContain("SKILL.md");
+      expect(entry.agents).toContain("pi");
+      expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
+      expect(readLockfile(f.projectDir).skills.alpha).toBeUndefined();
       expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });

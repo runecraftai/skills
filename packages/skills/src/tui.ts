@@ -67,10 +67,16 @@ function frameLayout(width: number, height: number) {
 export function confirmPrompt(action: "install" | "remove", actionIds: string[], destLabel: string): string {
   return `${action.toUpperCase()} ${actionIds.join(", ")} → ${destLabel}? Enter/y confirms; Esc/n cancels.`;
 }
-export function confirmReviewFits(action: "install" | "remove", actionIds: string[], destLabel: string, width: number, height: number): boolean {
+export function confirmReviewFits(action: "install" | "remove", actionIds: string[], destLabel: string, width: number, height: number, lockError?: string): boolean {
   const layout = frameLayout(width, height);
-  const room = layout.bodyHeight - noticeReserve;
+  const lockRows = lockError ? wrap(`Lockfile error — mutations disabled: ${lockError}`, layout.rightWidth).length : 0;
+  const room = layout.bodyHeight - noticeReserve - lockRows;
   return room > 0 && wrap(confirmPrompt(action, actionIds, destLabel), layout.rightWidth).length <= room;
+}
+export function confirmGateNotice(action: "install" | "remove", actionIds: string[], destLabel: string, width: number, height: number, lockError?: string): string | null {
+  if (width < 80 || height < 16) return "Resize to at least 80x16 to review this action safely; nothing changed.";
+  if (!confirmReviewFits(action, actionIds, destLabel, width, height, lockError)) return "Not enough room to review this action safely; deselect skills or enlarge the terminal; nothing changed.";
+  return null;
 }
 export function buildTuiFrame(model: FrameInput): string[] {
   const layout = frameLayout(model.width, model.height);
@@ -106,7 +112,7 @@ export function buildTuiFrame(model: FrameInput): string[] {
       }
     }
     const noticeRows = !wide && model.pane === "list" ? model.notice.flatMap((line) => wrap(line, inner)) : [];
-    const noticeTake = Math.min(noticeRows.length, Math.max(0, bodyHeight - 1));
+    const noticeTake = Math.min(noticeRows.length, bodyHeight > 1 ? bodyHeight - 1 : bodyHeight);
     const listHeight = bodyHeight - noticeTake;
     const selectedIndex = Math.max(0, list.findIndex((row) => row.includes(focused?.name ?? "\0")));
     const start = Math.max(0, Math.min(list.length - listHeight, selectedIndex - Math.floor(listHeight / 2)));
@@ -118,7 +124,7 @@ export function buildTuiFrame(model: FrameInput): string[] {
     if (model.mode === "target") {
       right.push(...noticeRows);
     } else {
-      const pinned = noticeRows.slice(0, Math.max(0, bodyHeight - noticeReserve));
+      const pinned = noticeRows.slice(0, bodyHeight > 0 ? Math.max(1, bodyHeight - noticeReserve) : 0);
       right.push(...pinned);
       let budget = Math.max(0, bodyHeight - pinned.length - 2);
       const nameRows = [focused?.name ?? "No matching skill"];
@@ -129,13 +135,13 @@ export function buildTuiFrame(model: FrameInput): string[] {
       const files = ["SKILL.md", ...model.files];
       const allFileRows = files.flatMap((file) => wrap(`  ${file}`, rightWidth));
       const counts: Record<string, number> = { name: 0, status: 0, trigger: 0, files: 0, desc: 0, tags: 0 };
-      for (const [key, min] of [["name", 1], ["status", 1], ["trigger", 2], ["files", 2], ["desc", 1], ["tags", 0]] as const) {
-        const give = budget >= min ? min : 0;
+      for (const [key, min] of [["name", 1], ["desc", 1], ["trigger", 2], ["files", 2], ["status", 1], ["tags", 0]] as const) {
+        const give = Math.min(min, budget);
         counts[key] = give;
         budget -= give;
       }
       const maxes: Record<string, number> = { name: 1, status: 1, trigger: triggerRows.length, files: Math.min(allFileRows.length, 3) + 2, desc: descRows.length, tags: tagRows.length };
-      for (const key of ["desc", "tags", "files"] as const) {
+      for (const key of ["desc", "files", "tags"] as const) {
         const give = Math.min(maxes[key] - counts[key], budget);
         counts[key] += give;
         budget -= give;
@@ -144,19 +150,22 @@ export function buildTuiFrame(model: FrameInput): string[] {
       right.push(...descRows.slice(0, counts.desc));
       right.push(...statusRows.slice(0, counts.status));
       right.push(...tagRows.slice(0, counts.tags));
-      right.push(...triggerRows.slice(0, counts.trigger));
+      if (counts.trigger === 1 && triggerRows[1]) right.push(`Trigger: ${triggerRows[1]}`);
+      else right.push(...triggerRows.slice(0, counts.trigger));
       if (counts.files) {
         const head = `Files (${files.length})`, room = counts.files - 1;
         if (allFileRows.length <= room) right.push(head, ...allFileRows);
         else if (room >= 2) right.push(head, ...allFileRows.slice(0, room - 1), `  +${allFileRows.length - (room - 1)} more`);
-        else right.push(head, ...allFileRows.slice(0, Math.max(0, room)));
+        else if (room >= 1) right.push(head, ...allFileRows.slice(0, room));
+        else right.push(allFileRows.length ? `${head}: ${allFileRows[0].trim()}` : head);
       }
     }
     right.push("─".repeat(rightWidth));
     const used = right.length;
     const contentHeight = Math.max(0, bodyHeight - used);
     const content = wrap(model.content || "[SKILL.md unavailable]", rightWidth);
-    right.push(...content.slice(model.previewOffset, model.previewOffset + contentHeight));
+    const offset = Math.max(0, Math.min(model.previewOffset, content.length - contentHeight));
+    right.push(...content.slice(offset, offset + contentHeight));
     rows.push(right);
   }
   const lines = [...head];
@@ -192,9 +201,14 @@ export async function runTui(ctx: TuiContext): Promise<number> {
       useEffect(() => {
         if (visible.length && !visible.some((skill) => skill.id === state.highlighted)) setState((value) => ({ ...value, highlighted: visible[0].id }));
         else if (!visible.length && state.highlighted) setState((value) => ({ ...value, highlighted: "" }));
-      }, [state.highlighted, visible[0]?.id]);
+      }, [state.highlighted, state.query, visible[0]?.id]);
       const current = visible.find((skill) => skill.id === state.highlighted) ?? visible[0];
       const destLabel = `${target} · ${snapshot.scope}`;
+      useEffect(() => {
+        if (mode !== "confirm") return;
+        const blocked = confirmGateNotice(pending, visibleBatchIds(state), destLabel, width, height, snapshot.lockError);
+        if (blocked) { setMode("normal"); setMessage(blocked); }
+      }, [mode, pending, state, destLabel, width, height, snapshot.lockError]);
       useKeyboard((key) => {
         if (key.eventType === "release") return;
         const name = key.name, char = key.sequence ?? name;
@@ -216,6 +230,8 @@ export async function runTui(ctx: TuiContext): Promise<number> {
           if (name === "escape" || name === "n") { setMode("normal"); setMessage("Action cancelled; no files changed."); return; }
           if (name === "return" || name === "enter" || name === "y") {
             const ids = visibleBatchIds(state);
+            const blocked = confirmGateNotice(pending, ids, destLabel, width, height, snapshot.lockError);
+            if (blocked) { setMessage(blocked); setMode("normal"); return; }
             const outcome = applyTuiBatch({ ...ctx, target }, ids, pending, true);
             setResult({ outcome, dest: destLabel }); setMessage(`${pending}: ${outcome.succeeded.length} succeeded, ${outcome.failed.length} failed`); setSnapshotVersion((v) => v + 1); setMode("normal");
           }
@@ -230,12 +246,13 @@ export async function runTui(ctx: TuiContext): Promise<number> {
         if (name === "space") { setState((s) => toggleSelected({ ...s, highlighted: s.highlighted || visible[0]?.id || "" })); return; }
         if (name === "j" || name === "down") setState((s) => moveHighlight(s, snapshot.skills, 1));
         if (name === "k" || name === "up") setState((s) => moveHighlight(s, snapshot.skills, -1));
-        if (name === "G" || (name === "g" && key.shift)) setState((s) => ({ ...s, highlighted: visible.at(-1)?.id ?? s.highlighted, previewOffset: 0 }));
+        if (name === "G" || (name === "g" && key.shift)) { setState((s) => ({ ...s, highlighted: visible.at(-1)?.id ?? s.highlighted, previewOffset: 0 })); return; }
         if (name === "i" || name === "u") {
           const ids = visibleBatchIds(state);
           if (!ids.length) return;
           const action = name === "i" ? "install" : "remove";
-          if (width < 80 || height < 16 || !confirmReviewFits(action, ids, destLabel, width, height)) { setMessage("Resize to at least 80x16 to review this action safely; nothing changed."); return; }
+          const blocked = confirmGateNotice(action, ids, destLabel, width, height, snapshot.lockError);
+          if (blocked) { setMessage(blocked); return; }
           setPending(action); setMode("confirm");
         }
         if (name === "g") {
@@ -248,10 +265,10 @@ export async function runTui(ctx: TuiContext): Promise<number> {
       const targetInfo = targetOptions({ ...ctx, target }).find((option) => option.id === target)!;
       const actionIds = visibleBatchIds(state);
       const modal = mode === "confirm" ? confirmPrompt(pending, actionIds, destLabel) : message;
-      const resultLines = result ? [...result.outcome.succeeded.map((item) => `OK ${item.id} → ${result.dest}`), ...result.outcome.failed.map((item) => `FAILED ${item.id} → ${result.dest}: ${item.reason}`)] : [];
+      const resultLines = result ? [...result.outcome.failed.map((item) => `FAILED ${item.id} → ${result.dest}: ${item.reason}`), ...result.outcome.succeeded.map((item) => `OK ${item.id} → ${result.dest}`)] : [];
       const notice = [
         ...(snapshot.lockError ? [`Lockfile error — mutations disabled: ${snapshot.lockError}`] : []),
-        ...(mode === "target" ? [`Choose target: ${targetInfo.label} (${snapshot.scope})`, `Destination: ${targetInfo.id} · ${targetInfo.scope}`, "j/k change · Enter select · Esc cancel"] : []),
+        ...(mode === "target" ? [`Choose target: ${targetInfo.label} (${snapshot.scope})`, `Destination: ${targetInfo.id} · ${targetInfo.scope}`, "j/k change · Enter select · Esc close (keeps target)"] : []),
         ...(mode === "confirm" ? [modal] : []),
         ...(mode === "normal" && message ? [message, ...resultLines] : []),
       ];
