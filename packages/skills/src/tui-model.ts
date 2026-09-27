@@ -4,6 +4,7 @@ import { join, resolve, relative, sep } from "node:path";
 import type { RegistrySkill } from "./registry.js";
 import { readRegistry } from "./registry.js";
 import { readLockfile, lockPath, tuiOwnershipKey, type Lockfile } from "./lockfile.js";
+import { assertNoSymlinks } from "./install.js";
 import { resolveSkillsDir, TARGETS, type TargetId } from "./targets.js";
 
 export type SkillStatus = "absent" | "managed-clean" | "managed-modified" | "existing-unmanaged/unknown" | "unreadable/error";
@@ -65,6 +66,7 @@ export function loadTuiSnapshot(ctx: TuiContext): TuiSnapshot {
       const stat = lstatSync(path, { throwIfNoEntry: false });
       if (!stat) { statuses[skill.id] = { status: lockResult.error ? "unreadable/error" : "absent", destination: path, scope, detail: lockResult.error }; continue; }
       if (stat.isSymbolicLink() || !stat.isDirectory()) { statuses[skill.id] = { status: "existing-unmanaged/unknown", destination: path, scope, detail: "destination is not a regular directory" }; continue; }
+      try { assertNoSymlinks(path); } catch (error) { statuses[skill.id] = { status: "existing-unmanaged/unknown", destination: path, scope, detail: error instanceof Error ? error.message : String(error) }; continue; }
       if (lockResult.error) { statuses[skill.id] = { status: "unreadable/error", destination: path, scope, detail: lockResult.error }; continue; }
       const entry = lockResult.lock?.skills[skill.id.split("/").at(-1)!];
       const owned = entry?.tuiTargets?.[tuiOwnershipKey(target, scope)];

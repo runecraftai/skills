@@ -81,6 +81,32 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("audit verifies legacy target installs without scope records", () => {
+    const f = scopeFixture();
+    try {
+      const lock = JSON.parse(readFileSync(join(f.project, ".grimoire-lock.json"), "utf8"));
+      delete lock.skills.alpha.tuiTargets;
+      writeFileSync(join(f.project, ".grimoire-lock.json"), JSON.stringify(lock, null, 2));
+      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
+      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
+      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      const clean = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(clean.status).toBe(0);
+      expect(clean.stdout).toContain("No tracked install issues found");
+      writeFileSync(join(f.projectDest, "SKILL.md"), "tampered");
+      const dirty = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(dirty.status).toBe(1);
+      expect(dirty.stdout).toContain("alpha/SKILL.md: tampered (pi)");
+      writeFileSync(join(f.projectDest, "SKILL.md"), "project bytes");
+      const restored = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(restored.status).toBe(0);
+      rmSync(join(f.projectDest, "SKILL.md"));
+      const missing = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(missing.status).toBe(1);
+      expect(missing.stdout).toContain("alpha/SKILL.md: missing (pi)");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("status reports verification against each scope record's hashes", () => {
     const f = scopeFixture();
     try {

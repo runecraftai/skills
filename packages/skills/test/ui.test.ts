@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { readLockfile } from "../src/lockfile.js";
@@ -101,6 +101,23 @@ describe("TUI view model and actions", () => {
       symlinkSync(join(f.catalogDir, "alpha"), join(f.targetDir, "alpha"));
       expect(loadTuiSnapshot(f.context).statuses.alpha.status).toBe("existing-unmanaged/unknown");
       expect(applyTuiBatch(f.context, ["alpha"], "remove", true).failed).toHaveLength(1);
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("status and remove fail closed when an ancestor of the destination is a symlink", () => {
+    const f = fixture();
+    try {
+      expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      expect(loadTuiSnapshot(f.context).statuses.alpha.status).toBe("managed-clean");
+      const relocated = join(f.root, "relocated");
+      renameSync(join(f.projectDir, ".pi"), relocated);
+      symlinkSync(relocated, join(f.projectDir, ".pi"));
+      expect(loadTuiSnapshot(f.context).statuses.alpha.status).toBe("existing-unmanaged/unknown");
+      const outcome = applyTuiBatch(f.context, ["alpha"], "remove", true);
+      expect(outcome.failed).toHaveLength(1);
+      expect(outcome.failed[0].reason).toContain("managed-clean");
+      expect(existsSync(join(relocated, "skills", "alpha", "SKILL.md"))).toBe(true);
+      expect(existsSync(join(f.projectDir, ".pi"))).toBe(true);
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { resolve, join } from "node:path";
@@ -8,7 +7,7 @@ import { spawnSync } from "node:child_process";
 import { detectStack } from "./detect.js";
 import { installSkills, removeSkill, skillHash } from "./install.js";
 import { readRegistry, findSkill } from "./registry.js";
-import { clearScopeOwnership, readLockfile, tuiOwnershipKey, updateLock, verifyOwnedRecord, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { clearScopeOwnership, readLockfile, tuiOwnershipKey, updateLock, verifyOwnedRecord, verifyTree, writeLockfile, type LockedSkill } from "./lockfile.js";
 import { isTargetId, resolveSkillsDir, TARGETS, type TargetId } from "./targets.js";
 import { mkdtemp, rename, rm } from "node:fs/promises";
 import { rankSkills } from "../../core/src/index.js";
@@ -92,9 +91,9 @@ async function main() {
           }
           for (const [target, location] of Object.entries(entry.targets ?? {})) {
             if (ownedLocations.has(resolve(location))) continue;
-            for (const [path, expected] of Object.entries(entry.fileHashes ?? {})) {
-              try { const actual = createHash("sha256").update(readFileSync(join(location, path))).digest("hex"); if (actual !== expected) issues.push(`${id}/${path}: tampered (${target})`); } catch { issues.push(`${id}/${path}: missing (${target})`); }
-            }
+            const { modified, missing } = verifyTree(location, entry.fileHashes ?? {});
+            for (const path of modified) issues.push(`${id}/${path}: tampered (${target})`);
+            for (const path of missing) issues.push(`${id}/${path}: missing (${target})`);
           }
         }
         if (args.includes("--json")) console.log(JSON.stringify({ issues, revision: remote.registry.revision }, null, 2)); else console.log(issues.length ? issues.join("\\n") : "No tracked install issues found."); return issues.length ? 1 : 0;

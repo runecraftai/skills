@@ -20,13 +20,16 @@ export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "
   if (entry.targets) { delete entry.targets[target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
   entry.agents = entry.agents.filter((id) => id !== target);
 }
-export function verifyOwnedRecord(record: OwnedRecord): { modified: string[]; missing: string[] } {
+export function verifyTree(dir: string, expected: Record<string, string>): { modified: string[]; missing: string[] } {
   const modified: string[] = [], missing: string[] = [];
-  for (const [path, expected] of Object.entries(record.files)) {
-    try { const actual = createHash("sha256").update(readFileSync(join(record.destination, path))).digest("hex"); if (actual !== expected) modified.push(path); }
+  for (const [path, hash] of Object.entries(expected)) {
+    try { const actual = createHash("sha256").update(readFileSync(join(dir, path))).digest("hex"); if (actual !== hash) modified.push(path); }
     catch { missing.push(path); }
   }
   return { modified, missing };
+}
+export function verifyOwnedRecord(record: OwnedRecord): { modified: string[]; missing: string[] } {
+  return verifyTree(record.destination, record.files);
 }
 function assertLockfilePath(projectDir: string): string {
   const path = lockPath(projectDir);
