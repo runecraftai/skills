@@ -6,11 +6,20 @@ export interface LockedSkill { version: string; hash: string; installed: string;
 export interface Lockfile { version: 2; generated: string; registry: string; catalogUrl: string; catalogId: string; revision: string; skills: Record<string, LockedSkill>; }
 export function lockPath(projectDir: string): string { return join(projectDir, ".grimoire-lock.json"); }
 export function tuiOwnershipKey(target: string, scope: "project" | "global"): string { return `${target}:${scope}`; }
+export function tuiScopeKeys(entry: LockedSkill | undefined, target: string): string[] {
+  return Object.keys(entry?.tuiTargets ?? {}).filter((key) => key.startsWith(`${target}:`));
+}
+export function removeScopeOwnership(lock: Lockfile, name: string, target: string, scope: "project" | "global"): void {
+  const entry = lock.skills[name];
+  if (!entry) return;
+  clearScopeOwnership(entry, target, scope);
+  if (!entry.agents.length && !entry.tuiTargets && !entry.targets) delete lock.skills[name];
+}
 export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "project" | "global"): void {
   const records = entry.tuiTargets ?? {};
   const ownedKey = tuiOwnershipKey(target, scope);
   const hadOwnedRecord = Boolean(records[ownedKey]);
-  const hasTargetRecords = Object.keys(records).some((key) => key.startsWith(`${target}:`));
+  const hasTargetRecords = tuiScopeKeys(entry, target).length > 0;
   if (hadOwnedRecord) delete records[ownedKey];
   const retained = Object.entries(records).filter(([key]) => key.startsWith(`${target}:`));
   if (entry.tuiTargets && !Object.keys(records).length) delete entry.tuiTargets;

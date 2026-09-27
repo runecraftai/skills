@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 import { detectStack } from "./detect.js";
 import { installSkills, removeSkill, skillHash } from "./install.js";
 import { readRegistry, findSkill } from "./registry.js";
-import { clearScopeOwnership, readLockfile, tuiOwnershipKey, updateLock, verifyOwnedRecord, verifyTree, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, updateLock, verifyOwnedRecord, verifyTree, writeLockfile, type LockedSkill } from "./lockfile.js";
 import { isTargetId, resolveSkillsDir, TARGETS, type TargetId } from "./targets.js";
 import { mkdtemp, rename, rm } from "node:fs/promises";
 import { rankSkills } from "../../core/src/index.js";
@@ -22,8 +22,7 @@ function version() { try { return JSON.parse(readFileSync(join(packageRoot, "pac
 function scopeRemovalDir(entry: LockedSkill | undefined, target: TargetId, scope: "project" | "global", projectDir: string): string {
   const record = entry?.tuiTargets?.[tuiOwnershipKey(target, scope)];
   if (record) return resolve(record.destination, "..");
-  const hasTargetRecords = Object.keys(entry?.tuiTargets ?? {}).some((key) => key.startsWith(`${target}:`));
-  if (scope === "project" && !hasTargetRecords && entry?.targets?.[target]) return resolve(entry.targets[target], "..");
+  if (scope === "project" && !tuiScopeKeys(entry, target).length && entry?.targets?.[target]) return resolve(entry.targets[target], "..");
   return resolveSkillsDir(target, { home: homedir(), projectDir, global: scope === "global" });
 }
 function removeCommand(args: string[], global: boolean): void {
@@ -35,8 +34,7 @@ function removeCommand(args: string[], global: boolean): void {
   const scope = global ? "global" as const : "project" as const;
   for (const t of targets) removeSkill(id, scopeRemovalDir(entry, t, scope, projectDir));
   if (entry) {
-    for (const t of targets) clearScopeOwnership(entry, t, scope);
-    if (!entry.agents.length && !entry.tuiTargets && !entry.targets) delete lock.skills[id];
+    for (const t of targets) removeScopeOwnership(lock, id, t, scope);
     writeLockfile(projectDir, lock);
   }
 }
