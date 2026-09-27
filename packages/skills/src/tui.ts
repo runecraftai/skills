@@ -6,7 +6,126 @@ import { filterTuiSkills, loadTuiSnapshot, previewText, targetOptions, type TuiC
 import { initialTuiState, moveHighlight, toggleSelected, visibleBatchIds, type TuiState } from "./tui-state.js";
 import type { TargetId } from "./targets.js";
 
-const e = (type: string, props: Record<string, unknown> | null, ...children: unknown[]) => h(type as never, props, ...children as never[]);
+const runeBanner = ["  /\\   /\\   /\\   /\\   /\\   /\\   /\\", " /  \\ /  \\ /  \\ /  \\ /  \\ /  \\ /  \\  ", " |G| |R| |I| |M| |O| |I| |R| |E| "];
+interface FrameSkill { id: string; name: string; category: string; status: string; selected: boolean; }
+interface FrameInput {
+  width: number; height: number; query: string; target: string; scope: string; pane: "list" | "preview"; mode: "normal" | "search" | "target" | "confirm";
+  skills: FrameSkill[]; categories: Array<{ name: string; count: number }>; highlighted: string; description: string; status: string; tags: string[];
+  trigger: string; files: string[]; content: string; previewOffset: number; notice: string[];
+}
+const clip = (text: string, width: number) => Array.from(text).slice(0, Math.max(0, width)).join("");
+const fit = (text: string, width: number) => clip(text, width).padEnd(Math.max(0, width));
+function wrap(text: string, width: number): string[] {
+  const out: string[] = [];
+  for (const paragraph of text.split("\n")) {
+    if (!paragraph) { out.push(""); continue; }
+    let line = "";
+    for (const word of paragraph.split(/\s+/)) {
+      const pieces = Array.from(word);
+      while (pieces.length > width) {
+        if (line) { out.push(line); line = ""; }
+        out.push(pieces.splice(0, width).join(""));
+      }
+      const next = line ? `${line} ${pieces.join("")}` : pieces.join("");
+      if (Array.from(next).length > width) { out.push(line); line = pieces.join(""); }
+      else line = next;
+    }
+    if (line) out.push(line);
+  }
+  return out;
+}
+function legend(width: number): string[] {
+  if (width >= 78) return [
+    "Space select · j/k move · gg/G first/last · h/l/Tab pane",
+    "/ search · PgUp/PgDn preview · i install · u remove",
+    "t target · r refresh · Enter confirm · Esc/n cancel · q quit",
+  ];
+  if (width >= 54) return [
+    "Space select · j/k move · gg/G first/last",
+    "h/l/Tab pane · / search · PgUp/PgDn preview",
+    "i install · u remove · t target · r refresh",
+    "Enter confirm · Esc/n cancel · q quit",
+  ];
+  return [
+    "Space select · j/k move · gg/G ends",
+    "h/l/Tab pane · / search",
+    "PgUp/Dn scroll · r refresh · t target",
+    "i install · u remove",
+    "Enter confirm · Esc/n cancel · q quit",
+  ];
+}
+export function buildTuiFrame(model: FrameInput): string[] {
+  const width = Math.max(12, Math.floor(model.width)), height = Math.max(1, Math.floor(model.height));
+  const inner = width - 2, wide = width >= 80, banner = width >= 56 ? runeBanner : ["ᚷᚱᛁᛗᛟᛁᚱᛖ GRIMOIRE"];
+  const footer = legend(inner);
+  const fixed = 1 + banner.length + 1 + 1 + 1 + footer.length + 1;
+  const bodyHeight = Math.max(1, height - fixed);
+  const lines: string[] = [];
+  const top = `┌${"─".repeat(inner)}┐`, bottom = `└${"─".repeat(inner)}┘`;
+  const full = (text: string) => `│${fit(text, inner)}│`;
+  lines.push(top);
+  for (const row of banner) lines.push(full(banner.length === 1 ? fit(row, inner) : clip(row, inner).padStart(Math.floor((inner + row.length) / 2)).padEnd(inner)));
+  const leftHeader = model.mode === "search" ? `/ ${model.query}` : "/ search skills";
+  const rightHeader = `target: ${model.target} ▼ · ${model.scope}`;
+  const roomForLeft = Math.max(1, inner - Array.from(rightHeader).length - 2);
+  lines.push(full(`${fit(leftHeader, roomForLeft)}  ${rightHeader}`));
+  const leftWidth = wide ? Math.floor((inner - 1) / 2) : inner;
+  const rightWidth = wide ? inner - leftWidth - 1 : inner;
+  lines.push(wide ? `├${"─".repeat(leftWidth)}┬${"─".repeat(rightWidth)}┤` : `├${"─".repeat(inner)}┤`);
+  const focused = model.skills.find((skill) => skill.id === model.highlighted);
+  const rows: string[][] = [];
+  if (wide || (model.mode !== "target" && model.pane === "list")) {
+    const list: string[] = ["SKILLS"];
+    for (const category of model.categories) {
+      const entries = model.skills.filter((skill) => skill.category === category.name);
+      if (!entries.length) continue;
+      list.push(`▾ ${category.name} (${entries.length})`);
+      for (const skill of entries) {
+        const marked = skill.id === model.highlighted ? (skill.selected ? "●◉" : "●") : skill.selected ? "◉" : "○";
+        const status = ({ absent: "absent", "managed-clean": "clean", "managed-modified": "modified", "existing-unmanaged/unknown": "unknown", "unreadable/error": "error" } as Record<string, string>)[skill.status] ?? skill.status;
+        list.push(`  ${marked} ${skill.name}  ${status}`);
+      }
+    }
+    if (!wide && model.pane === "list") list.push(...model.notice.flatMap((line) => wrap(line, inner)));
+    const selectedIndex = Math.max(0, list.findIndex((row) => row.includes(focused?.name ?? "\0")));
+    const start = Math.max(0, Math.min(list.length - bodyHeight, selectedIndex - Math.floor(bodyHeight / 2)));
+    rows.push(list.slice(start, start + bodyHeight));
+  }
+  if (wide || model.mode === "target" || model.pane === "preview") {
+    const right: string[] = [];
+    if (model.mode === "target") {
+      right.push(...model.notice.flatMap((line) => wrap(line, rightWidth)));
+    } else {
+      right.push(focused?.name ?? "No matching skill");
+      right.push(...wrap(model.description || "No description available.", rightWidth).slice(0, Math.max(1, Math.min(3, bodyHeight - 8))));
+      right.push(`Status: ${model.status}`);
+      if (model.tags.length) right.push(...wrap(`Tags: ${model.tags.join(", ")}`, rightWidth).slice(0, 1));
+      right.push("Trigger");
+      right.push(...wrap(model.trigger || "Not specified — see description", rightWidth).slice(0, 1));
+      const files = ["SKILL.md", ...model.files];
+      right.push(`Files (${files.length})`);
+      const fileRows = files.flatMap((file) => wrap(`  ${file}`, rightWidth));
+      const fileBudget = Math.max(0, Math.min(3, bodyHeight - right.length - model.notice.length - 4));
+      right.push(...fileRows.slice(0, fileBudget));
+      if (fileRows.length > fileBudget) right.push(`  +${fileRows.length - fileBudget} more`);
+      if (model.notice.length) right.push(...model.notice.flatMap((line) => wrap(line, rightWidth)));
+    }
+    right.push("─".repeat(rightWidth));
+    const used = right.length;
+    const contentHeight = Math.max(0, bodyHeight - used);
+    const content = wrap(model.content || "[SKILL.md unavailable]", rightWidth);
+    right.push(...content.slice(model.previewOffset, model.previewOffset + contentHeight));
+    rows.push(right);
+  }
+  for (let i = 0; i < bodyHeight; i++) {
+    if (wide) lines.push(`│${fit(rows[0]?.[i] ?? "", leftWidth)}│${fit(rows[1]?.[i] ?? "", rightWidth)}│`);
+    else lines.push(full(rows[0]?.[i] ?? ""));
+  }
+  lines.push(`├${"─".repeat(inner)}┤`);
+  for (const row of footer) lines.push(full(row));
+  lines.push(bottom);
+  return lines.slice(0, height).map((line) => fit(line, width));
+}
 export async function runTui(ctx: TuiContext): Promise<number> {
   let renderer: Awaited<ReturnType<typeof createCliRenderer>> | undefined;
   let root: ReturnType<typeof createRoot> | undefined;
@@ -86,34 +205,23 @@ export async function runTui(ctx: TuiContext): Promise<number> {
         if (name === "pageup") setState((s) => ({ ...s, previewOffset: Math.max(0, s.previewOffset - 12) }));
         if (name === "pagedown") setState((s) => ({ ...s, previewOffset: s.previewOffset + 12 }));
       });
-      const focused = current;
-      const line = (text: string, props: Record<string, unknown> = {}) => e("text", props, text);
-      const listRows = snapshot.categories.flatMap((category) => {
-        const entries = visible.filter((skill) => (skill.category ?? "Other") === category.name);
-        return entries.length ? [{ id: `category:${category.name}`, node: line(`${category.name} (${entries.length})`, { fg: "yellow" }) }, ...entries.map((skill) => ({ id: skill.id, node: line(`${state.selected.has(skill.id) ? "●" : "○"} ${skill.id === focused?.id ? ">" : " "} ${skill.name}  [${snapshot.statuses[skill.id]?.status ?? "error"}]`, { fg: skill.id === focused?.id ? "cyan" : "white" }) }))] : [];
-      });
-      const listHeight = Math.max(1, height - 8), focusedRow = Math.max(0, listRows.findIndex((row) => row.id === focused?.id));
-      const listStart = Math.max(0, Math.min(listRows.length - listHeight, focusedRow - Math.floor(listHeight / 2)));
-      const list = listRows.slice(listStart, listStart + listHeight).map((row) => row.node);
-      const content = focused ? previewText(focused.content, focused.contentError).split("\n").slice(state.previewOffset, state.previewOffset + Math.max(1, height - 10)).map((text) => line(escape(text))) : [line("No skills match this search.")];
       const targetInfo = targetOptions({ ...ctx, target }).find((option) => option.id === target)!;
       const actionIds = visibleBatchIds(state);
-      const modal = mode === "target" ? `Target ${targetInfo.label} — ${targetInfo.scope}: ${targetInfo.path}  (j/k, Enter, Esc)` : mode === "confirm" ? `${pending.toUpperCase()} ${actionIds.join(", ")} → ${snapshot.destination}? Enter/y confirms; Esc/n cancels.` : mode === "search" ? `Search: ${state.query}_` : message;
+      const modal = mode === "confirm" ? `${pending.toUpperCase()} ${actionIds.join(", ")} → ${snapshot.destination}? Enter/y confirms; Esc/n cancels.` : message;
       const resultLines = result ? [...result.succeeded.map((item) => `OK ${item.id} → ${item.destination}`), ...result.failed.map((item) => `FAILED ${item.id} → ${item.destination}: ${item.reason}`)] : [];
-      const legend = "/ search  j/k move  gg/G first/last  Space select  h/l/Tab pane  i install  u remove  t target  r refresh  q quit  PgUp/PgDn preview";
-      const listPane = e("box", { flexDirection: "column", width: narrow ? "100%" : "38%", height: "100%" }, ...list);
-      const previewPane = e("box", { flexDirection: "column", flexGrow: 1, height: "100%" },
-        line(focused ? `${focused.name} — ${focused.category ?? "Other"}` : "Preview"),
-        ...(focused ? [line(escape(focused.description)), line(`Tags: ${focused.tags.join(", ") || "Not specified"} · Trigger: ${focused.trigger ?? "Not specified — see description"}`), line(`Supporting files (${focused.files.length}): ${focused.files.slice(0, 10).join(", ") || "none"}${focused.files.length > 10 ? `, +${focused.files.length - 10} more` : ""}`)] : []),
-        ...content);
-      const panes = narrow ? [state.pane === "list" ? listPane : previewPane] : [listPane, previewPane];
-      return e("box", { flexDirection: "column", width: "100%", height: "100%", padding: 1 },
-        line("GRIMOIRE  Local skills", { fg: "cyan" }),
-        line(`${snapshot.categories.map((category) => `${category.name} (${category.count})`).join(" · ")}`),
-        line(`Target ${targetInfo.label} · ${snapshot.scope} · ${snapshot.destination}`),
-        ...(snapshot.lockError ? [line(`Lockfile error — mutations disabled: ${snapshot.lockError}`, { fg: "red" })] : []),
-        e("box", { flexDirection: "row", flexGrow: 1 }, ...panes),
-        line(modal), ...resultLines.map((text) => line(text, { fg: "red" })), line(legend, { fg: "yellow" }));
+      const notice = [
+        ...(snapshot.lockError ? [`Lockfile error — mutations disabled: ${snapshot.lockError}`] : []),
+        ...(mode === "target" ? [`Choose target: ${targetInfo.label} (${snapshot.scope})`, `Destination: ${targetInfo.path}`, "j/k change · Enter select · Esc cancel"] : []),
+        ...(mode === "confirm" ? [modal] : []),
+        ...(mode === "normal" && message ? [message, ...resultLines] : []),
+      ];
+      const frame = buildTuiFrame({
+        width, height, query: state.query, target, scope: snapshot.scope, pane: state.pane, mode,
+        skills: visible.map((skill) => ({ id: skill.id, name: skill.name, category: skill.category ?? "Other", status: snapshot.statuses[skill.id]?.status ?? "unreadable/error", selected: state.selected.has(skill.id) })),
+        categories: snapshot.categories, highlighted: current?.id ?? "", description: current?.description ?? "", status: current ? snapshot.statuses[current.id]?.status ?? "unreadable/error" : "unreadable/error", tags: current?.tags ?? [],
+        trigger: current?.trigger ?? "Not specified — see description", files: current?.files ?? [], content: previewText(current?.content ?? null, current?.contentError), previewOffset: state.previewOffset, notice,
+      });
+      return h("text" as never, { width, height, wrapMode: "none", fg: "white" } as never, frame.join("\n"));
     }
     root = createRoot(renderer);
     root.render(h(App, null));
