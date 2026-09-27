@@ -49,6 +49,43 @@ test("frame strips terminal control sequences from skill metadata and notices", 
   expect(text).toContain("plain description here");
 });
 
+test("confirm review renders its prompt, separator, and skill body at the gate minimum", () => {
+  const prompt = "INSTALL test-driven-development → pi · project? Enter/y confirms; Esc/n cancels.";
+  for (const height of [16, 18, 24]) {
+    const lines = buildTuiFrame({
+      width: 80, height, query: "", target: "pi", scope: "project", pane: "preview", mode: "confirm",
+      skills: [
+        { id: "spec-driven", name: "spec-driven", category: "Planning", status: "managed-clean", selected: false },
+        { id: "test-driven-development", name: "test-driven-development", category: "Development", status: "absent", selected: true },
+      ],
+      categories: [{ name: "Development", count: 1 }, { name: "Planning", count: 1 }],
+      highlighted: "test-driven-development", description: "A workflow description for the preview pane.",
+      status: "absent", tags: [], trigger: "/test", files: ["references/testing-patterns.md"],
+      content: "# Test Driven Development\nWrite a failing test first, then implement.", previewOffset: 0, notice: [prompt],
+    });
+    const text = lines.join("\n");
+    expect(lines).toHaveLength(height);
+    expect(lines.at(-1)?.startsWith("└")).toBe(true);
+    expect(text).toContain("INSTALL test-driven-development");
+    expect(text).toContain("cancels.");
+    expect(text).toContain("# Test Driven Development");
+    expect(lines.some((line) => line.startsWith("│") && /[─]{15,}│$/.test(line))).toBe(true);
+  }
+});
+
+test("narrow list pane keeps feedback notices visible with a full catalog", () => {
+  const skills = Array.from({ length: 30 }, (_, index) => ({ id: `skill-${index}`, name: `skill-${index}`, category: "Cat", status: "absent", selected: false }));
+  const lines = buildTuiFrame({
+    width: 60, height: 16, query: "", target: "pi", scope: "project", pane: "list", mode: "normal",
+    skills, categories: [{ name: "Cat", count: 30 }], highlighted: "skill-15",
+    description: "", status: "absent", tags: [], trigger: "", files: [], content: "",
+    previewOffset: 0, notice: ["Resize to at least 80x16 to review this action safely; nothing changed."],
+  });
+  expect(lines).toHaveLength(16);
+  expect(lines.at(-1)?.startsWith("└")).toBe(true);
+  expect(lines.join("\n")).toContain("Resize to at least 80x16");
+});
+
 test("80x24 and narrow frames keep the runic header, split pane, target, and footer within bounds", async () => {
   const wide = frame(80, 24);
   const narrow = frame(48, 16);
