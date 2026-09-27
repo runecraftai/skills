@@ -19,6 +19,36 @@ function frame(width: number, height: number, pane: "list" | "preview" = "list")
   });
 }
 
+test("frame keeps borders, footer, and exact height at every accepted size", () => {
+  for (const [width, height] of [[40, 12], [48, 16], [56, 12], [60, 10], [79, 12], [80, 11], [80, 12], [80, 24]] as const) {
+    const lines = frame(width, height);
+    expect(lines).toHaveLength(height);
+    expect(lines.every((line) => Array.from(line).length === width)).toBe(true);
+    expect(lines[0].startsWith("┌")).toBe(true);
+    expect(lines.at(-1)?.startsWith("└")).toBe(true);
+    const text = lines.join("\n");
+    expect(text).toContain("Space select");
+    expect(text).toContain("q quit");
+    expect(text).toContain("target: codex");
+  }
+});
+
+test("frame strips terminal control sequences from skill metadata and notices", () => {
+  const lines = buildTuiFrame({
+    width: 80, height: 24, query: "", target: "pi", scope: "project", pane: "preview", mode: "normal",
+    skills: [{ id: "evil", name: "evil\u001b[2Jskill", category: "Cat\u001b]0;pwn\u0007", status: "absent", selected: false }],
+    categories: [{ name: "Cat\u001b]0;pwn\u0007", count: 1 }],
+    highlighted: "evil", description: "plain \u001b[31mdescription\u001b[0m here", status: "absent",
+    tags: ["tag\u001b[2J"], trigger: "/trig\u001b[H", files: ["ref\u001b[2J.md"],
+    content: "body\u001b[2Ktext", previewOffset: 0, notice: ["notice \u001b[H \u0007line"],
+  });
+  const text = lines.join("\n");
+  expect(text).not.toContain("\u001b");
+  expect(text).not.toContain("\u0007");
+  expect(text).toContain("evilskill");
+  expect(text).toContain("plain description here");
+});
+
 test("80x24 and narrow frames keep the runic header, split pane, target, and footer within bounds", async () => {
   const wide = frame(80, 24);
   const narrow = frame(48, 16);

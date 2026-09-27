@@ -2,7 +2,7 @@ import { createCliRenderer } from "@opentui/core";
 import { createRoot, useKeyboard, useTerminalDimensions } from "@opentui/react";
 import { createElement as h, useEffect, useMemo, useState } from "react";
 import { applyTuiBatch, type ActionResult } from "./tui-actions.js";
-import { filterTuiSkills, loadTuiSnapshot, previewText, targetOptions, type TuiContext } from "./tui-model.js";
+import { filterTuiSkills, loadTuiSnapshot, previewText, sanitizeText, targetOptions, type TuiContext } from "./tui-model.js";
 import { initialTuiState, moveHighlight, toggleSelected, visibleBatchIds, type TuiState } from "./tui-state.js";
 import type { TargetId } from "./targets.js";
 
@@ -14,7 +14,7 @@ interface FrameInput {
   trigger: string; files: string[]; content: string; previewOffset: number; notice: string[];
 }
 const clip = (text: string, width: number) => Array.from(text).slice(0, Math.max(0, width)).join("");
-const fit = (text: string, width: number) => clip(text, width).padEnd(Math.max(0, width));
+const fit = (text: string, width: number) => clip(sanitizeText(text), width).padEnd(Math.max(0, width));
 function wrap(text: string, width: number): string[] {
   const out: string[] = [];
   for (const paragraph of text.split("\n")) {
@@ -56,22 +56,29 @@ function legend(width: number): string[] {
 }
 export function buildTuiFrame(model: FrameInput): string[] {
   const width = Math.max(12, Math.floor(model.width)), height = Math.max(1, Math.floor(model.height));
-  const inner = width - 2, wide = width >= 80, banner = width >= 56 ? runeBanner : ["ᚷᚱᛁᛗᛟᛁᚱᛖ GRIMOIRE"];
+  const inner = width - 2, wide = width >= 80;
   const footer = legend(inner);
-  const fixed = 1 + banner.length + 1 + 1 + 1 + footer.length + 1;
-  const bodyHeight = Math.max(1, height - fixed);
-  const lines: string[] = [];
   const top = `┌${"─".repeat(inner)}┐`, bottom = `└${"─".repeat(inner)}┘`;
   const full = (text: string) => `│${fit(text, inner)}│`;
-  lines.push(top);
-  for (const row of banner) lines.push(full(banner.length === 1 ? fit(row, inner) : clip(row, inner).padStart(Math.floor((inner + row.length) / 2)).padEnd(inner)));
   const leftHeader = model.mode === "search" ? `/ ${model.query}` : "/ search skills";
   const rightHeader = `target: ${model.target} ▼ · ${model.scope}`;
   const roomForLeft = Math.max(1, inner - Array.from(rightHeader).length - 2);
-  lines.push(full(`${fit(leftHeader, roomForLeft)}  ${rightHeader}`));
+  const headerLine = full(`${fit(leftHeader, roomForLeft)}  ${rightHeader}`);
   const leftWidth = wide ? Math.floor((inner - 1) / 2) : inner;
   const rightWidth = wide ? inner - leftWidth - 1 : inner;
-  lines.push(wide ? `├${"─".repeat(leftWidth)}┬${"─".repeat(rightWidth)}┤` : `├${"─".repeat(inner)}┤`);
+  const dividerTop = wide ? `├${"─".repeat(leftWidth)}┬${"─".repeat(rightWidth)}┤` : `├${"─".repeat(inner)}┤`;
+  const tail = [`├${"─".repeat(inner)}┤`, ...footer.map((row) => full(row)), bottom];
+  const compactBanner = ["ᚷᚱᛁᛗᛟᛁᚱᛖ GRIMOIRE"];
+  const banners = width >= 56 ? [runeBanner, compactBanner] : [compactBanner];
+  const bannerRow = (banner: string[], row: string) => banner.length === 1 ? fit(row, inner) : clip(row, inner).padStart(Math.floor((inner + row.length) / 2)).padEnd(inner);
+  let head: string[] = [];
+  for (const banner of banners) {
+    head = [top, ...banner.map((row) => full(bannerRow(banner, row))), headerLine, dividerTop];
+    if (height - head.length - tail.length >= 1) break;
+  }
+  while (head.length + tail.length > height && head.length > 1) head.pop();
+  while (head.length + tail.length > height && tail.length > 2) tail.splice(1, 1);
+  const bodyHeight = Math.max(0, height - head.length - tail.length);
   const focused = model.skills.find((skill) => skill.id === model.highlighted);
   const rows: string[][] = [];
   if (wide || (model.mode !== "target" && model.pane === "list")) {
@@ -117,13 +124,12 @@ export function buildTuiFrame(model: FrameInput): string[] {
     right.push(...content.slice(model.previewOffset, model.previewOffset + contentHeight));
     rows.push(right);
   }
+  const lines = [...head];
   for (let i = 0; i < bodyHeight; i++) {
     if (wide) lines.push(`│${fit(rows[0]?.[i] ?? "", leftWidth)}│${fit(rows[1]?.[i] ?? "", rightWidth)}│`);
     else lines.push(full(rows[0]?.[i] ?? ""));
   }
-  lines.push(`├${"─".repeat(inner)}┤`);
-  for (const row of footer) lines.push(full(row));
-  lines.push(bottom);
+  lines.push(...tail);
   return lines.slice(0, height).map((line) => fit(line, width));
 }
 export async function runTui(ctx: TuiContext): Promise<number> {
@@ -153,8 +159,7 @@ export async function runTui(ctx: TuiContext): Promise<number> {
         else if (!visible.length && state.highlighted) setState((value) => ({ ...value, highlighted: "" }));
       }, [state.highlighted, visible[0]?.id]);
       const current = visible.find((skill) => skill.id === state.highlighted) ?? visible[0];
-      const narrow = width < 80;
-      const escape = (value: string) => value.replace(/\n/g, " ").slice(0, 160);
+      const destLabel = `${target} · ${snapshot.scope}`;
       useKeyboard((key) => {
         if (key.eventType === "release") return;
         const name = key.name, char = key.sequence ?? name;
@@ -194,7 +199,7 @@ export async function runTui(ctx: TuiContext): Promise<number> {
         if (name === "i" || name === "u") {
           const ids = visibleBatchIds(state);
           if (!ids.length) return;
-          const detailRows = ids.reduce((rows, id) => rows + Math.ceil((id.length + snapshot.destination.length + 24) / width), 0);
+          const detailRows = ids.reduce((rows, id) => rows + Math.ceil((id.length + destLabel.length + 24) / width), 0);
           if (width < 80 || height < 16 || detailRows > height - 8) { setMessage("Resize to at least 80x16 to review this action safely; nothing changed."); return; }
           setPending(name === "i" ? "install" : "remove"); setMode("confirm");
         }
@@ -207,11 +212,11 @@ export async function runTui(ctx: TuiContext): Promise<number> {
       });
       const targetInfo = targetOptions({ ...ctx, target }).find((option) => option.id === target)!;
       const actionIds = visibleBatchIds(state);
-      const modal = mode === "confirm" ? `${pending.toUpperCase()} ${actionIds.join(", ")} → ${snapshot.destination}? Enter/y confirms; Esc/n cancels.` : message;
-      const resultLines = result ? [...result.succeeded.map((item) => `OK ${item.id} → ${item.destination}`), ...result.failed.map((item) => `FAILED ${item.id} → ${item.destination}: ${item.reason}`)] : [];
+      const modal = mode === "confirm" ? `${pending.toUpperCase()} ${actionIds.join(", ")} → ${destLabel}? Enter/y confirms; Esc/n cancels.` : message;
+      const resultLines = result ? [...result.succeeded.map((item) => `OK ${item.id} → ${destLabel}`), ...result.failed.map((item) => `FAILED ${item.id} → ${destLabel}: ${item.reason}`)] : [];
       const notice = [
         ...(snapshot.lockError ? [`Lockfile error — mutations disabled: ${snapshot.lockError}`] : []),
-        ...(mode === "target" ? [`Choose target: ${targetInfo.label} (${snapshot.scope})`, `Destination: ${targetInfo.path}`, "j/k change · Enter select · Esc cancel"] : []),
+        ...(mode === "target" ? [`Choose target: ${targetInfo.label} (${snapshot.scope})`, `Destination: ${targetInfo.id} · ${targetInfo.scope}`, "j/k change · Enter select · Esc cancel"] : []),
         ...(mode === "confirm" ? [modal] : []),
         ...(mode === "normal" && message ? [message, ...resultLines] : []),
       ];

@@ -81,10 +81,13 @@ export function filterTuiSkills(skills: TuiSkill[], query: string): TuiSkill[] {
   const needle = query.trim().toLocaleLowerCase();
   return skills.filter((skill) => !needle || `${skill.name} ${skill.description} ${skill.category ?? "Other"} ${skill.tags.join(" ")}`.toLocaleLowerCase().includes(needle));
 }
+export function sanitizeText(text: string): string {
+  return text.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, "").replace(/\t/g, "  ").replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, "�");
+}
 export function previewText(text: string | null, error?: string): string {
   if (error) return `[Unable to read SKILL.md: ${error}]`;
   if (text === null) return "[SKILL.md unavailable]";
-  return text.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, "").replace(/\t/g, "  ").replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, "�").slice(0, 200_000);
+  return sanitizeText(text).slice(0, 200_000);
 }
 export function targetOptions(ctx: TuiContext) {
   return TARGETS.map((target) => ({ id: target.id, label: target.label, path: resolveSkillsDir(target.id, { home: ctx.home, projectDir: ctx.projectDir, global: ctx.global, env: ctx.env }), scope: ctx.global ? "global" as const : "project" as const }));
