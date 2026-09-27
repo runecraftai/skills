@@ -219,6 +219,7 @@ export async function runTui(ctx: TuiContext): Promise<number> {
       }, [mode, pending, state, destLabel, width, height, snapshot.lockError]);
       useKeyboard((key) => {
         if (key.eventType === "release") return;
+        setMessage(""); setResult(null);
         const name = key.name, char = key.sequence ?? name;
         if (mode === "search") {
           if (name === "escape") { setMode("normal"); setState((s) => ({ ...s, query: "" })); return; }
@@ -246,7 +247,7 @@ export async function runTui(ctx: TuiContext): Promise<number> {
           return;
         }
         if (name === "q") { done(0); return; }
-        if (name === "escape") { if (state.query) setState((s) => ({ ...s, query: "" })); else done(0); return; }
+        if (name === "escape") { if (state.query) setState((s) => ({ ...s, query: "" })); return; }
         if (name === "/") { setMode("search"); setState((s) => ({ ...s, query: "" })); return; }
         if (name === "r") { setSnapshotVersion((v) => v + 1); setMessage("Status refreshed (read-only)."); return; }
         if (name === "t") { setMode("target"); return; }

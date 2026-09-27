@@ -65,6 +65,30 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("scriptable remove without --force refuses a scope with no verified ownership", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      delete lock.skills.alpha.tuiTargets["pi:project"];
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
+      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
+      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      const denied = spawnSync("bun", ["run", CLI, "remove", "alpha"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(denied.status).toBe(1);
+      expect(denied.stderr).toContain("--force");
+      expect(existsSync(f.projectDest)).toBe(true);
+      expect(existsSync(f.globalDest)).toBe(true);
+      const forced = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(forced.status).toBe(0);
+      expect(existsSync(f.projectDest)).toBe(false);
+      expect(existsSync(f.globalDest)).toBe(true);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(Object.keys(after.skills.alpha.tuiTargets)).toEqual(["pi:global"]);
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("audit verifies every scope record against its own hashes", () => {
     const f = scopeFixture();
     try {

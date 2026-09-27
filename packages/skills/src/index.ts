@@ -32,6 +32,7 @@ function removeCommand(args: string[], global: boolean): void {
   const targets = (target ? [target] : entry?.agents ?? []).map((candidate) => { if (!isTargetId(candidate)) throw new Error(`unknown target: ${candidate}`); return candidate; });
   if (!targets.length) throw new Error("specify --target for --force removal");
   const scope = global ? "global" as const : "project" as const;
+  if (!args.includes("--force") && targets.some((t) => !entry?.tuiTargets?.[tuiOwnershipKey(t, scope)])) throw new Error(`refusing to remove ${id} from ${scope} scope without verified ownership; pass --force`);
   for (const t of targets) removeSkill(id, scopeRemovalDir(entry, t, scope, projectDir));
   if (entry) {
     for (const t of targets) removeScopeOwnership(lock, id, t, scope);
