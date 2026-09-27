@@ -1,4 +1,4 @@
-import { lstatSync, rmSync } from "node:fs";
+import { rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { assertNoSymlinks, installSkills, skillHash } from "./install.js";
 import { clearScopeOwnership, readLockfile, tuiOwnershipKey, writeLockfile, type LockedSkill } from "./lockfile.js";
@@ -52,7 +52,6 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
     const again = loadTuiSnapshot(ctx).statuses[id];
     if (again?.status !== "managed-clean" || again.destination !== status.destination) { fail(result, id, status.destination, "destination changed during confirmation"); continue; }
     try {
-      if (lstatSync(status.destination).isSymbolicLink()) throw new Error("destination became a symlink");
       assertNoSymlinks(status.destination);
       rmSync(status.destination, { recursive: true, force: false });
     } catch (error) { fail(result, id, status.destination, error instanceof Error ? error.message : String(error)); continue; }
