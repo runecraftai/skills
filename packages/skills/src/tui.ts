@@ -67,9 +67,10 @@ function frameLayout(width: number, height: number) {
 export function confirmPrompt(action: "install" | "remove", actionIds: string[], destLabel: string): string {
   return `${action.toUpperCase()} ${actionIds.join(", ")} → ${destLabel}? Enter/y confirms; Esc/n cancels.`;
 }
+export function lockErrorNotice(lockError?: string): string[] { return lockError ? [`Lockfile error — mutations disabled: ${lockError}`] : []; }
 export function confirmReviewFits(action: "install" | "remove", actionIds: string[], destLabel: string, width: number, height: number, lockError?: string): boolean {
   const layout = frameLayout(width, height);
-  const lockRows = lockError ? wrap(`Lockfile error — mutations disabled: ${lockError}`, layout.rightWidth).length : 0;
+  const lockRows = lockErrorNotice(lockError).flatMap((line) => wrap(line, layout.rightWidth)).length;
   const room = layout.bodyHeight - noticeReserve - lockRows;
   return room > 0 && wrap(confirmPrompt(action, actionIds, destLabel), layout.rightWidth).length <= room;
 }
@@ -273,7 +274,7 @@ export async function runTui(ctx: TuiContext): Promise<number> {
       const modal = mode === "confirm" ? confirmPrompt(pending, actionIds, destLabel) : message;
       const resultLines = result ? [...result.outcome.failed.map((item) => `FAILED ${item.id} → ${result.dest}: ${item.reason}`), ...result.outcome.succeeded.map((item) => `OK ${item.id} → ${result.dest}`)] : [];
       const notice = [
-        ...(snapshot.lockError ? [`Lockfile error — mutations disabled: ${snapshot.lockError}`] : []),
+        ...(lockErrorNotice(snapshot.lockError)),
         ...(mode === "target" ? [`Choose target: ${targetInfo.label} (${snapshot.scope})`, `Destination: ${targetInfo.id} · ${targetInfo.scope}`, "j/k change · Enter select · Esc close (keeps target)"] : []),
         ...(mode === "confirm" ? [modal] : []),
         ...(mode === "normal" && message ? [message, ...resultLines] : []),

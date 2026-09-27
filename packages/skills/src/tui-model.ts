@@ -11,7 +11,8 @@ export interface TuiSkill extends RegistrySkill { id: string; files: string[]; m
 export interface TargetSkillStatus { status: SkillStatus; destination: string; scope: "project" | "global"; detail?: string; }
 export interface TuiSnapshot { skills: TuiSkill[]; categories: Array<{ name: string; count: number }>; target: TargetId; destination: string; scope: "project" | "global"; statuses: Record<string, TargetSkillStatus>; lockError?: string; }
 export interface TuiContext { catalogDir: string; home: string; projectDir: string; global: boolean; env?: Record<string, string | undefined>; target?: TargetId; }
-interface OwnedRecord { destination: string; scope: "project" | "global"; files: Record<string, string>; identity: string; }
+export interface OwnedRecord { destination: string; scope: "project" | "global"; files: Record<string, string>; identity: string; }
+export function tuiOwnershipKey(target: TargetId, scope: "project" | "global"): string { return `${target}:${scope}`; }
 
 function sha256(path: string): string { return createHash("sha256").update(readFileSync(path)).digest("hex"); }
 export function readTreeManifest(dir: string): Record<string, string> {
@@ -68,8 +69,8 @@ export function loadTuiSnapshot(ctx: TuiContext): TuiSnapshot {
       if (!stat) { statuses[skill.id] = { status: lockResult.error ? "unreadable/error" : "absent", destination: path, scope, detail: lockResult.error }; continue; }
       if (stat.isSymbolicLink() || !stat.isDirectory()) { statuses[skill.id] = { status: "existing-unmanaged/unknown", destination: path, scope, detail: "destination is not a regular directory" }; continue; }
       if (lockResult.error) { statuses[skill.id] = { status: "unreadable/error", destination: path, scope, detail: lockResult.error }; continue; }
-      const entry = lockResult.lock?.skills[skill.id.split("/").at(-1)!] as (Lockfile["skills"][string] & { tuiTargets?: Partial<Record<TargetId, OwnedRecord>> }) | undefined;
-      const owned = entry?.tuiTargets?.[target];
+      const entry = lockResult.lock?.skills[skill.id.split("/").at(-1)!] as (Lockfile["skills"][string] & { tuiTargets?: Record<string, OwnedRecord> }) | undefined;
+      const owned = entry?.tuiTargets?.[tuiOwnershipKey(target, scope)];
       if (!owned || resolve(owned.destination) !== path || owned.scope !== scope || owned.identity !== skill.id) { statuses[skill.id] = { status: "existing-unmanaged/unknown", destination: path, scope }; continue; }
       const actual = readTreeManifest(path), expected = owned.files;
       statuses[skill.id] = { status: Object.keys(actual).length === Object.keys(expected).length && Object.entries(expected).every(([file, hash]) => actual[file] === hash) ? "managed-clean" : "managed-modified", destination: path, scope };

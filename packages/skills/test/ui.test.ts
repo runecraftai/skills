@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { readLockfile } from "../src/lockfile.js";
 import { tmpdir } from "node:os";
@@ -109,6 +110,60 @@ describe("TUI view model and actions", () => {
       expect(applyTuiBatch(f.context, ["alpha"], "install", false).succeeded).toHaveLength(0);
       expect(existsSync(f.targetDir)).toBe(false);
       expect(existsSync(join(f.projectDir, ".grimoire-lock.json"))).toBe(false);
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("install-phase exceptions become per-skill failures instead of aborting the batch", () => {
+    const f = fixture();
+    try {
+      mkdirSync(join(f.catalogDir, "beta"), { recursive: true });
+      writeFileSync(join(f.catalogDir, "beta", "SKILL.md"), "---\nname: beta\ndescription: second skill\n---\nbody\n");
+      const elsewhere = join(f.root, "elsewhere");
+      mkdirSync(elsewhere);
+      symlinkSync(elsewhere, join(f.projectDir, ".pi"));
+      const outcome = applyTuiBatch(f.context, ["alpha", "beta"], "install", true);
+      expect(outcome.succeeded).toHaveLength(0);
+      expect(outcome.failed.map((item) => item.id)).toEqual(["alpha", "beta"]);
+      expect(outcome.failed.every((item) => item.reason.includes("symlink"))).toBe(true);
+      expect(existsSync(join(elsewhere, "skills"))).toBe(false);
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("ownership stays independent per target and scope across install and removal", () => {
+    const f = fixture();
+    try {
+      const globalCtx = { ...f.context, global: true, env: {} };
+      expect(applyTuiBatch(globalCtx, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      const globalDestination = loadTuiSnapshot(globalCtx).statuses.alpha.destination;
+      expect(loadTuiSnapshot(globalCtx).statuses.alpha.status).toBe("managed-clean");
+      expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      expect(loadTuiSnapshot(f.context).statuses.alpha.status).toBe("managed-clean");
+      expect(loadTuiSnapshot(globalCtx).statuses.alpha.status).toBe("managed-clean");
+      expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
+      expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
+      expect(loadTuiSnapshot(globalCtx).statuses.alpha.status).toBe("managed-clean");
+      const entry = readLockfile(f.projectDir).skills.alpha;
+      expect(entry?.targets?.pi).toBe(resolve(globalDestination));
+      expect(entry?.agents).toContain("pi");
+      expect(applyTuiBatch(globalCtx, ["alpha"], "remove", true).succeeded).toHaveLength(1);
+      expect(existsSync(globalDestination)).toBe(false);
+      expect(readLockfile(f.projectDir).skills.alpha).toBeUndefined();
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("reinstall under a changed catalog refreshes verified lock metadata", () => {
+    const f = fixture();
+    try {
+      expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      writeFileSync(join(f.catalogDir, "alpha", "SKILL.md"), "---\nname: alpha\ndescription: useful skill\n---\nupdated body\n");
+      writeFileSync(join(f.catalogDir, "alpha", ".skill-meta.json"), JSON.stringify({ version: "2.0.0" }));
+      const other = { ...f.context, target: "claude" as const };
+      expect(applyTuiBatch(other, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      const entry = readLockfile(f.projectDir).skills.alpha;
+      expect(entry?.version).toBe("2.0.0");
+      const destination = loadTuiSnapshot(other).statuses.alpha.destination;
+      const sha = createHash("sha256").update(readFileSync(join(destination, "SKILL.md"))).digest("hex");
+      expect(entry?.fileHashes?.["SKILL.md"]).toBe(sha);
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 });
