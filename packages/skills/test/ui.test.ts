@@ -198,6 +198,7 @@ describe("TUI view model and actions", () => {
       expect(existsSync(join(f.targetDir, "alpha", "SKILL.md"))).toBe(true);
       const entry = readLockfile(f.projectDir).skills.alpha;
       expect(entry?.agents).toEqual(["pi"]);
+      expect(entry?.legacyAgents).toBeUndefined();
       expect({ version: entry?.version, hash: entry?.hash, installed: entry?.installed }).toEqual({ version: legacy.version, hash: legacy.hash, installed: legacy.installed });
       expect(entry?.tuiTargets).toBeUndefined();
       const after = spawnSync("bun", ["run", cli, "status"], { cwd: f.projectDir, encoding: "utf8", env });
