@@ -91,6 +91,27 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("scriptable remove drops an entry whose tracked copy is already gone", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      delete lock.skills.alpha.tuiTargets["pi:global"];
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      rmSync(f.projectDest, { recursive: true, force: true });
+      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
+      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
+      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--target", "pi"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(after.skills.alpha).toBeUndefined();
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("No tracked project installations.");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("audit verifies every scope record against its own hashes", () => {
     const f = scopeFixture();
     try {

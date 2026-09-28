@@ -18,15 +18,23 @@ export function removeScopeOwnership(lock: Lockfile, name: string, target: strin
 }
 export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "project" | "global", removal: RemovalOutcome): void {
   const records = entry.tuiTargets ?? {};
-  const hadRecord = Boolean(records[tuiOwnershipKey(target, scope)]);
+  const record = records[tuiOwnershipKey(target, scope)];
+  const hadRecord = Boolean(record);
+  const recordTracked = Boolean(record && resolve(record.destination) === removal.removedPath);
   delete records[tuiOwnershipKey(target, scope)];
   if (entry.tuiTargets && !Object.keys(records).length) delete entry.tuiTargets;
-  const targets = entry.targets, slot = targets?.[target];
-  if (targets && slot && resolve(slot) === removal.removedPath) { delete targets[target]; if (!Object.keys(targets).length) delete entry.targets; }
+  const slot = entry.targets?.[target];
+  const slotTracked = Boolean(slot && resolve(slot) === removal.removedPath);
+  if (entry.targets && slotTracked) { delete entry.targets[target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
   if (entry.targets?.[target]) return;
   if (Object.keys(records).some((key) => key.startsWith(`${target}:`))) return;
-  if (entry.legacyAgents?.includes(target)) return;
-  if (removal.copyRemoved && (hadRecord || scope === "project")) entry.agents = entry.agents.filter((id) => id !== target);
+  const targetlessRemoved = removal.copyRemoved && !hadRecord && !slotTracked && scope === "project";
+  if (entry.legacyAgents?.includes(target)) {
+    if (!targetlessRemoved) return;
+    entry.legacyAgents = entry.legacyAgents.filter((id) => id !== target);
+    if (!entry.legacyAgents.length) delete entry.legacyAgents;
+  }
+  if (recordTracked || slotTracked || targetlessRemoved || (removal.copyRemoved && hadRecord)) entry.agents = entry.agents.filter((id) => id !== target);
 }
 export function verifyTree(dir: string, expected: Record<string, string>): { modified: string[]; missing: string[] } {
   const modified: string[] = [], missing: string[] = [];

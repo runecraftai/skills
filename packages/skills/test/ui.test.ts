@@ -155,6 +155,27 @@ describe("TUI view model and actions", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("project removal over a global-scoped targetless legacy entry drops it once its copy is removed", () => {
+    const f = fixture();
+    try {
+      mkdirSync(join(f.targetDir, "alpha"), { recursive: true });
+      writeFileSync(join(f.targetDir, "alpha", "SKILL.md"), "legacy bytes");
+      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
+      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      const globalCtx = { ...f.context, global: true, env: {} };
+      expect(applyTuiBatch(globalCtx, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      expect(applyTuiBatch(globalCtx, ["alpha"], "remove", true).succeeded).toHaveLength(1);
+      expect(readLockfile(f.projectDir).skills.alpha?.agents).toEqual(["pi"]);
+      expect(existsSync(join(f.targetDir, "alpha", "SKILL.md"))).toBe(true);
+      const cli = join(import.meta.dir, "..", "src", "index.ts");
+      const env = { ...process.env, HOME: f.home, XDG_CACHE_HOME: join(f.root, "cache"), GRIMOIRE_CATALOG_URL: "http://127.0.0.1:1/registry.json" };
+      const removed = spawnSync("bun", ["run", cli, "remove", "alpha", "--target", "pi", "--force"], { cwd: f.projectDir, encoding: "utf8", env });
+      expect(removed.status).toBe(0);
+      expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
+      expect(readLockfile(f.projectDir).skills.alpha).toBeUndefined();
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("status and audit report a targetless legacy copy as ownership-unknown beside a scoped record", () => {
     const f = fixture();
     try {
