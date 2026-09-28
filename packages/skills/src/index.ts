@@ -27,9 +27,10 @@ function scopeRemovalDir(entry: LockedSkill | undefined, target: TargetId, scope
 }
 function uncoveredLegacyTargets(entry: LockedSkill): string[] {
   const destinations = new Set(Object.values(entry.tuiTargets ?? {}).map((record) => resolve(record.destination)));
+  const legacy = new Set(entry.legacyAgents ?? []);
   return [...new Set([...Object.keys(entry.targets ?? {}), ...entry.agents])].filter((key) => {
     const location = entry.targets?.[key];
-    return location === undefined ? tuiScopeKeys(entry, key).length === 0 : !destinations.has(resolve(location));
+    return location === undefined ? legacy.has(key) || tuiScopeKeys(entry, key).length === 0 : !destinations.has(resolve(location));
   });
 }
 function removeCommand(args: string[], global: boolean): void {
@@ -40,9 +41,9 @@ function removeCommand(args: string[], global: boolean): void {
   if (!targets.length) throw new Error("specify --target for --force removal");
   const scope = global ? "global" as const : "project" as const;
   if (!args.includes("--force") && targets.some((t) => !entry?.tuiTargets?.[tuiOwnershipKey(t, scope)])) throw new Error(`refusing to remove ${id} from ${scope} scope without verified ownership; pass --force`);
-  for (const t of targets) removeSkill(id, scopeRemovalDir(entry, t, scope, projectDir));
+  const removals = targets.map((t) => { const dir = scopeRemovalDir(entry, t, scope, projectDir); return { t, removal: { removedPath: resolve(dir, id), copyRemoved: removeSkill(id, dir) } }; });
   if (entry) {
-    for (const t of targets) removeScopeOwnership(lock, id, t, scope);
+    for (const { t, removal } of removals) removeScopeOwnership(lock, id, t, scope, removal);
     writeLockfile(projectDir, lock);
   }
 }

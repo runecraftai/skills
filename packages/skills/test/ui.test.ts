@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { readLockfile } from "../src/lockfile.js";
@@ -75,9 +76,7 @@ describe("TUI view model and actions", () => {
       expect(entry.agents).toContain("pi");
       expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
       const cleared = readLockfile(f.projectDir).skills.alpha;
-      expect(cleared?.tuiTargets).toBeUndefined();
-      expect(cleared?.agents).toContain("pi");
-      expect(cleared?.hash).toBe(skillHash(join(f.catalogDir, "alpha")));
+      expect(cleared).toBeUndefined();
       expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
@@ -114,6 +113,25 @@ describe("TUI view model and actions", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("project remove over a legacy entry keeps shared lock fields and the legacy copy", () => {
+    const f = fixture();
+    try {
+      const legacyDestination = join(f.root, "legacy", "alpha");
+      mkdirSync(legacyDestination, { recursive: true });
+      writeFileSync(join(legacyDestination, "SKILL.md"), "legacy bytes");
+      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"], fileHashes: { "SKILL.md": createHash("sha256").update("legacy bytes").digest("hex") }, targets: { pi: legacyDestination } };
+      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      expect(readLockfile(f.projectDir).skills.alpha!.targets).toEqual(legacy.targets);
+      expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
+      const entry = readLockfile(f.projectDir).skills.alpha!;
+      expect({ version: entry.version, hash: entry.hash, installed: entry.installed, agents: entry.agents, fileHashes: entry.fileHashes, targets: entry.targets }).toEqual(legacy);
+      expect(entry.tuiTargets).toBeUndefined();
+      expect(existsSync(legacyDestination)).toBe(true);
+      expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("TUI remove over a targetless legacy entry preserves its shared metadata", () => {
     const f = fixture();
     try {
@@ -134,6 +152,32 @@ describe("TUI view model and actions", () => {
       expect(cleared?.agents).toEqual(["pi"]);
       expect(cleared?.tuiTargets).toBeUndefined();
       expect(cleared?.targets).toBeUndefined();
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("status and audit report a targetless legacy copy as ownership-unknown beside a scoped record", () => {
+    const f = fixture();
+    try {
+      const custom = join(f.root, "custom", "alpha");
+      mkdirSync(custom, { recursive: true });
+      writeFileSync(join(custom, "SKILL.md"), "custom bytes");
+      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
+      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      expect(existsSync(join(custom, "SKILL.md"))).toBe(true);
+      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
+      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
+      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      const env = { ...process.env, HOME: f.home, XDG_CACHE_HOME: join(f.root, "cache"), GRIMOIRE_CATALOG_URL: "http://127.0.0.1:1/registry.json" };
+      const cli = join(import.meta.dir, "..", "src", "index.ts");
+      const status = spawnSync("bun", ["run", cli, "status"], { cwd: f.projectDir, encoding: "utf8", env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("pi:project verified");
+      expect(status.stdout).toContain("pi ownership unknown");
+      const audit = spawnSync("bun", ["run", cli, "audit"], { cwd: f.projectDir, encoding: "utf8", env });
+      expect(audit.status).toBe(0);
+      expect(audit.stdout).toContain("alpha/pi: ownership unknown");
+      expect(audit.stdout).not.toContain("tampered");
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
@@ -223,9 +267,7 @@ describe("TUI view model and actions", () => {
       expect(entry?.agents).toContain("pi");
       expect(applyTuiBatch(globalCtx, ["alpha"], "remove", true).succeeded).toHaveLength(1);
       expect(existsSync(globalDestination)).toBe(false);
-      const cleared = readLockfile(f.projectDir).skills.alpha;
-      expect(cleared?.tuiTargets).toBeUndefined();
-      expect(cleared?.agents).toContain("pi");
+      expect(readLockfile(f.projectDir).skills.alpha).toBeUndefined();
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 

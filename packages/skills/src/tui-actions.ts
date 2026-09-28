@@ -1,7 +1,7 @@
 import { rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { assertNoSymlinks, installSkills, skillHash } from "./install.js";
-import { readLockfile, removeScopeOwnership, tuiOwnershipKey, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, writeLockfile, type LockedSkill } from "./lockfile.js";
 import { loadTuiSnapshot, readTreeManifest, type TuiContext } from "./tui-model.js";
 
 export interface ActionResult { succeeded: Array<{ id: string; destination: string }>; failed: Array<{ id: string; destination: string; reason: string }>; }
@@ -32,6 +32,7 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
         const key = id.split("/").at(-1)!;
         const entry: LockedSkill = lock.skills[key] ?? { version: skill.version, hash: skillHash(skill.dir), installed: new Date().toISOString(), agents: [] };
         const files = actual;
+        if (entry.agents.includes(before.target) && !entry.targets?.[before.target] && tuiScopeKeys(entry, before.target).length === 0) entry.legacyAgents = [...new Set([...(entry.legacyAgents ?? []), before.target])];
         entry.tuiTargets ??= {};
         entry.tuiTargets[tuiOwnershipKey(before.target, before.scope)] = { destination: resolve(status.destination), scope: before.scope, files, identity: id };
         entry.agents = [...new Set([...entry.agents, before.target])];
@@ -52,7 +53,7 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
     } catch (error) { fail(result, id, status.destination, error instanceof Error ? error.message : String(error)); continue; }
     try {
       const lock = readLockfile(ctx.projectDir), key = id.split("/").at(-1)!;
-      removeScopeOwnership(lock, key, before.target, before.scope);
+      removeScopeOwnership(lock, key, before.target, before.scope, { removedPath: resolve(status.destination), copyRemoved: true });
       writeLockfile(ctx.projectDir, lock); result.succeeded.push({ id, destination: status.destination });
     } catch (error) { fail(result, id, status.destination, `removed but lock update failed: ${error instanceof Error ? error.message : String(error)}`); }
   }
