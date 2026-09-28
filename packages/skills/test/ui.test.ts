@@ -62,15 +62,15 @@ describe("TUI view model and actions", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
-  test("install writes shared lock ownership and remove clears it symmetrically", () => {
+  test("install writes scoped ownership without modifying shared legacy fields", () => {
     const f = fixture();
     try {
       expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
       const entry = readLockfile(f.projectDir).skills.alpha;
-      expect(entry.targets?.pi).toBe(resolve(f.targetDir, "alpha"));
-      expect(resolve(entry.targets!.pi, "..")).toBe(resolve(f.targetDir));
-      expect(entry.hash).not.toBe("");
-      expect(Object.keys(entry.fileHashes ?? {})).toContain("SKILL.md");
+      expect(entry.tuiTargets?.["pi:project"]?.destination).toBe(resolve(f.targetDir, "alpha"));
+      expect(entry.targets).toBeUndefined();
+      expect(entry.fileHashes).toBeUndefined();
+      expect(entry.hash).toBe("");
       expect(entry.agents).toContain("pi");
       expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
       expect(readLockfile(f.projectDir).skills.alpha).toBeUndefined();
@@ -160,7 +160,7 @@ describe("TUI view model and actions", () => {
       expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
       expect(loadTuiSnapshot(globalCtx).statuses.alpha.status).toBe("managed-clean");
       const entry = readLockfile(f.projectDir).skills.alpha;
-      expect(entry?.targets?.pi).toBe(resolve(globalDestination));
+      expect(Object.values(entry?.tuiTargets ?? {}).some((record) => record.destination === resolve(globalDestination))).toBe(true);
       expect(entry?.agents).toContain("pi");
       expect(applyTuiBatch(globalCtx, ["alpha"], "remove", true).succeeded).toHaveLength(1);
       expect(existsSync(globalDestination)).toBe(false);
@@ -168,7 +168,7 @@ describe("TUI view model and actions", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
-  test("reinstall under a changed catalog refreshes verified lock metadata", () => {
+  test("install under a changed catalog preserves shared lock metadata", () => {
     const f = fixture();
     try {
       expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
@@ -177,10 +177,8 @@ describe("TUI view model and actions", () => {
       const other = { ...f.context, target: "claude" as const };
       expect(applyTuiBatch(other, ["alpha"], "install", true).succeeded).toHaveLength(1);
       const entry = readLockfile(f.projectDir).skills.alpha;
-      expect(entry?.version).toBe("2.0.0");
-      const destination = loadTuiSnapshot(other).statuses.alpha.destination;
-      const sha = createHash("sha256").update(readFileSync(join(destination, "SKILL.md"))).digest("hex");
-      expect(entry?.fileHashes?.["SKILL.md"]).toBe(sha);
+      expect(entry?.version).toBe("0.1.0");
+      expect(entry?.tuiTargets?.["claude:project"]?.files["SKILL.md"]).toBeDefined();
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 });

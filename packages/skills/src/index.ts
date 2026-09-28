@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 import { detectStack } from "./detect.js";
 import { installSkills, removeSkill, skillHash } from "./install.js";
 import { readRegistry, findSkill } from "./registry.js";
-import { readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, updateLock, verifyOwnedRecord, verifyTree, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, updateLock, verifyOwnedRecord, writeLockfile, type LockedSkill } from "./lockfile.js";
 import { isTargetId, resolveSkillsDir, TARGETS, type TargetId } from "./targets.js";
 import { mkdtemp, rename, rm } from "node:fs/promises";
 import { rankSkills } from "../../core/src/index.js";
@@ -88,11 +88,12 @@ async function main() {
             for (const path of modified) issues.push(`${id}/${path}: tampered (${key})`);
             for (const path of missing) issues.push(`${id}/${path}: missing (${key})`);
           }
+          // Legacy records lack scope-specific ownership, so their bytes cannot be
+          // verified safely against a potentially different catalog revision.
           for (const [target, location] of Object.entries(entry.targets ?? {})) {
             if (ownedLocations.has(resolve(location))) continue;
-            const { modified, missing } = verifyTree(location, entry.fileHashes ?? {});
-            for (const path of modified) issues.push(`${id}/${path}: tampered (${target})`);
-            for (const path of missing) issues.push(`${id}/${path}: missing (${target})`);
+            // Keep the legacy copy as ownership-unknown rather than calling it tampered.
+            void target; void location;
           }
         }
         if (args.includes("--json")) console.log(JSON.stringify({ issues, revision: remote.registry.revision }, null, 2)); else console.log(issues.length ? issues.join("\\n") : "No tracked install issues found."); return issues.length ? 1 : 0;
@@ -125,6 +126,9 @@ async function main() {
     if (!entries.length) { console.log("No tracked project installations."); return 0; }
     for (const [name, entry] of entries) {
       console.log(`${name} [${entry.agents.join(", ")}] ${entry.hash}`);
+      for (const [key, location] of Object.entries(entry.targets ?? {})) {
+        if (!Object.values(entry.tuiTargets ?? {}).some((record) => resolve(record.destination) === resolve(location))) console.log(`  ${key} ownership unknown`);
+      }
       for (const [key, record] of Object.entries(entry.tuiTargets ?? {}).sort(([a], [b]) => a.localeCompare(b))) {
         const { modified, missing } = verifyOwnedRecord(record);
         const parts = [...(missing.length ? [`missing: ${missing.join(", ")}`] : []), ...(modified.length ? [`modified: ${modified.join(", ")}`] : [])];
