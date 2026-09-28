@@ -1,7 +1,7 @@
-import { existsSync, rmSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { rmSync } from "node:fs";
+import { resolve } from "node:path";
 import { assertNoSymlinks, installSkills, skillHash } from "./install.js";
-import { readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { hasSurvivingCopy, readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, writeLockfile, type LockedSkill } from "./lockfile.js";
 import { loadTuiSnapshot, readTreeManifest, type TuiContext } from "./tui-model.js";
 import { resolveSkillsDir } from "./targets.js";
 
@@ -55,12 +55,8 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
     try {
       const lock = readLockfile(ctx.projectDir), key = id.split("/").at(-1)!;
       const removedPath = resolve(status.destination);
-      const locations = [
-        ...Object.entries(lock.skills[key]?.tuiTargets ?? {}).filter(([recordKey]) => recordKey.startsWith(`${before.target}:`)).map(([, record]) => record.destination),
-        ...(lock.skills[key]?.targets?.[before.target] ? [lock.skills[key]!.targets![before.target]!] : []),
-        ...([false, true] as const).map((global) => join(resolveSkillsDir(before.target, { home: ctx.home, projectDir: ctx.projectDir, global, env: ctx.env }), key)),
-      ];
-      removeScopeOwnership(lock, key, before.target, before.scope, { removedPath, copyRemoved: true, survivingCopy: locations.some((location) => resolve(location) !== removedPath && existsSync(location)) });
+      const scopeDefaults = (["project", "global"] as const).map((scope) => resolveSkillsDir(before.target, { home: ctx.home, projectDir: ctx.projectDir, global: scope === "global", env: ctx.env }));
+      removeScopeOwnership(lock, key, before.target, before.scope, { removedPath, copyRemoved: true, survivingCopy: hasSurvivingCopy(lock.skills[key], before.target, removedPath, key, scopeDefaults) });
       writeLockfile(ctx.projectDir, lock); result.succeeded.push({ id, destination: status.destination });
     } catch (error) { fail(result, id, status.destination, `removed but lock update failed: ${error instanceof Error ? error.message : String(error)}`); }
   }

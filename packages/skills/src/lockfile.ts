@@ -10,6 +10,14 @@ export function tuiScopeKeys(entry: LockedSkill | undefined, target: string): st
   return Object.keys(entry?.tuiTargets ?? {}).filter((key) => key.startsWith(`${target}:`));
 }
 export interface RemovalOutcome { removedPath: string; copyRemoved: boolean; survivingCopy: boolean; }
+export function hasSurvivingCopy(entry: LockedSkill | undefined, target: string, removedPath: string, skillId: string, scopeDefaultDirs: string[]): boolean {
+  const locations = [
+    ...Object.entries(entry?.tuiTargets ?? {}).filter(([key]) => key.startsWith(`${target}:`)).map(([, record]) => record.destination),
+    ...(entry?.targets?.[target] ? [entry.targets[target]] : []),
+    ...scopeDefaultDirs.map((dir) => join(dir, skillId)),
+  ];
+  return locations.some((location) => resolve(location) !== removedPath && existsSync(location));
+}
 export function removeScopeOwnership(lock: Lockfile, name: string, target: string, scope: "project" | "global", removal: RemovalOutcome): void {
   const entry = lock.skills[name];
   if (!entry) return;
@@ -73,7 +81,7 @@ export function updateLock(lock: Lockfile, name: string, entry: LockedSkill): Lo
 }
 export function removeLock(lock: Lockfile, name: string): boolean { const existed = Boolean(lock.skills[name]); delete lock.skills[name]; lock.generated = new Date().toISOString(); return existed; }
 export function removeLockAgent(lock: Lockfile, name: string, agent: string): boolean {
-  const entry = lock.skills[name]; if (!entry) return false;
+  const entry = lock.skills[name]; if (!entry) return true;
   entry.agents = entry.agents.filter((id) => id !== agent); if (!entry.agents.length) delete lock.skills[name]; lock.generated = new Date().toISOString(); return true;
 }
 export function hasLockfile(projectDir: string): boolean { return existsSync(assertLockfilePath(projectDir)); }
