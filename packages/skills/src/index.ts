@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 import { detectStack } from "./detect.js";
 import { installSkills, removeSkill, skillHash } from "./install.js";
 import { readRegistry, findSkill } from "./registry.js";
-import { readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, updateLock, verifyOwnedRecord, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { hasSurvivingCopy, readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, updateLock, verifyOwnedRecord, writeLockfile, type LockedSkill } from "./lockfile.js";
 import { isTargetId, resolveSkillsDir, TARGETS, type TargetId } from "./targets.js";
 import { mkdtemp, rename, rm } from "node:fs/promises";
 import { rankSkills } from "../../core/src/index.js";
@@ -41,7 +41,11 @@ function removeCommand(args: string[], global: boolean): void {
   if (!targets.length) throw new Error("specify --target for --force removal");
   const scope = global ? "global" as const : "project" as const;
   if (!args.includes("--force") && targets.some((t) => !entry?.tuiTargets?.[tuiOwnershipKey(t, scope)])) throw new Error(`refusing to remove ${id} from ${scope} scope without verified ownership; pass --force`);
-  const removals = targets.map((t) => { const dir = scopeRemovalDir(entry, t, scope, projectDir); return { t, removal: { removedPath: resolve(dir, id), copyRemoved: removeSkill(id, dir) } }; });
+  const removals = targets.map((t) => {
+    const dir = scopeRemovalDir(entry, t, scope, projectDir), removedPath = resolve(dir, id), copyRemoved = removeSkill(id, dir);
+    const scopeDefaults = (["project", "global"] as const).map((candidate) => resolveSkillsDir(t, { home: homedir(), projectDir, global: candidate === "global" }));
+    return { t, removal: { removedPath, copyRemoved, survivingCopy: hasSurvivingCopy(entry, t, removedPath, id, scopeDefaults) } };
+  });
   if (entry) {
     for (const { t, removal } of removals) removeScopeOwnership(lock, id, t, scope, removal);
     writeLockfile(projectDir, lock);

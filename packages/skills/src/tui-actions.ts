@@ -1,8 +1,9 @@
 import { rmSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import { assertNoSymlinks, installSkills, skillHash } from "./install.js";
-import { readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { hasSurvivingCopy, readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, writeLockfile, type LockedSkill } from "./lockfile.js";
 import { loadTuiSnapshot, readTreeManifest, type TuiContext } from "./tui-model.js";
+import { resolveSkillsDir } from "./targets.js";
 
 export interface ActionResult { succeeded: Array<{ id: string; destination: string }>; failed: Array<{ id: string; destination: string; reason: string }>; }
 function fail(result: ActionResult, id: string, destination: string, reason: string) { result.failed.push({ id, destination, reason }); }
@@ -53,7 +54,9 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
     } catch (error) { fail(result, id, status.destination, error instanceof Error ? error.message : String(error)); continue; }
     try {
       const lock = readLockfile(ctx.projectDir), key = id.split("/").at(-1)!;
-      removeScopeOwnership(lock, key, before.target, before.scope, { removedPath: resolve(status.destination), copyRemoved: true });
+      const removedPath = resolve(status.destination);
+      const scopeDefaults = (["project", "global"] as const).map((scope) => resolveSkillsDir(before.target, { home: ctx.home, projectDir: ctx.projectDir, global: scope === "global", env: ctx.env }));
+      removeScopeOwnership(lock, key, before.target, before.scope, { removedPath, copyRemoved: true, survivingCopy: hasSurvivingCopy(lock.skills[key], before.target, removedPath, key, scopeDefaults) });
       writeLockfile(ctx.projectDir, lock); result.succeeded.push({ id, destination: status.destination });
     } catch (error) { fail(result, id, status.destination, `removed but lock update failed: ${error instanceof Error ? error.message : String(error)}`); }
   }

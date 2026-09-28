@@ -9,7 +9,15 @@ export function tuiOwnershipKey(target: string, scope: "project" | "global"): st
 export function tuiScopeKeys(entry: LockedSkill | undefined, target: string): string[] {
   return Object.keys(entry?.tuiTargets ?? {}).filter((key) => key.startsWith(`${target}:`));
 }
-export interface RemovalOutcome { removedPath: string; copyRemoved: boolean; }
+export interface RemovalOutcome { removedPath: string; copyRemoved: boolean; survivingCopy: boolean; }
+export function hasSurvivingCopy(entry: LockedSkill | undefined, target: string, removedPath: string, skillId: string, scopeDefaultDirs: string[]): boolean {
+  const locations = [
+    ...Object.entries(entry?.tuiTargets ?? {}).filter(([key]) => key.startsWith(`${target}:`)).map(([, record]) => record.destination),
+    ...(entry?.targets?.[target] ? [entry.targets[target]] : []),
+    ...scopeDefaultDirs.map((dir) => join(dir, skillId)),
+  ];
+  return locations.some((location) => resolve(location) !== removedPath && existsSync(location));
+}
 export function removeScopeOwnership(lock: Lockfile, name: string, target: string, scope: "project" | "global", removal: RemovalOutcome): void {
   const entry = lock.skills[name];
   if (!entry) return;
@@ -26,17 +34,21 @@ export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "
   const slot = entry.targets?.[target];
   const slotTracked = Boolean(slot && resolve(slot) === removal.removedPath);
   if (entry.targets && slotTracked) { delete entry.targets[target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
+  if (!removal.survivingCopy) {
+    if (entry.targets?.[target]) { delete entry.targets[target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
+    for (const key of Object.keys(records).filter((id) => id.startsWith(`${target}:`))) delete records[key];
+    if (entry.tuiTargets && !Object.keys(records).length) delete entry.tuiTargets;
+  }
   const targetlessRemoved = removal.copyRemoved && !hadRecord && !slotTracked;
   const releasesLegacyClaim = recordTracked || targetlessRemoved;
   if (entry.legacyAgents?.includes(target) && releasesLegacyClaim) {
     entry.legacyAgents = entry.legacyAgents.filter((id) => id !== target);
     if (!entry.legacyAgents.length) delete entry.legacyAgents;
-    if (recordTracked) return;
   }
   if (entry.targets?.[target]) return;
   if (Object.keys(records).some((key) => key.startsWith(`${target}:`))) return;
   if (entry.legacyAgents?.includes(target)) return;
-  if (recordTracked || slotTracked || (targetlessRemoved && scope === "project") || (removal.copyRemoved && hadRecord)) entry.agents = entry.agents.filter((id) => id !== target);
+  if (!removal.survivingCopy && (recordTracked || slotTracked || targetlessRemoved || (removal.copyRemoved && hadRecord))) entry.agents = entry.agents.filter((id) => id !== target);
 }
 export function verifyTree(dir: string, expected: Record<string, string>): { modified: string[]; missing: string[] } {
   const modified: string[] = [], missing: string[] = [];
