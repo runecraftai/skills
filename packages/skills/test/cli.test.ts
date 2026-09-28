@@ -342,6 +342,47 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("scriptable remove prunes a dead targets slot when no inspectable copy survives", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      delete lock.skills.alpha.tuiTargets["pi:global"];
+      lock.skills.alpha.legacyAgents = ["pi"];
+      lock.skills.alpha.targets = { pi: join(f.root, "moved", "alpha") };
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      rmSync(f.globalDest, { recursive: true, force: true });
+      const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      expect(existsSync(f.projectDest)).toBe(false);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(after.skills.alpha).toBeUndefined();
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("No tracked project installations.");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("scriptable remove prunes a dangling sibling scope record when no inspectable copy survives", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      lock.skills.alpha.legacyAgents = ["pi"];
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      rmSync(f.globalDest, { recursive: true, force: true });
+      const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      expect(existsSync(f.projectDest)).toBe(false);
+      expect(existsSync(f.globalDest)).toBe(false);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(after.skills.alpha).toBeUndefined();
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("No tracked project installations.");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("remote install preserves TUI scope ownership records", async () => {
     const root = mkdtempSync(join(tmpdir(), "grimoire-remote-lock-"));
     const bytes = Buffer.from("remote skill bytes!");

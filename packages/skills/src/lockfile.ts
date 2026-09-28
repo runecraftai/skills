@@ -34,6 +34,11 @@ export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "
   const slot = entry.targets?.[target];
   const slotTracked = Boolean(slot && resolve(slot) === removal.removedPath);
   if (entry.targets && slotTracked) { delete entry.targets[target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
+  if (!removal.survivingCopy) {
+    if (entry.targets?.[target]) { delete entry.targets[target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
+    for (const key of Object.keys(records).filter((id) => id.startsWith(`${target}:`))) delete records[key];
+    if (entry.tuiTargets && !Object.keys(records).length) delete entry.tuiTargets;
+  }
   const targetlessRemoved = removal.copyRemoved && !hadRecord && !slotTracked;
   const releasesLegacyClaim = recordTracked || targetlessRemoved;
   if (entry.legacyAgents?.includes(target) && releasesLegacyClaim) {
@@ -81,7 +86,7 @@ export function updateLock(lock: Lockfile, name: string, entry: LockedSkill): Lo
 }
 export function removeLock(lock: Lockfile, name: string): boolean { const existed = Boolean(lock.skills[name]); delete lock.skills[name]; lock.generated = new Date().toISOString(); return existed; }
 export function removeLockAgent(lock: Lockfile, name: string, agent: string): boolean {
-  const entry = lock.skills[name]; if (!entry) return true;
+  const entry = lock.skills[name]; if (!entry) return false;
   entry.agents = entry.agents.filter((id) => id !== agent); if (!entry.agents.length) delete lock.skills[name]; lock.generated = new Date().toISOString(); return true;
 }
 export function hasLockfile(projectDir: string): boolean { return existsSync(assertLockfilePath(projectDir)); }

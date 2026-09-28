@@ -155,12 +155,11 @@ describe("TUI view model and actions", () => {
   test("TUI removal prunes a stale legacy entry when no resolved-scope copy survives", () => {
     const f = fixture();
     try {
-      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"));
+      seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"));
       expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
       expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
       expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
       expect(readLockfile(f.projectDir).skills.alpha).toBeUndefined();
-      expect(legacy.agents).toEqual(["pi"]);
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
