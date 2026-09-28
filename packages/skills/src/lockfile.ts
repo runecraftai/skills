@@ -9,7 +9,7 @@ export function tuiOwnershipKey(target: string, scope: "project" | "global"): st
 export function tuiScopeKeys(entry: LockedSkill | undefined, target: string): string[] {
   return Object.keys(entry?.tuiTargets ?? {}).filter((key) => key.startsWith(`${target}:`));
 }
-export interface RemovalOutcome { removedPath: string; copyRemoved: boolean; }
+export interface RemovalOutcome { removedPath: string; copyRemoved: boolean; survivingCopy: boolean; }
 export function removeScopeOwnership(lock: Lockfile, name: string, target: string, scope: "project" | "global", removal: RemovalOutcome): void {
   const entry = lock.skills[name];
   if (!entry) return;
@@ -31,7 +31,7 @@ export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "
   if (entry.legacyAgents?.includes(target) && releasesLegacyClaim) {
     entry.legacyAgents = entry.legacyAgents.filter((id) => id !== target);
     if (!entry.legacyAgents.length) delete entry.legacyAgents;
-    if (recordTracked) return;
+    if (recordTracked && removal.survivingCopy) return;
   }
   if (entry.targets?.[target]) return;
   if (Object.keys(records).some((key) => key.startsWith(`${target}:`))) return;

@@ -136,7 +136,7 @@ describe("TUI view model and actions", () => {
       const custom = join(f.root, "custom", "alpha");
       mkdirSync(custom, { recursive: true });
       writeFileSync(join(custom, "SKILL.md"), "custom bytes");
-      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"));
+      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"), { targets: { pi: custom } });
       expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
       const installed = readLockfile(f.projectDir).skills.alpha!;
       expect({ version: installed.version, hash: installed.hash, installed: installed.installed }).toEqual({ version: legacy.version, hash: legacy.hash, installed: legacy.installed });
@@ -148,7 +148,19 @@ describe("TUI view model and actions", () => {
       expect({ version: cleared?.version, hash: cleared?.hash, installed: cleared?.installed }).toEqual({ version: legacy.version, hash: legacy.hash, installed: legacy.installed });
       expect(cleared?.agents).toEqual(["pi"]);
       expect(cleared?.tuiTargets).toBeUndefined();
-      expect(cleared?.targets).toBeUndefined();
+      expect(cleared?.targets).toEqual({ pi: custom });
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("TUI removal prunes a stale legacy entry when no resolved-scope copy survives", () => {
+    const f = fixture();
+    try {
+      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"));
+      expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
+      expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
+      expect(readLockfile(f.projectDir).skills.alpha).toBeUndefined();
+      expect(legacy.agents).toEqual(["pi"]);
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 

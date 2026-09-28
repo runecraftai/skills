@@ -41,7 +41,16 @@ function removeCommand(args: string[], global: boolean): void {
   if (!targets.length) throw new Error("specify --target for --force removal");
   const scope = global ? "global" as const : "project" as const;
   if (!args.includes("--force") && targets.some((t) => !entry?.tuiTargets?.[tuiOwnershipKey(t, scope)])) throw new Error(`refusing to remove ${id} from ${scope} scope without verified ownership; pass --force`);
-  const removals = targets.map((t) => { const dir = scopeRemovalDir(entry, t, scope, projectDir); return { t, removal: { removedPath: resolve(dir, id), copyRemoved: removeSkill(id, dir) } }; });
+  const removals = targets.map((t) => {
+    const dir = scopeRemovalDir(entry, t, scope, projectDir), removedPath = resolve(dir, id), copyRemoved = removeSkill(id, dir);
+    const locations = [
+      ...Object.entries(entry?.tuiTargets ?? {}).filter(([key]) => key.startsWith(`${t}:`)).map(([, record]) => record.destination),
+      ...(entry?.targets?.[t] ? [entry.targets[t]] : []),
+      ...(["project", "global"] as const).map((candidate) => resolve(scopeRemovalDir(entry, t, candidate, projectDir), id)),
+    ];
+    return { t, removal: { removedPath, copyRemoved, survivingCopy: locations.some((location) => resolve(location) !== removedPath && existsSync(location)) } };
+
+  });
   if (entry) {
     for (const { t, removal } of removals) removeScopeOwnership(lock, id, t, scope, removal);
     writeLockfile(projectDir, lock);
