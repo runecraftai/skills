@@ -333,7 +333,9 @@ describe("audit tamper detection", () => {
     // Simulate tampering
     writeFileSync(join(skillDir, "SKILL.md"), tamperedContent);
 
-    // Read lock and perform the same audit logic as the CLI
+    // Read the lock and hash-compare installed bytes against the fileHashes
+    // snapshot; the CLI audit itself only verifies scoped tuiTargets records
+    // and reports legacy copies like this one as ownership-unknown.
     const readLock = readLockfile(dir);
     const issues: string[] = [];
     for (const [id, entry] of Object.entries(readLock.skills)) {
