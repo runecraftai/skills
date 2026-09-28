@@ -170,8 +170,11 @@ test("80x24 and narrow frames keep the runic header, split pane, target, and foo
     expect(lines.join("\n")).toContain("Space select");
   }
   expect(wide.some((line) => line.includes("┬"))).toBe(true);
-  expect(wide.join("\n")).toContain("|G| |R| |I| |M| |O| |I| |R| |E|");
-  expect(narrow.join("\n")).toContain("ᚷᚱᛁᛗᛟᛁᚱᛖ GRIMOIRE");
+  expect(wide.some((line) => line.includes("ᛝ"))).toBe(true);
+  expect(wide.some((line) => line.includes("██╔════╝"))).toBe(true);
+  expect(narrow.join("\n")).toContain("╔═╗╦═╗╦╔╦╗╔═╗╦╦═╗╔═╗");
+  expect(narrow.join("\n")).toContain("║ ╦╠╦╝║║║║║ ║║╠╦╝║╣");
+  expect(narrow.join("\n")).toContain("╚═╝╩╚═╩╩ ╩╚═╝╩╩╚═╚═╝");
   expect(wide.join("\n")).toContain("●◉ test-driven-development");
   expect(wide.join("\n")).toContain("○ spec-driven");
 

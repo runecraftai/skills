@@ -6,8 +6,19 @@ import { filterTuiSkills, loadTuiSnapshot, previewText, sanitizeText, targetOpti
 import { initialTuiState, moveHighlight, toggleSelected, visibleBatchIds, type TuiState } from "./tui-state.js";
 import type { TargetId } from "./targets.js";
 
-const runeBanner = ["  /\\   /\\   /\\   /\\   /\\   /\\   /\\", " /  \\ /  \\ /  \\ /  \\ /  \\ /  \\ /  \\  ", " |G| |R| |I| |M| |O| |I| |R| |E| "];
-const compactBanner = ["ᚷᚱᛁᛗᛟᛁᚱᛖ GRIMOIRE"];
+const runeBanner = [
+  "ᛝ  ██████╗ ██████╗ ██╗███╗   ███╗ ██████╗ ██╗██████╗ ███████╗  ᛝ",
+  "   ██╔════╝ ██╔══██╗██║████╗ ████║██╔═══██╗██║██╔══██╗██╔════╝",
+  "   ██║  ███╗██████╔╝██║██╔████╔██║██║   ██║██║██████╔╝█████╗",
+  "   ██║   ██║██╔══██╗██║██║╚██╔╝██║██║   ██║██║██╔══██╗██╔══╝",
+  "   ╚██████╔╝██║  ██║██║██║ ╚═╝ ██║╚██████╔╝██║██║  ██║███████╗",
+  "    ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝╚═╝  ╚═╝╚══════╝",
+];
+const compactBanner = [
+  "╔═╗╦═╗╦╔╦╗╔═╗╦╦═╗╔═╗",
+  "║ ╦╠╦╝║║║║║ ║║╠╦╝║╣",
+  "╚═╝╩╚═╩╩ ╩╚═╝╩╩╚═╚═╝",
+];
 const noticeReserve = 3;
 interface FrameSkill { id: string; name: string; category: string; status: string; selected: boolean; }
 interface FrameInput {
@@ -60,7 +71,7 @@ function frameLayout(width: number, height: number) {
   const w = Math.max(12, Math.floor(width)), h = Math.max(1, Math.floor(height));
   const inner = w - 2, wide = w >= 80;
   const tail = 2 + legend(inner).length;
-  const banner = w >= 56 && h - tail >= 13 ? runeBanner : compactBanner;
+  const banner = inner >= 68 && h - tail >= 13 ? runeBanner : compactBanner;
   const leftWidth = wide ? Math.floor((inner - 1) / 2) : inner;
   return { w, h, inner, wide, banner, leftWidth, rightWidth: wide ? inner - leftWidth - 1 : inner, bodyHeight: Math.max(0, h - (3 + banner.length) - tail) };
 }
