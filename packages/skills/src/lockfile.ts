@@ -44,7 +44,6 @@ export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "
   if (entry.legacyAgents?.includes(target) && releasesLegacyClaim) {
     entry.legacyAgents = entry.legacyAgents.filter((id) => id !== target);
     if (!entry.legacyAgents.length) delete entry.legacyAgents;
-    if (recordTracked && removal.survivingCopy) return;
   }
   if (entry.targets?.[target]) return;
   if (Object.keys(records).some((key) => key.startsWith(`${target}:`))) return;
