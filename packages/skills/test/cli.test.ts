@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { seedOfflineRegistry } from "./helpers.js";
+import { seedLegacyEntry, seedOfflineRegistry } from "./helpers.js";
 const CLI = join(import.meta.dir, "..", "src", "index.ts");
 const run = (args: string[]) => spawnSync("bun", ["run", CLI, ...args], { encoding: "utf8" });
 const sha256 = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
@@ -204,9 +204,7 @@ describe("grimoire CLI", () => {
     const f = scopeFixture();
     try {
       const lockFile = join(f.project, ".grimoire-lock.json");
-      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
-      lock.skills.alpha = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
-      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      seedLegacyEntry(lockFile);
       const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(status.status).toBe(0);
       expect(status.stdout).toContain("alpha [pi]");
@@ -228,15 +226,13 @@ describe("grimoire CLI", () => {
       mkdirSync(custom, { recursive: true });
       writeFileSync(join(custom, "SKILL.md"), "custom bytes");
       const lockFile = join(f.project, ".grimoire-lock.json");
-      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
-      lock.skills.alpha = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
-      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      const legacy = seedLegacyEntry(lockFile);
       rmSync(f.projectDest, { recursive: true, force: true });
       const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(removed.status).toBe(0);
       expect(existsSync(join(custom, "SKILL.md"))).toBe(true);
       const after = JSON.parse(readFileSync(lockFile, "utf8"));
-      expect({ version: after.skills.alpha.version, hash: after.skills.alpha.hash, installed: after.skills.alpha.installed, agents: after.skills.alpha.agents }).toEqual({ version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] });
+      expect({ version: after.skills.alpha.version, hash: after.skills.alpha.hash, installed: after.skills.alpha.installed, agents: after.skills.alpha.agents }).toEqual(legacy);
       expect(after.skills.alpha.targets).toBeUndefined();
       expect(after.skills.alpha.tuiTargets).toBeUndefined();
       const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
@@ -249,9 +245,7 @@ describe("grimoire CLI", () => {
     const f = scopeFixture();
     try {
       const lockFile = join(f.project, ".grimoire-lock.json");
-      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
-      lock.skills.alpha = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
-      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      seedLegacyEntry(lockFile);
       expect(existsSync(f.projectDest)).toBe(true);
       const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(removed.status).toBe(0);

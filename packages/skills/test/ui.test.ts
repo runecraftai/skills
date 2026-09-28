@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { readLockfile } from "../src/lockfile.js";
-import { seedOfflineRegistry } from "./helpers.js";
+import { seedLegacyEntry, seedOfflineRegistry } from "./helpers.js";
 import { tmpdir } from "node:os";
 import { applyTuiBatch } from "../src/tui-actions.js";
 import { skillHash } from "../src/install.js";
@@ -85,8 +85,7 @@ describe("TUI view model and actions", () => {
   test("install over a legacy entry preserves shared lock fields", () => {
     const f = fixture();
     try {
-      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"], fileHashes: { "SKILL.md": createHash("sha256").update("legacy bytes").digest("hex") }, targets: { pi: join(f.targetDir, "alpha") } };
-      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"), { fileHashes: { "SKILL.md": createHash("sha256").update("legacy bytes").digest("hex") }, targets: { pi: join(f.targetDir, "alpha") } });
       expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
       const entry = readLockfile(f.projectDir).skills.alpha!;
       expect({ version: entry.version, hash: entry.hash, installed: entry.installed, agents: entry.agents, fileHashes: entry.fileHashes, targets: entry.targets }).toEqual(legacy);
@@ -101,8 +100,7 @@ describe("TUI view model and actions", () => {
       const legacyDestination = join(f.targetDir, "alpha");
       mkdirSync(legacyDestination, { recursive: true });
       writeFileSync(join(legacyDestination, "SKILL.md"), "legacy bytes");
-      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"], fileHashes: { "SKILL.md": createHash("sha256").update("legacy bytes").digest("hex") }, targets: { pi: legacyDestination } };
-      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"), { fileHashes: { "SKILL.md": createHash("sha256").update("legacy bytes").digest("hex") }, targets: { pi: legacyDestination } });
       const globalCtx = { ...f.context, global: true, env: {} };
       expect(applyTuiBatch(globalCtx, ["alpha"], "install", true).succeeded).toHaveLength(1);
       expect(readLockfile(f.projectDir).skills.alpha!.targets).toEqual(legacy.targets);
@@ -120,8 +118,7 @@ describe("TUI view model and actions", () => {
       const legacyDestination = join(f.root, "legacy", "alpha");
       mkdirSync(legacyDestination, { recursive: true });
       writeFileSync(join(legacyDestination, "SKILL.md"), "legacy bytes");
-      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"], fileHashes: { "SKILL.md": createHash("sha256").update("legacy bytes").digest("hex") }, targets: { pi: legacyDestination } };
-      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"), { fileHashes: { "SKILL.md": createHash("sha256").update("legacy bytes").digest("hex") }, targets: { pi: legacyDestination } });
       expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
       expect(readLockfile(f.projectDir).skills.alpha!.targets).toEqual(legacy.targets);
       expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
@@ -139,8 +136,7 @@ describe("TUI view model and actions", () => {
       const custom = join(f.root, "custom", "alpha");
       mkdirSync(custom, { recursive: true });
       writeFileSync(join(custom, "SKILL.md"), "custom bytes");
-      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
-      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"));
       expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
       const installed = readLockfile(f.projectDir).skills.alpha!;
       expect({ version: installed.version, hash: installed.hash, installed: installed.installed }).toEqual({ version: legacy.version, hash: legacy.hash, installed: legacy.installed });
@@ -161,8 +157,7 @@ describe("TUI view model and actions", () => {
     try {
       mkdirSync(join(f.targetDir, "alpha"), { recursive: true });
       writeFileSync(join(f.targetDir, "alpha", "SKILL.md"), "legacy bytes");
-      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
-      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"));
       const globalCtx = { ...f.context, global: true, env: {} };
       expect(applyTuiBatch(globalCtx, ["alpha"], "install", true).succeeded).toHaveLength(1);
       expect(applyTuiBatch(globalCtx, ["alpha"], "remove", true).succeeded).toHaveLength(1);
@@ -182,8 +177,7 @@ describe("TUI view model and actions", () => {
     try {
       mkdirSync(join(f.targetDir, "alpha"), { recursive: true });
       writeFileSync(join(f.targetDir, "alpha", "SKILL.md"), "legacy bytes");
-      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
-      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"));
       const globalCtx = { ...f.context, global: true, env: {} };
       expect(applyTuiBatch(globalCtx, ["alpha"], "install", true).succeeded).toHaveLength(1);
       const globalDestination = loadTuiSnapshot(globalCtx).statuses.alpha.destination;
@@ -243,8 +237,7 @@ describe("TUI view model and actions", () => {
       const custom = join(f.root, "custom", "alpha");
       mkdirSync(custom, { recursive: true });
       writeFileSync(join(custom, "SKILL.md"), "custom bytes");
-      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
-      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      const legacy = seedLegacyEntry(join(f.projectDir, ".grimoire-lock.json"));
       expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
       expect(existsSync(join(custom, "SKILL.md"))).toBe(true);
       seedOfflineRegistry(f.root);
