@@ -117,10 +117,12 @@ describe("grimoire CLI", () => {
       const clean = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(clean.status).toBe(0);
       expect(clean.stdout).toContain("No tracked install issues found");
+      expect(clean.stdout).toContain("alpha/pi: ownership unknown");
       writeFileSync(join(f.projectDest, "SKILL.md"), "tampered");
       const dirty = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(dirty.status).toBe(0);
       expect(dirty.stdout).toContain("No tracked install issues found");
+      expect(dirty.stdout).toContain("alpha/pi: ownership unknown");
       writeFileSync(join(f.projectDest, "SKILL.md"), "project bytes");
       const restored = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(restored.status).toBe(0);
@@ -144,6 +146,21 @@ describe("grimoire CLI", () => {
       expect(dirty.status).toBe(0);
       expect(dirty.stdout).toContain("pi:global modified: SKILL.md");
       expect(dirty.stdout).toContain("pi:project verified");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("status reports legacy installs without scope records as ownership-unknown", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      delete lock.skills.alpha.tuiTargets;
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      const r = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(r.status).toBe(0);
+      expect(r.stdout).toContain("alpha [pi]");
+      expect(r.stdout).toContain("pi ownership unknown");
+      expect(r.stdout).not.toContain("verified");
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 

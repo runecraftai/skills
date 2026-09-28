@@ -79,7 +79,7 @@ async function main() {
       if (command === "list" && args.includes("--installed")) { const lock = readLockfile(resolve(process.cwd())); for (const [id, entry] of Object.entries(lock.skills)) console.log(`${id} [${entry.agents.join(", ")}] ${entry.version}`); return 0; }
       if (command === "remove") { removeCommand(args, global); return 0; }
       if (command === "audit") {
-        const lock = readLockfile(resolve(process.cwd())), issues: string[] = [];
+        const lock = readLockfile(resolve(process.cwd())), issues: string[] = [], unknown: string[] = [];
         for (const [id, entry] of Object.entries(lock.skills)) {
           const owned = entry.tuiTargets ?? {};
           const ownedLocations = new Set(Object.values(owned).map((record) => resolve(record.destination)));
@@ -93,10 +93,10 @@ async function main() {
           for (const [target, location] of Object.entries(entry.targets ?? {})) {
             if (ownedLocations.has(resolve(location))) continue;
             // Keep the legacy copy as ownership-unknown rather than calling it tampered.
-            void target; void location;
+            unknown.push(`${id}/${target}: ownership unknown`);
           }
         }
-        if (args.includes("--json")) console.log(JSON.stringify({ issues, revision: remote.registry.revision }, null, 2)); else console.log(issues.length ? issues.join("\\n") : "No tracked install issues found."); return issues.length ? 1 : 0;
+        if (args.includes("--json")) console.log(JSON.stringify({ issues, ownershipUnknown: unknown, revision: remote.registry.revision }, null, 2)); else { console.log(issues.length ? issues.join("\\n") : "No tracked install issues found."); for (const line of unknown) console.log(line); } return issues.length ? 1 : 0;
       }
       if (command === "update") throw new Error("update requires an explicit supported version selection; no tracked install changed");
       if (command === "install" && !args.includes("-s") && !args.includes("--skill")) {
