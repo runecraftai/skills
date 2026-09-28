@@ -241,11 +241,12 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
-  test("scriptable force removal drops a targetless entry once its copy is removed", () => {
+  test("scriptable force removal drops a targetless entry once no inspectable copy survives", () => {
     const f = scopeFixture();
     try {
       const lockFile = join(f.project, ".grimoire-lock.json");
       seedLegacyEntry(lockFile);
+      rmSync(f.globalDest, { recursive: true, force: true });
       expect(existsSync(f.projectDest)).toBe(true);
       const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(removed.status).toBe(0);
@@ -279,11 +280,12 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
-  test("scriptable force removal drops a stale-claim targetless entry once its copy is removed", () => {
+  test("scriptable force removal drops a stale-claim targetless entry once no inspectable copy survives", () => {
     const f = scopeFixture();
     try {
       const lockFile = join(f.project, ".grimoire-lock.json");
       seedLegacyEntry(lockFile, { legacyAgents: ["pi"] });
+      rmSync(f.globalDest, { recursive: true, force: true });
       expect(existsSync(f.projectDest)).toBe(true);
       const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(removed.status).toBe(0);
@@ -293,6 +295,39 @@ describe("grimoire CLI", () => {
       const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(status.status).toBe(0);
       expect(status.stdout).toContain("No tracked project installations.");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("scriptable force removal preserves a stale-claim targetless entry while a sibling copy survives", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      seedLegacyEntry(lockFile, { legacyAgents: ["pi"] });
+      const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      expect(existsSync(f.projectDest)).toBe(false);
+      expect(existsSync(f.globalDest)).toBe(true);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(after.skills.alpha.agents).toEqual(["pi"]);
+      expect(after.skills.alpha.legacyAgents).toBeUndefined();
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("alpha [pi]");
+      expect(status.stdout).toContain("pi ownership unknown");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("scriptable global force removal prunes a stale-claim targetless entry once no inspectable copy survives", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      seedLegacyEntry(lockFile);
+      rmSync(f.projectDest, { recursive: true, force: true });
+      const removed = spawnSync("bun", ["run", CLI, "--global", "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      expect(existsSync(f.globalDest)).toBe(false);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(after.skills.alpha).toBeUndefined();
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
