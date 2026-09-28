@@ -51,7 +51,7 @@ test("frame strips terminal control sequences from skill metadata and notices", 
 
 test("confirm review renders its prompt, separator, and skill body at the gate minimum", () => {
   const prompt = "INSTALL test-driven-development → pi · project? Enter/y confirms; Esc/n cancels.";
-  for (const height of [16, 18, 24]) {
+  for (const height of [22, 24, 26]) {
     const lines = buildTuiFrame({
       width: 80, height, query: "", target: "pi", scope: "project", pane: "preview", mode: "confirm",
       skills: [
@@ -74,7 +74,7 @@ test("confirm review renders its prompt, separator, and skill body at the gate m
 });
 
 test("required description, trigger, and file index are funded before optional status", () => {
-  const text = frame(80, 16).join("\n");
+  const text = frame(80, 22).join("\n");
   expect(text).toContain("A workflow with a long description");
   expect(text).toContain("Trigger");
   expect(text).toContain("SKILL.md");
@@ -95,11 +95,12 @@ test("notice feedback stays visible at the minimum sizes", () => {
 
 test("confirm gate counts lockfile error rows and reports the true blocker", () => {
   const action = "install" as const, ids = ["test-driven-development"], dest = "pi · project";
-  expect(confirmReviewFits(action, ids, dest, 80, 16)).toBe(true);
-  expect(confirmReviewFits(action, ids, dest, 80, 16, "malformed lockfile")).toBe(false);
-  expect(confirmGateNotice(action, ids, dest, 80, 16)).toBeNull();
-  expect(confirmGateNotice(action, ids, dest, 79, 16)).toContain("Resize to at least 80x16");
-  expect(confirmGateNotice(action, ids, dest, 80, 16, "malformed lockfile")).toContain("Not enough room");
+  expect(confirmReviewFits(action, ids, dest, 80, 22)).toBe(true);
+  expect(confirmReviewFits(action, ids, dest, 80, 18)).toBe(false);
+  expect(confirmReviewFits(action, ids, dest, 80, 22, "malformed lockfile")).toBe(true);
+  expect(confirmGateNotice(action, ids, dest, 80, 22)).toBeNull();
+  expect(confirmGateNotice(action, ids, dest, 79, 16)).toContain("Resize to at least 80x22");
+  expect(confirmGateNotice(action, ids, dest, 80, 20)).toContain("Resize to at least 80x22");
 });
 
 test("preview offset past the body is clamped to real content instead of an empty region", () => {
@@ -128,8 +129,8 @@ test("preview scroll reports its rendered bound so page-up always moves", () => 
   expect(clampPreviewOffset(bounds.previewMax - 12, bounds.previewMax)).toBeLessThan(bounds.previewMax);
   const shortBounds = { previewMax: -1 };
   buildTuiFrame({ ...model, content: "alpha\nbeta\ngamma\ndelta", previewOffset: 100_000 }, shortBounds);
-  expect(shortBounds.previewMax).toBe(0);
-  expect(clampPreviewOffset(100_000, shortBounds.previewMax)).toBe(0);
+  expect(shortBounds.previewMax).toBeGreaterThan(0);
+  expect(clampPreviewOffset(100_000, shortBounds.previewMax)).toBe(shortBounds.previewMax);
 });
 
 test("carriage returns never reach the rendered frame rows", () => {

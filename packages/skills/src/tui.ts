@@ -47,7 +47,11 @@ function wrap(text: string, width: number): string[] {
   }
   return out;
 }
-function legend(width: number): string[] {
+function legend(width: number, height = Number.POSITIVE_INFINITY): string[] {
+  if (height <= 12) return [
+    "Space select · j/k move · / search",
+    "i install · u remove · q quit",
+  ];
   if (width >= 78) return [
     "Space select · j/k move · gg/G first/last · h/l/Tab pane",
     "/ search · PgUp/PgDn preview · i install · u remove",
@@ -70,7 +74,7 @@ function legend(width: number): string[] {
 function frameLayout(width: number, height: number) {
   const w = Math.max(12, Math.floor(width)), h = Math.max(1, Math.floor(height));
   const inner = w - 2, wide = w >= 80;
-  const tail = 2 + legend(inner).length;
+  const tail = 2 + legend(inner, h).length;
   const runeArtWidth = Math.max(...runeBanner.map((row) => row.length));
   const banner = inner >= runeArtWidth && h - tail >= 13 ? runeBanner : compactBanner;
   const leftWidth = wide ? Math.floor((inner - 1) / 2) : inner;
@@ -87,7 +91,7 @@ export function confirmReviewFits(action: "install" | "remove", actionIds: strin
   return room > 0 && wrap(confirmPrompt(action, actionIds, destLabel), layout.rightWidth).length <= room;
 }
 export function confirmGateNotice(action: "install" | "remove", actionIds: string[], destLabel: string, width: number, height: number, lockError?: string): string | null {
-  if (width < 80 || height < 16) return "Resize to at least 80x16 to review this action safely; nothing changed.";
+  if (width < 80 || height < 22) return "Resize to at least 80x22 to review this action safely; nothing changed.";
   if (!confirmReviewFits(action, actionIds, destLabel, width, height, lockError)) return "Not enough room to review this action safely; deselect skills or enlarge the terminal; nothing changed.";
   return null;
 }
@@ -96,7 +100,7 @@ export function buildTuiFrame(model: FrameInput, bounds?: { previewMax: number }
   if (bounds) bounds.previewMax = 0;
   const layout = frameLayout(model.width, model.height);
   const width = layout.w, height = layout.h, inner = layout.inner, wide = layout.wide, banner = layout.banner;
-  const footer = legend(inner);
+  const footer = legend(inner, height);
   const top = `┌${"─".repeat(inner)}┐`, bottom = `└${"─".repeat(inner)}┘`;
   const full = (text: string) => `│${fit(text, inner)}│`;
   const leftHeader = model.mode === "search" ? `/ ${model.query}` : "/ search skills";
