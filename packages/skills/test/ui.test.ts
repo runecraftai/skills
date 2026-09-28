@@ -176,6 +176,44 @@ describe("TUI view model and actions", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("targetless legacy copy with a record at another scope reports unknown ownership and survives scoped removal", () => {
+    const f = fixture();
+    try {
+      mkdirSync(join(f.targetDir, "alpha"), { recursive: true });
+      writeFileSync(join(f.targetDir, "alpha", "SKILL.md"), "legacy bytes");
+      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
+      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      const globalCtx = { ...f.context, global: true, env: {} };
+      expect(applyTuiBatch(globalCtx, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      const globalDestination = loadTuiSnapshot(globalCtx).statuses.alpha.destination;
+      const cli = join(import.meta.dir, "..", "src", "index.ts");
+      const env = { ...process.env, HOME: f.home, XDG_CACHE_HOME: join(f.root, "cache"), GRIMOIRE_CATALOG_URL: "http://127.0.0.1:1/registry.json" };
+      const status = spawnSync("bun", ["run", cli, "status"], { cwd: f.projectDir, encoding: "utf8", env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("pi ownership unknown");
+      expect(status.stdout).toContain("pi:global verified");
+      expect(status.stdout).not.toContain("tampered");
+      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
+      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
+      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      const audit = spawnSync("bun", ["run", cli, "audit"], { cwd: f.projectDir, encoding: "utf8", env });
+      expect(audit.status).toBe(0);
+      expect(audit.stdout).toContain("alpha/pi: ownership unknown");
+      expect(audit.stdout).not.toContain("tampered");
+      expect(applyTuiBatch(globalCtx, ["alpha"], "remove", true).succeeded).toHaveLength(1);
+      expect(existsSync(globalDestination)).toBe(false);
+      expect(existsSync(join(f.targetDir, "alpha", "SKILL.md"))).toBe(true);
+      const entry = readLockfile(f.projectDir).skills.alpha;
+      expect(entry?.agents).toEqual(["pi"]);
+      expect({ version: entry?.version, hash: entry?.hash, installed: entry?.installed }).toEqual({ version: legacy.version, hash: legacy.hash, installed: legacy.installed });
+      expect(entry?.tuiTargets).toBeUndefined();
+      const after = spawnSync("bun", ["run", cli, "status"], { cwd: f.projectDir, encoding: "utf8", env });
+      expect(after.status).toBe(0);
+      expect(after.stdout).toContain("alpha [pi]");
+      expect(after.stdout).toContain("pi ownership unknown");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("scriptable install after a scoped record reports the targetless copy as ownership-unknown", () => {
     const f = fixture();
     try {
