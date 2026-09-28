@@ -151,11 +151,11 @@ test("narrow list pane keeps feedback notices visible with a full catalog", () =
     width: 60, height: 16, query: "", target: "pi", scope: "project", pane: "list", mode: "normal",
     skills, categories: [{ name: "Cat", count: 30 }], highlighted: "skill-15",
     description: "", status: "absent", tags: [], trigger: "", files: [], content: "",
-    previewOffset: 0, notice: ["Resize to at least 80x16 to review this action safely; nothing changed."],
+    previewOffset: 0, notice: ["Resize to at least 80x22 to review this action safely; nothing changed."],
   });
   expect(lines).toHaveLength(16);
   expect(lines.at(-1)?.startsWith("└")).toBe(true);
-  expect(lines.join("\n")).toContain("Resize to at least 80x16");
+  expect(lines.join("\n")).toContain("Resize to at least 80x22");
 });
 
 test("80x24 and narrow frames keep the runic header, split pane, target, and footer within bounds", async () => {
