@@ -49,7 +49,7 @@ export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "
   if (entry.targets?.[target]) return;
   if (Object.keys(records).some((key) => key.startsWith(`${target}:`))) return;
   if (entry.legacyAgents?.includes(target)) return;
-  if (recordTracked || slotTracked || (targetlessRemoved && !removal.survivingCopy) || (removal.copyRemoved && hadRecord)) entry.agents = entry.agents.filter((id) => id !== target);
+  if (!removal.survivingCopy && (recordTracked || slotTracked || targetlessRemoved || (removal.copyRemoved && hadRecord))) entry.agents = entry.agents.filter((id) => id !== target);
 }
 export function verifyTree(dir: string, expected: Record<string, string>): { modified: string[]; missing: string[] } {
   const modified: string[] = [], missing: string[] = [];

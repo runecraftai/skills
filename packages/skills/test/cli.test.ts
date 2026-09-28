@@ -90,7 +90,7 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
-  test("scriptable remove drops an entry whose tracked copy is already gone", () => {
+  test("scriptable remove preserves a tracked entry while a sibling-scope default copy survives", () => {
     const f = scopeFixture();
     try {
       const lockFile = join(f.project, ".grimoire-lock.json");
@@ -98,6 +98,30 @@ describe("grimoire CLI", () => {
       delete lock.skills.alpha.tuiTargets["pi:global"];
       writeFileSync(lockFile, JSON.stringify(lock, null, 2));
       rmSync(f.projectDest, { recursive: true, force: true });
+      seedOfflineRegistry(f.root);
+      const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--target", "pi"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      expect(existsSync(f.globalDest)).toBe(true);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(after.skills.alpha.agents).toEqual(["pi"]);
+      expect(after.skills.alpha.fileHashes).toEqual({ "SKILL.md": sha256("project bytes") });
+      expect(after.skills.alpha.tuiTargets).toBeUndefined();
+      expect(after.skills.alpha.targets).toBeUndefined();
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("alpha [pi]");
+      expect(status.stdout).toContain("pi ownership unknown");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("scriptable remove drops a tracked entry once no inspectable copy survives", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      delete lock.skills.alpha.tuiTargets["pi:global"];
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      rmSync(f.globalDest, { recursive: true, force: true });
       seedOfflineRegistry(f.root);
       const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--target", "pi"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(removed.status).toBe(0);
