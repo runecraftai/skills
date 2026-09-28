@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { seedOfflineRegistry } from "./helpers.js";
 const CLI = join(import.meta.dir, "..", "src", "index.ts");
 const run = (args: string[]) => spawnSync("bun", ["run", CLI, ...args], { encoding: "utf8" });
 const sha256 = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
@@ -74,9 +75,7 @@ describe("grimoire CLI", () => {
       const lock = JSON.parse(readFileSync(lockFile, "utf8"));
       delete lock.skills.alpha.tuiTargets["pi:project"];
       writeFileSync(lockFile, JSON.stringify(lock, null, 2));
-      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
-      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
-      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      seedOfflineRegistry(f.root);
       const denied = spawnSync("bun", ["run", CLI, "remove", "alpha"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(denied.status).toBe(1);
       expect(denied.stderr).toContain("--force");
@@ -99,9 +98,7 @@ describe("grimoire CLI", () => {
       delete lock.skills.alpha.tuiTargets["pi:global"];
       writeFileSync(lockFile, JSON.stringify(lock, null, 2));
       rmSync(f.projectDest, { recursive: true, force: true });
-      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
-      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
-      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      seedOfflineRegistry(f.root);
       const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--target", "pi"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(removed.status).toBe(0);
       const after = JSON.parse(readFileSync(lockFile, "utf8"));
@@ -123,9 +120,7 @@ describe("grimoire CLI", () => {
       expect(status.status).toBe(0);
       expect(status.stdout).toContain("pi:project verified");
       expect(status.stdout).toContain("pi ownership unknown");
-      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
-      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
-      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      seedOfflineRegistry(f.root);
       const audit = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(audit.status).toBe(0);
       expect(audit.stdout).toContain("No tracked install issues found");
@@ -137,9 +132,7 @@ describe("grimoire CLI", () => {
   test("audit verifies every scope record against its own hashes", () => {
     const f = scopeFixture();
     try {
-      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
-      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
-      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      seedOfflineRegistry(f.root);
       const clean = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(clean.status).toBe(0);
       expect(clean.stdout).toContain("No tracked install issues found");
@@ -156,9 +149,7 @@ describe("grimoire CLI", () => {
       const lock = JSON.parse(readFileSync(join(f.project, ".grimoire-lock.json"), "utf8"));
       delete lock.skills.alpha.tuiTargets;
       writeFileSync(join(f.project, ".grimoire-lock.json"), JSON.stringify(lock, null, 2));
-      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
-      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
-      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      seedOfflineRegistry(f.root);
       const clean = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(clean.status).toBe(0);
       expect(clean.stdout).toContain("No tracked install issues found");
@@ -221,9 +212,7 @@ describe("grimoire CLI", () => {
       expect(status.stdout).toContain("alpha [pi]");
       expect(status.stdout).toContain("pi ownership unknown");
       expect(status.stdout).not.toContain("verified");
-      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
-      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
-      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      seedOfflineRegistry(f.root);
       const audit = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(audit.status).toBe(0);
       expect(audit.stdout).toContain("No tracked install issues found");
