@@ -30,7 +30,7 @@ export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "
   if (!ownsShared) return;
   if (retained.length) { if (entry.targets) entry.targets[target] = retained[0][1].destination; return; }
   if (entry.targets) { delete entry.targets[target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
-  entry.agents = entry.agents.filter((id) => id !== target);
+  if (entry.fileHashes || sharedDestination !== undefined) entry.agents = entry.agents.filter((id) => id !== target);
 }
 export function verifyTree(dir: string, expected: Record<string, string>): { modified: string[]; missing: string[] } {
   const modified: string[] = [], missing: string[] = [];

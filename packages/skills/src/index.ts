@@ -25,8 +25,12 @@ function scopeRemovalDir(entry: LockedSkill | undefined, target: TargetId, scope
   if (scope === "project" && !tuiScopeKeys(entry, target).length && entry?.targets?.[target]) return resolve(entry.targets[target], "..");
   return resolveSkillsDir(target, { home: homedir(), projectDir, global: scope === "global" });
 }
-function isUncoveredLegacyTarget(entry: LockedSkill, location: string): boolean {
-  return !Object.values(entry.tuiTargets ?? {}).some((record) => resolve(record.destination) === resolve(location));
+function uncoveredLegacyTargets(entry: LockedSkill): string[] {
+  const destinations = new Set(Object.values(entry.tuiTargets ?? {}).map((record) => resolve(record.destination)));
+  return [...new Set([...Object.keys(entry.targets ?? {}), ...entry.agents])].filter((key) => {
+    const location = entry.targets?.[key];
+    return location === undefined ? tuiScopeKeys(entry, key).length === 0 : !destinations.has(resolve(location));
+  });
 }
 function removeCommand(args: string[], global: boolean): void {
   const id = args.find((a) => !a.startsWith("-") && a !== "remove"); if (!id) throw new Error("remove requires a skill id");
@@ -92,8 +96,7 @@ async function main() {
           }
           // Legacy records lack scope-specific ownership, so their bytes cannot be
           // verified safely against a potentially different catalog revision.
-          for (const [target, location] of Object.entries(entry.targets ?? {})) {
-            if (!isUncoveredLegacyTarget(entry, location)) continue;
+          for (const target of uncoveredLegacyTargets(entry)) {
             // Keep the legacy copy as ownership-unknown rather than calling it tampered.
             unknown.push(`${id}/${target}: ownership unknown`);
           }
@@ -128,9 +131,7 @@ async function main() {
     if (!entries.length) { console.log("No tracked project installations."); return 0; }
     for (const [name, entry] of entries) {
       console.log(`${name} [${entry.agents.join(", ")}] ${entry.hash}`);
-      for (const [key, location] of Object.entries(entry.targets ?? {})) {
-        if (isUncoveredLegacyTarget(entry, location)) console.log(`  ${key} ownership unknown`);
-      }
+      for (const key of uncoveredLegacyTargets(entry)) console.log(`  ${key} ownership unknown`);
       for (const [key, record] of Object.entries(entry.tuiTargets ?? {}).sort(([a], [b]) => a.localeCompare(b))) {
         const { modified, missing } = verifyOwnedRecord(record);
         const parts = [...(missing.length ? [`missing: ${missing.join(", ")}`] : []), ...(modified.length ? [`modified: ${modified.join(", ")}`] : [])];

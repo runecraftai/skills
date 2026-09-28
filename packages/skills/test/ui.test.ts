@@ -5,6 +5,7 @@ import { join, resolve } from "node:path";
 import { readLockfile } from "../src/lockfile.js";
 import { tmpdir } from "node:os";
 import { applyTuiBatch } from "../src/tui-actions.js";
+import { skillHash } from "../src/install.js";
 import { loadTuiSnapshot, previewText } from "../src/tui-model.js";
 import { initialTuiState, moveHighlight, toggleSelected, visibleBatchIds } from "../src/tui-state.js";
 
@@ -70,10 +71,13 @@ describe("TUI view model and actions", () => {
       expect(entry.tuiTargets?.["pi:project"]?.destination).toBe(resolve(f.targetDir, "alpha"));
       expect(entry.targets).toBeUndefined();
       expect(entry.fileHashes).toBeUndefined();
-      expect(entry.hash).toBe("");
+      expect(entry.hash).toBe(skillHash(join(f.catalogDir, "alpha")));
       expect(entry.agents).toContain("pi");
       expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
-      expect(readLockfile(f.projectDir).skills.alpha).toBeUndefined();
+      const cleared = readLockfile(f.projectDir).skills.alpha;
+      expect(cleared?.tuiTargets).toBeUndefined();
+      expect(cleared?.agents).toContain("pi");
+      expect(cleared?.hash).toBe(skillHash(join(f.catalogDir, "alpha")));
       expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
@@ -107,6 +111,29 @@ describe("TUI view model and actions", () => {
       expect({ version: entry.version, hash: entry.hash, installed: entry.installed, agents: entry.agents, fileHashes: entry.fileHashes, targets: entry.targets }).toEqual(legacy);
       expect(entry.tuiTargets).toBeUndefined();
       expect(existsSync(legacyDestination)).toBe(true);
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("TUI remove over a targetless legacy entry preserves its shared metadata", () => {
+    const f = fixture();
+    try {
+      const custom = join(f.root, "custom", "alpha");
+      mkdirSync(custom, { recursive: true });
+      writeFileSync(join(custom, "SKILL.md"), "custom bytes");
+      const legacy = { version: "1.0.0", hash: "sha256:legacy", installed: "2024-01-01T00:00:00.000Z", agents: ["pi"] };
+      writeFileSync(join(f.projectDir, ".grimoire-lock.json"), JSON.stringify({ version: 2, generated: "2024-01-01T00:00:00.000Z", registry: "runecraftai/grimoire", catalogUrl: "", catalogId: "runecraftai/skills", revision: "legacy", skills: { alpha: legacy } }, null, 2));
+      expect(applyTuiBatch(f.context, ["alpha"], "install", true).succeeded).toHaveLength(1);
+      const installed = readLockfile(f.projectDir).skills.alpha!;
+      expect({ version: installed.version, hash: installed.hash, installed: installed.installed }).toEqual({ version: legacy.version, hash: legacy.hash, installed: legacy.installed });
+      expect(installed.tuiTargets?.["pi:project"]).toBeDefined();
+      expect(applyTuiBatch(f.context, ["alpha"], "remove", true).succeeded).toHaveLength(1);
+      expect(existsSync(join(f.targetDir, "alpha"))).toBe(false);
+      expect(existsSync(join(custom, "SKILL.md"))).toBe(true);
+      const cleared = readLockfile(f.projectDir).skills.alpha;
+      expect({ version: cleared?.version, hash: cleared?.hash, installed: cleared?.installed }).toEqual({ version: legacy.version, hash: legacy.hash, installed: legacy.installed });
+      expect(cleared?.agents).toEqual(["pi"]);
+      expect(cleared?.tuiTargets).toBeUndefined();
+      expect(cleared?.targets).toBeUndefined();
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
@@ -196,7 +223,9 @@ describe("TUI view model and actions", () => {
       expect(entry?.agents).toContain("pi");
       expect(applyTuiBatch(globalCtx, ["alpha"], "remove", true).succeeded).toHaveLength(1);
       expect(existsSync(globalDestination)).toBe(false);
-      expect(readLockfile(f.projectDir).skills.alpha).toBeUndefined();
+      const cleared = readLockfile(f.projectDir).skills.alpha;
+      expect(cleared?.tuiTargets).toBeUndefined();
+      expect(cleared?.agents).toContain("pi");
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 

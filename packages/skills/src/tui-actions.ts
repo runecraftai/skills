@@ -1,6 +1,6 @@
 import { rmSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { assertNoSymlinks, installSkills } from "./install.js";
+import { assertNoSymlinks, installSkills, skillHash } from "./install.js";
 import { readLockfile, removeScopeOwnership, tuiOwnershipKey, writeLockfile, type LockedSkill } from "./lockfile.js";
 import { loadTuiSnapshot, readTreeManifest, type TuiContext } from "./tui-model.js";
 
@@ -30,7 +30,7 @@ export function applyTuiBatch(ctx: TuiContext, ids: string[], action: "install" 
         phase = "lock";
         const lock = readLockfile(ctx.projectDir);
         const key = id.split("/").at(-1)!;
-        const entry: LockedSkill = lock.skills[key] ?? { version: skill.version, hash: "", installed: new Date().toISOString(), agents: [] };
+        const entry: LockedSkill = lock.skills[key] ?? { version: skill.version, hash: skillHash(skill.dir), installed: new Date().toISOString(), agents: [] };
         const files = actual;
         entry.tuiTargets ??= {};
         entry.tuiTargets[tuiOwnershipKey(before.target, before.scope)] = { destination: resolve(status.destination), scope: before.scope, files, identity: id };
