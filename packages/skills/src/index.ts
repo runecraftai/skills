@@ -30,7 +30,7 @@ function uncoveredLegacyTargets(entry: LockedSkill): string[] {
   const legacy = new Set(entry.legacyAgents ?? []);
   return [...new Set([...Object.keys(entry.targets ?? {}), ...entry.agents])].filter((key) => {
     const location = entry.targets?.[key];
-    return location === undefined ? legacy.has(key) || tuiScopeKeys(entry, key).length === 0 : !destinations.has(resolve(location));
+    return legacy.has(key) || (location === undefined ? tuiScopeKeys(entry, key).length === 0 : !destinations.has(resolve(location)));
   });
 }
 function removeCommand(args: string[], global: boolean): void {
@@ -153,7 +153,7 @@ async function main() {
     const lock = readLockfile(projectDir);
     for (const name of [...result.installed, ...result.overwritten]) {
       const skill = findSkill(catalogDir, name);
-      if (skill) updateLock(lock, name, { version: skill.version, hash: skillHash(skill.dir), installed: new Date().toISOString(), agents: [target] });
+      if (skill) updateLock(lock, name, { version: skill.version, hash: skillHash(skill.dir), installed: new Date().toISOString(), agents: [target], targets: { ...(lock.skills[name]?.targets ?? {}), [target]: `${resolve(dir)}/${name}` } });
     }
     if (result.installed.length || result.overwritten.length) writeLockfile(projectDir, lock);
   }

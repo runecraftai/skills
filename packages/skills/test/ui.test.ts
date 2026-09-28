@@ -176,6 +176,32 @@ describe("TUI view model and actions", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("scriptable install after a scoped record reports the targetless copy as ownership-unknown", () => {
+    const f = fixture();
+    try {
+      mkdirSync(join(f.catalogDir, "spec-driven"), { recursive: true });
+      writeFileSync(join(f.catalogDir, "spec-driven", "SKILL.md"), "---\nname: spec-driven\ndescription: useful skill\n---\nbody\n");
+      const globalCtx = { ...f.context, global: true, env: {} };
+      expect(applyTuiBatch(globalCtx, ["spec-driven"], "install", true).succeeded).toHaveLength(1);
+      const cli = join(import.meta.dir, "..", "src", "index.ts");
+      const env = { ...process.env, HOME: f.home, XDG_CACHE_HOME: join(f.root, "cache"), GRIMOIRE_CATALOG_URL: "http://127.0.0.1:1/registry.json" };
+      const installed = spawnSync("bun", ["run", cli, "install", "-s", "spec-driven", "-t", "pi"], { cwd: f.projectDir, encoding: "utf8", env });
+      expect(installed.status).toBe(0);
+      expect(existsSync(join(f.targetDir, "spec-driven", "SKILL.md"))).toBe(true);
+      const status = spawnSync("bun", ["run", cli, "status"], { cwd: f.projectDir, encoding: "utf8", env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("pi ownership unknown");
+      expect(status.stdout).toContain("pi:global verified");
+      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
+      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
+      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      const audit = spawnSync("bun", ["run", cli, "audit"], { cwd: f.projectDir, encoding: "utf8", env });
+      expect(audit.status).toBe(0);
+      expect(audit.stdout).toContain("spec-driven/pi: ownership unknown");
+      expect(audit.stdout).not.toContain("tampered");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("status and audit report a targetless legacy copy as ownership-unknown beside a scoped record", () => {
     const f = fixture();
     try {

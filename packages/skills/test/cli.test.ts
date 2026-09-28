@@ -112,6 +112,28 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("status and audit report an uncovered legacy claim beside a record-covered slot", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      lock.skills.alpha.legacyAgents = ["pi"];
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("pi:project verified");
+      expect(status.stdout).toContain("pi ownership unknown");
+      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
+      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
+      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      const audit = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(audit.status).toBe(0);
+      expect(audit.stdout).toContain("No tracked install issues found");
+      expect(audit.stdout).toContain("alpha/pi: ownership unknown");
+      expect(audit.stdout).not.toContain("tampered");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("audit verifies every scope record against its own hashes", () => {
     const f = scopeFixture();
     try {
