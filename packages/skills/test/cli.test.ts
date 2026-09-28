@@ -258,6 +258,23 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("scriptable force removal drops a stale-claim targetless entry once its copy is removed", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      seedLegacyEntry(lockFile, { legacyAgents: ["pi"] });
+      expect(existsSync(f.projectDest)).toBe(true);
+      const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      expect(existsSync(f.projectDest)).toBe(false);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(after.skills.alpha).toBeUndefined();
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("No tracked project installations.");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("remote install preserves TUI scope ownership records", async () => {
     const root = mkdtempSync(join(tmpdir(), "grimoire-remote-lock-"));
     const bytes = Buffer.from("remote skill bytes!");
