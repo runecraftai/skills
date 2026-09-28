@@ -51,7 +51,7 @@ test("frame strips terminal control sequences from skill metadata and notices", 
 
 test("confirm review renders its prompt, separator, and skill body at the gate minimum", () => {
   const prompt = "INSTALL test-driven-development → pi · project? Enter/y confirms; Esc/n cancels.";
-  for (const height of [16, 18, 24]) {
+  for (const height of [22, 24, 26]) {
     const lines = buildTuiFrame({
       width: 80, height, query: "", target: "pi", scope: "project", pane: "preview", mode: "confirm",
       skills: [
@@ -74,7 +74,7 @@ test("confirm review renders its prompt, separator, and skill body at the gate m
 });
 
 test("required description, trigger, and file index are funded before optional status", () => {
-  const text = frame(80, 16).join("\n");
+  const text = frame(80, 22).join("\n");
   expect(text).toContain("A workflow with a long description");
   expect(text).toContain("Trigger");
   expect(text).toContain("SKILL.md");
@@ -95,11 +95,12 @@ test("notice feedback stays visible at the minimum sizes", () => {
 
 test("confirm gate counts lockfile error rows and reports the true blocker", () => {
   const action = "install" as const, ids = ["test-driven-development"], dest = "pi · project";
-  expect(confirmReviewFits(action, ids, dest, 80, 16)).toBe(true);
-  expect(confirmReviewFits(action, ids, dest, 80, 16, "malformed lockfile")).toBe(false);
-  expect(confirmGateNotice(action, ids, dest, 80, 16)).toBeNull();
-  expect(confirmGateNotice(action, ids, dest, 79, 16)).toContain("Resize to at least 80x16");
-  expect(confirmGateNotice(action, ids, dest, 80, 16, "malformed lockfile")).toContain("Not enough room");
+  expect(confirmReviewFits(action, ids, dest, 80, 22)).toBe(true);
+  expect(confirmReviewFits(action, ids, dest, 80, 18)).toBe(false);
+  expect(confirmReviewFits(action, ids, dest, 80, 22, "malformed lockfile")).toBe(true);
+  expect(confirmGateNotice(action, ids, dest, 80, 22)).toBeNull();
+  expect(confirmGateNotice(action, ids, dest, 79, 16)).toContain("Resize to at least 80x22");
+  expect(confirmGateNotice(action, ids, dest, 80, 20)).toContain("Resize to at least 80x22");
 });
 
 test("preview offset past the body is clamped to real content instead of an empty region", () => {
@@ -128,8 +129,8 @@ test("preview scroll reports its rendered bound so page-up always moves", () => 
   expect(clampPreviewOffset(bounds.previewMax - 12, bounds.previewMax)).toBeLessThan(bounds.previewMax);
   const shortBounds = { previewMax: -1 };
   buildTuiFrame({ ...model, content: "alpha\nbeta\ngamma\ndelta", previewOffset: 100_000 }, shortBounds);
-  expect(shortBounds.previewMax).toBe(0);
-  expect(clampPreviewOffset(100_000, shortBounds.previewMax)).toBe(0);
+  expect(shortBounds.previewMax).toBeGreaterThan(0);
+  expect(clampPreviewOffset(100_000, shortBounds.previewMax)).toBe(shortBounds.previewMax);
 });
 
 test("carriage returns never reach the rendered frame rows", () => {
@@ -150,11 +151,11 @@ test("narrow list pane keeps feedback notices visible with a full catalog", () =
     width: 60, height: 16, query: "", target: "pi", scope: "project", pane: "list", mode: "normal",
     skills, categories: [{ name: "Cat", count: 30 }], highlighted: "skill-15",
     description: "", status: "absent", tags: [], trigger: "", files: [], content: "",
-    previewOffset: 0, notice: ["Resize to at least 80x16 to review this action safely; nothing changed."],
+    previewOffset: 0, notice: ["Resize to at least 80x22 to review this action safely; nothing changed."],
   });
   expect(lines).toHaveLength(16);
   expect(lines.at(-1)?.startsWith("└")).toBe(true);
-  expect(lines.join("\n")).toContain("Resize to at least 80x16");
+  expect(lines.join("\n")).toContain("Resize to at least 80x22");
 });
 
 test("80x24 and narrow frames keep the runic header, split pane, target, and footer within bounds", async () => {
@@ -170,8 +171,23 @@ test("80x24 and narrow frames keep the runic header, split pane, target, and foo
     expect(lines.join("\n")).toContain("Space select");
   }
   expect(wide.some((line) => line.includes("┬"))).toBe(true);
-  expect(wide.join("\n")).toContain("|G| |R| |I| |M| |O| |I| |R| |E|");
-  expect(narrow.join("\n")).toContain("ᚷᚱᛁᛗᛟᛁᚱᛖ GRIMOIRE");
+  expect(wide.some((line) => line.includes("ᛝ"))).toBe(true);
+  expect(wide.some((line) => line.includes("██╔════╝"))).toBe(true);
+  const art = [
+    "ᛝ  ██████╗ ██████╗ ██╗███╗   ███╗ ██████╗ ██╗██████╗ ███████╗  ᛝ",
+    "   ██╔════╝ ██╔══██╗██║████╗ ████║██╔═══██╗██║██╔══██╗██╔════╝",
+    "   ██║  ███╗██████╔╝██║██╔████╔██║██║   ██║██║██████╔╝█████╗",
+    "   ██║   ██║██╔══██╗██║██║╚██╔╝██║██║   ██║██║██╔══██╗██╔══╝",
+    "   ╚██████╔╝██║  ██║██║██║ ╚═╝ ██║╚██████╔╝██║██║  ██║███████╗",
+    "    ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝╚═╝  ╚═╝╚══════╝",
+  ];
+  const artWidth = Math.max(...art.map((row) => row.length));
+  const offset = Math.floor((78 - artWidth) / 2);
+  expect(wide.slice(1, 7).map((line) => line.slice(1 + offset, 1 + offset + artWidth)))
+    .toEqual(art.map((row) => row.padEnd(artWidth)));
+  expect(narrow.join("\n")).toContain("╔═╗╦═╗╦╔╦╗╔═╗╦╦═╗╔═╗");
+  expect(narrow.join("\n")).toContain("║ ╦╠╦╝║║║║║ ║║╠╦╝║╣");
+  expect(narrow.join("\n")).toContain("╚═╝╩╚═╩╩ ╩╚═╝╩╩╚═╚═╝");
   expect(wide.join("\n")).toContain("●◉ test-driven-development");
   expect(wide.join("\n")).toContain("○ spec-driven");
 

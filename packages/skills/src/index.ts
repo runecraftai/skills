@@ -7,7 +7,7 @@ import { spawnSync } from "node:child_process";
 import { detectStack } from "./detect.js";
 import { installSkills, removeSkill, skillHash } from "./install.js";
 import { readRegistry, findSkill } from "./registry.js";
-import { readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, updateLock, verifyOwnedRecord, verifyTree, writeLockfile, type LockedSkill } from "./lockfile.js";
+import { readLockfile, removeScopeOwnership, tuiOwnershipKey, tuiScopeKeys, updateLock, verifyOwnedRecord, writeLockfile, type LockedSkill } from "./lockfile.js";
 import { isTargetId, resolveSkillsDir, TARGETS, type TargetId } from "./targets.js";
 import { mkdtemp, rename, rm } from "node:fs/promises";
 import { rankSkills } from "../../core/src/index.js";
@@ -25,6 +25,14 @@ function scopeRemovalDir(entry: LockedSkill | undefined, target: TargetId, scope
   if (scope === "project" && !tuiScopeKeys(entry, target).length && entry?.targets?.[target]) return resolve(entry.targets[target], "..");
   return resolveSkillsDir(target, { home: homedir(), projectDir, global: scope === "global" });
 }
+function uncoveredLegacyTargets(entry: LockedSkill): string[] {
+  const destinations = new Set(Object.values(entry.tuiTargets ?? {}).map((record) => resolve(record.destination)));
+  const legacy = new Set(entry.legacyAgents ?? []);
+  return [...new Set([...Object.keys(entry.targets ?? {}), ...entry.agents])].filter((key) => {
+    const location = entry.targets?.[key];
+    return legacy.has(key) || (location === undefined ? tuiScopeKeys(entry, key).length === 0 : !destinations.has(resolve(location)));
+  });
+}
 function removeCommand(args: string[], global: boolean): void {
   const id = args.find((a) => !a.startsWith("-") && a !== "remove"); if (!id) throw new Error("remove requires a skill id");
   const projectDir = resolve(process.cwd()), lock = readLockfile(projectDir), entry = lock.skills[id], target = value(args, "--target");
@@ -33,9 +41,9 @@ function removeCommand(args: string[], global: boolean): void {
   if (!targets.length) throw new Error("specify --target for --force removal");
   const scope = global ? "global" as const : "project" as const;
   if (!args.includes("--force") && targets.some((t) => !entry?.tuiTargets?.[tuiOwnershipKey(t, scope)])) throw new Error(`refusing to remove ${id} from ${scope} scope without verified ownership; pass --force`);
-  for (const t of targets) removeSkill(id, scopeRemovalDir(entry, t, scope, projectDir));
+  const removals = targets.map((t) => { const dir = scopeRemovalDir(entry, t, scope, projectDir); return { t, removal: { removedPath: resolve(dir, id), copyRemoved: removeSkill(id, dir) } }; });
   if (entry) {
-    for (const t of targets) removeScopeOwnership(lock, id, t, scope);
+    for (const { t, removal } of removals) removeScopeOwnership(lock, id, t, scope, removal);
     writeLockfile(projectDir, lock);
   }
 }
@@ -79,23 +87,22 @@ async function main() {
       if (command === "list" && args.includes("--installed")) { const lock = readLockfile(resolve(process.cwd())); for (const [id, entry] of Object.entries(lock.skills)) console.log(`${id} [${entry.agents.join(", ")}] ${entry.version}`); return 0; }
       if (command === "remove") { removeCommand(args, global); return 0; }
       if (command === "audit") {
-        const lock = readLockfile(resolve(process.cwd())), issues: string[] = [];
+        const lock = readLockfile(resolve(process.cwd())), issues: string[] = [], unknown: string[] = [];
         for (const [id, entry] of Object.entries(lock.skills)) {
           const owned = entry.tuiTargets ?? {};
-          const ownedLocations = new Set(Object.values(owned).map((record) => resolve(record.destination)));
           for (const [key, record] of Object.entries(owned)) {
             const { modified, missing } = verifyOwnedRecord(record);
             for (const path of modified) issues.push(`${id}/${path}: tampered (${key})`);
             for (const path of missing) issues.push(`${id}/${path}: missing (${key})`);
           }
-          for (const [target, location] of Object.entries(entry.targets ?? {})) {
-            if (ownedLocations.has(resolve(location))) continue;
-            const { modified, missing } = verifyTree(location, entry.fileHashes ?? {});
-            for (const path of modified) issues.push(`${id}/${path}: tampered (${target})`);
-            for (const path of missing) issues.push(`${id}/${path}: missing (${target})`);
+          // Legacy records lack scope-specific ownership, so their bytes cannot be
+          // verified safely against a potentially different catalog revision.
+          for (const target of uncoveredLegacyTargets(entry)) {
+            // Keep the legacy copy as ownership-unknown rather than calling it tampered.
+            unknown.push(`${id}/${target}: ownership unknown`);
           }
         }
-        if (args.includes("--json")) console.log(JSON.stringify({ issues, revision: remote.registry.revision }, null, 2)); else console.log(issues.length ? issues.join("\\n") : "No tracked install issues found."); return issues.length ? 1 : 0;
+        if (args.includes("--json")) console.log(JSON.stringify({ issues, ownershipUnknown: unknown, revision: remote.registry.revision }, null, 2)); else { console.log(issues.length ? issues.join("\\n") : "No tracked install issues found."); for (const line of unknown) console.log(line); } return issues.length ? 1 : 0;
       }
       if (command === "update") throw new Error("update requires an explicit supported version selection; no tracked install changed");
       if (command === "install" && !args.includes("-s") && !args.includes("--skill")) {
@@ -125,6 +132,7 @@ async function main() {
     if (!entries.length) { console.log("No tracked project installations."); return 0; }
     for (const [name, entry] of entries) {
       console.log(`${name} [${entry.agents.join(", ")}] ${entry.hash}`);
+      for (const key of uncoveredLegacyTargets(entry)) console.log(`  ${key} ownership unknown`);
       for (const [key, record] of Object.entries(entry.tuiTargets ?? {}).sort(([a], [b]) => a.localeCompare(b))) {
         const { modified, missing } = verifyOwnedRecord(record);
         const parts = [...(missing.length ? [`missing: ${missing.join(", ")}`] : []), ...(modified.length ? [`modified: ${modified.join(", ")}`] : [])];
@@ -145,7 +153,7 @@ async function main() {
     const lock = readLockfile(projectDir);
     for (const name of [...result.installed, ...result.overwritten]) {
       const skill = findSkill(catalogDir, name);
-      if (skill) updateLock(lock, name, { version: skill.version, hash: skillHash(skill.dir), installed: new Date().toISOString(), agents: [target] });
+      if (skill) updateLock(lock, name, { version: skill.version, hash: skillHash(skill.dir), installed: new Date().toISOString(), agents: [target], targets: { ...(lock.skills[name]?.targets ?? {}), [target]: `${resolve(dir)}/${name}` } });
     }
     if (result.installed.length || result.overwritten.length) writeLockfile(projectDir, lock);
   }

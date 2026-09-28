@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { seedLegacyEntry, seedOfflineRegistry } from "./helpers.js";
 const CLI = join(import.meta.dir, "..", "src", "index.ts");
 const run = (args: string[]) => spawnSync("bun", ["run", CLI, ...args], { encoding: "utf8" });
 const sha256 = (bytes: Buffer | string) => createHash("sha256").update(bytes).digest("hex");
@@ -55,7 +56,9 @@ describe("grimoire CLI", () => {
       expect(existsSync(f.globalDest)).toBe(true);
       const afterFirst = JSON.parse(readFileSync(join(f.project, ".grimoire-lock.json"), "utf8"));
       expect(Object.keys(afterFirst.skills.alpha.tuiTargets)).toEqual(["pi:global"]);
-      expect(afterFirst.skills.alpha.targets.pi).toBe(f.globalDest);
+      expect(afterFirst.skills.alpha.targets).toBeUndefined();
+      expect(afterFirst.skills.alpha.version).toBe("1.0.0");
+      expect(afterFirst.skills.alpha.fileHashes).toEqual({ "SKILL.md": sha256("project bytes") });
       expect(afterFirst.skills.alpha.agents).toContain("pi");
       const second = spawnSync("bun", ["run", CLI, "--global", "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(second.status).toBe(0);
@@ -72,9 +75,7 @@ describe("grimoire CLI", () => {
       const lock = JSON.parse(readFileSync(lockFile, "utf8"));
       delete lock.skills.alpha.tuiTargets["pi:project"];
       writeFileSync(lockFile, JSON.stringify(lock, null, 2));
-      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
-      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
-      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      seedOfflineRegistry(f.root);
       const denied = spawnSync("bun", ["run", CLI, "remove", "alpha"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(denied.status).toBe(1);
       expect(denied.stderr).toContain("--force");
@@ -89,12 +90,49 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
+  test("scriptable remove drops an entry whose tracked copy is already gone", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      delete lock.skills.alpha.tuiTargets["pi:global"];
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      rmSync(f.projectDest, { recursive: true, force: true });
+      seedOfflineRegistry(f.root);
+      const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--target", "pi"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(after.skills.alpha).toBeUndefined();
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("No tracked project installations.");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("status and audit report an uncovered legacy claim beside a record-covered slot", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      lock.skills.alpha.legacyAgents = ["pi"];
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("pi:project verified");
+      expect(status.stdout).toContain("pi ownership unknown");
+      seedOfflineRegistry(f.root);
+      const audit = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(audit.status).toBe(0);
+      expect(audit.stdout).toContain("No tracked install issues found");
+      expect(audit.stdout).toContain("alpha/pi: ownership unknown");
+      expect(audit.stdout).not.toContain("tampered");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
   test("audit verifies every scope record against its own hashes", () => {
     const f = scopeFixture();
     try {
-      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
-      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
-      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      seedOfflineRegistry(f.root);
       const clean = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(clean.status).toBe(0);
       expect(clean.stdout).toContain("No tracked install issues found");
@@ -105,29 +143,29 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
-  test("audit verifies legacy target installs without scope records", () => {
+  test("audit reports legacy installs without scope records as ownership-unknown", () => {
     const f = scopeFixture();
     try {
       const lock = JSON.parse(readFileSync(join(f.project, ".grimoire-lock.json"), "utf8"));
       delete lock.skills.alpha.tuiTargets;
       writeFileSync(join(f.project, ".grimoire-lock.json"), JSON.stringify(lock, null, 2));
-      mkdirSync(join(f.root, "cache", "runecraft", "grimoire"), { recursive: true });
-      const registry = { schemaVersion: 1, catalogVersion: "1.0.0", revision: "rev-test", generatedAt: new Date().toISOString(), skills: [] };
-      writeFileSync(join(f.root, "cache", "runecraft", "grimoire", "registry.json"), JSON.stringify({ registry, checkedAt: Date.now() }));
+      seedOfflineRegistry(f.root);
       const clean = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(clean.status).toBe(0);
       expect(clean.stdout).toContain("No tracked install issues found");
+      expect(clean.stdout).toContain("alpha/pi: ownership unknown");
       writeFileSync(join(f.projectDest, "SKILL.md"), "tampered");
       const dirty = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
-      expect(dirty.status).toBe(1);
-      expect(dirty.stdout).toContain("alpha/SKILL.md: tampered (pi)");
+      expect(dirty.status).toBe(0);
+      expect(dirty.stdout).toContain("No tracked install issues found");
+      expect(dirty.stdout).toContain("alpha/pi: ownership unknown");
       writeFileSync(join(f.projectDest, "SKILL.md"), "project bytes");
       const restored = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
       expect(restored.status).toBe(0);
       rmSync(join(f.projectDest, "SKILL.md"));
       const missing = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
-      expect(missing.status).toBe(1);
-      expect(missing.stdout).toContain("alpha/SKILL.md: missing (pi)");
+      expect(missing.status).toBe(0);
+      expect(missing.stdout).toContain("No tracked install issues found");
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
@@ -144,6 +182,79 @@ describe("grimoire CLI", () => {
       expect(dirty.status).toBe(0);
       expect(dirty.stdout).toContain("pi:global modified: SKILL.md");
       expect(dirty.stdout).toContain("pi:project verified");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("status reports legacy installs without scope records as ownership-unknown", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const lock = JSON.parse(readFileSync(lockFile, "utf8"));
+      delete lock.skills.alpha.tuiTargets;
+      writeFileSync(lockFile, JSON.stringify(lock, null, 2));
+      const r = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(r.status).toBe(0);
+      expect(r.stdout).toContain("alpha [pi]");
+      expect(r.stdout).toContain("pi ownership unknown");
+      expect(r.stdout).not.toContain("verified");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("status and audit report targetless legacy installs as ownership-unknown", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      seedLegacyEntry(lockFile);
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("alpha [pi]");
+      expect(status.stdout).toContain("pi ownership unknown");
+      expect(status.stdout).not.toContain("verified");
+      seedOfflineRegistry(f.root);
+      const audit = spawnSync("bun", ["run", CLI, "audit"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(audit.status).toBe(0);
+      expect(audit.stdout).toContain("No tracked install issues found");
+      expect(audit.stdout).toContain("alpha/pi: ownership unknown");
+      expect(audit.stdout).not.toContain("tampered");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("scriptable force removal preserves targetless legacy metadata and untracked copy", () => {
+    const f = scopeFixture();
+    try {
+      const custom = join(f.root, "custom", "alpha");
+      mkdirSync(custom, { recursive: true });
+      writeFileSync(join(custom, "SKILL.md"), "custom bytes");
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      const legacy = seedLegacyEntry(lockFile);
+      rmSync(f.projectDest, { recursive: true, force: true });
+      const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      expect(existsSync(join(custom, "SKILL.md"))).toBe(true);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect({ version: after.skills.alpha.version, hash: after.skills.alpha.hash, installed: after.skills.alpha.installed, agents: after.skills.alpha.agents }).toEqual(legacy);
+      expect(after.skills.alpha.targets).toBeUndefined();
+      expect(after.skills.alpha.tuiTargets).toBeUndefined();
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("pi ownership unknown");
+    } finally { rmSync(f.root, { recursive: true, force: true }); }
+  });
+
+  test("scriptable force removal drops a targetless entry once its copy is removed", () => {
+    const f = scopeFixture();
+    try {
+      const lockFile = join(f.project, ".grimoire-lock.json");
+      seedLegacyEntry(lockFile);
+      expect(existsSync(f.projectDest)).toBe(true);
+      const removed = spawnSync("bun", ["run", CLI, "remove", "alpha", "--force"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(removed.status).toBe(0);
+      expect(existsSync(f.projectDest)).toBe(false);
+      const after = JSON.parse(readFileSync(lockFile, "utf8"));
+      expect(after.skills.alpha).toBeUndefined();
+      const status = spawnSync("bun", ["run", CLI, "status"], { cwd: f.project, encoding: "utf8", env: f.env });
+      expect(status.status).toBe(0);
+      expect(status.stdout).toContain("No tracked project installations.");
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
