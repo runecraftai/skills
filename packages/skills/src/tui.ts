@@ -71,7 +71,8 @@ function frameLayout(width: number, height: number) {
   const w = Math.max(12, Math.floor(width)), h = Math.max(1, Math.floor(height));
   const inner = w - 2, wide = w >= 80;
   const tail = 2 + legend(inner).length;
-  const banner = inner >= 68 && h - tail >= 13 ? runeBanner : compactBanner;
+  const runeArtWidth = Math.max(...runeBanner.map((row) => row.length));
+  const banner = inner >= runeArtWidth && h - tail >= 13 ? runeBanner : compactBanner;
   const leftWidth = wide ? Math.floor((inner - 1) / 2) : inner;
   return { w, h, inner, wide, banner, leftWidth, rightWidth: wide ? inner - leftWidth - 1 : inner, bodyHeight: Math.max(0, h - (3 + banner.length) - tail) };
 }
@@ -106,8 +107,10 @@ export function buildTuiFrame(model: FrameInput, bounds?: { previewMax: number }
   const rightWidth = layout.rightWidth;
   const dividerTop = wide ? `├${"─".repeat(leftWidth)}┬${"─".repeat(rightWidth)}┤` : `├${"─".repeat(inner)}┤`;
   const tail = [`├${"─".repeat(inner)}┤`, ...footer.map((row) => full(row)), bottom];
-  const bannerRow = (banner: string[], row: string) => banner.length === 1 ? fit(row, inner) : clip(row, inner).padStart(Math.floor((inner + row.length) / 2)).padEnd(inner);
-  let head = [top, ...banner.map((row) => full(bannerRow(banner, row))), headerLine, dividerTop];
+  const artWidth = Math.max(...banner.map((row) => row.length));
+  const offset = Math.max(0, Math.floor((inner - artWidth) / 2));
+  const bannerRows = banner.map((row) => fit(" ".repeat(offset) + row.padEnd(artWidth), inner));
+  let head = [top, ...bannerRows.map(full), headerLine, dividerTop];
   while (head.length + tail.length > height && head.length > 1) head.pop();
   while (head.length + tail.length > height && tail.length > 2) tail.splice(1, 1);
   const bodyHeight = Math.max(0, height - head.length - tail.length);

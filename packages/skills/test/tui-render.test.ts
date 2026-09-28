@@ -172,6 +172,18 @@ test("80x24 and narrow frames keep the runic header, split pane, target, and foo
   expect(wide.some((line) => line.includes("┬"))).toBe(true);
   expect(wide.some((line) => line.includes("ᛝ"))).toBe(true);
   expect(wide.some((line) => line.includes("██╔════╝"))).toBe(true);
+  const art = [
+    "ᛝ  ██████╗ ██████╗ ██╗███╗   ███╗ ██████╗ ██╗██████╗ ███████╗  ᛝ",
+    "   ██╔════╝ ██╔══██╗██║████╗ ████║██╔═══██╗██║██╔══██╗██╔════╝",
+    "   ██║  ███╗██████╔╝██║██╔████╔██║██║   ██║██║██████╔╝█████╗",
+    "   ██║   ██║██╔══██╗██║██║╚██╔╝██║██║   ██║██║██╔══██╗██╔══╝",
+    "   ╚██████╔╝██║  ██║██║██║ ╚═╝ ██║╚██████╔╝██║██║  ██║███████╗",
+    "    ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝╚═╝  ╚═╝╚══════╝",
+  ];
+  const artWidth = Math.max(...art.map((row) => row.length));
+  const offset = Math.floor((78 - artWidth) / 2);
+  expect(wide.slice(1, 7).map((line) => line.slice(1 + offset, 1 + offset + artWidth)))
+    .toEqual(art.map((row) => row.padEnd(artWidth)));
   expect(narrow.join("\n")).toContain("╔═╗╦═╗╦╔╦╗╔═╗╦╦═╗╔═╗");
   expect(narrow.join("\n")).toContain("║ ╦╠╦╝║║║║║ ║║╠╦╝║╣");
   expect(narrow.join("\n")).toContain("╚═╝╩╚═╩╩ ╩╚═╝╩╩╚═╚═╝");
