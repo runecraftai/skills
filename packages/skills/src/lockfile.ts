@@ -26,15 +26,17 @@ export function clearScopeOwnership(entry: LockedSkill, target: string, scope: "
   const slot = entry.targets?.[target];
   const slotTracked = Boolean(slot && resolve(slot) === removal.removedPath);
   if (entry.targets && slotTracked) { delete entry.targets[target]; if (!Object.keys(entry.targets).length) delete entry.targets; }
-  if (entry.targets?.[target]) return;
-  if (Object.keys(records).some((key) => key.startsWith(`${target}:`))) return;
-  const targetlessRemoved = removal.copyRemoved && !hadRecord && !slotTracked && scope === "project";
-  if (entry.legacyAgents?.includes(target)) {
-    if (!targetlessRemoved) return;
+  const targetlessRemoved = removal.copyRemoved && !hadRecord && !slotTracked;
+  const releasesLegacyClaim = recordTracked || targetlessRemoved;
+  if (entry.legacyAgents?.includes(target) && releasesLegacyClaim) {
     entry.legacyAgents = entry.legacyAgents.filter((id) => id !== target);
     if (!entry.legacyAgents.length) delete entry.legacyAgents;
+    if (recordTracked) return;
   }
-  if (recordTracked || slotTracked || targetlessRemoved || (removal.copyRemoved && hadRecord)) entry.agents = entry.agents.filter((id) => id !== target);
+  if (entry.targets?.[target]) return;
+  if (Object.keys(records).some((key) => key.startsWith(`${target}:`))) return;
+  if (entry.legacyAgents?.includes(target)) return;
+  if (recordTracked || slotTracked || (targetlessRemoved && scope === "project") || (removal.copyRemoved && hadRecord)) entry.agents = entry.agents.filter((id) => id !== target);
 }
 export function verifyTree(dir: string, expected: Record<string, string>): { modified: string[]; missing: string[] } {
   const modified: string[] = [], missing: string[] = [];
