@@ -105,7 +105,7 @@ describe("grimoire CLI", () => {
     } finally { rmSync(f.root, { recursive: true, force: true }); }
   });
 
-  test("audit verifies legacy target installs without scope records", () => {
+  test("audit reports legacy installs without scope records as ownership-unknown", () => {
     const f = scopeFixture();
     try {
       const lock = JSON.parse(readFileSync(join(f.project, ".grimoire-lock.json"), "utf8"));
