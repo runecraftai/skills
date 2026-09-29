@@ -1,5 +1,33 @@
 # @runecraft/grimoire
 
+## 2.0.0
+
+### Major Changes
+
+- 8d2b0ca: Make the no-argument CLI a full-screen OpenTUI catalog and require Node >=26.4.0 with FFI or Bun >=1.3.0.
+
+### Minor Changes
+
+- 3a15062: Consolidate three overlapping skills into their canonical targets:
+
+  - **`spec-driven-development` → `spec-driven`**: Merged gated workflow, capability mapping, detailed spec structure (six core areas), and success criteria into the Specify phase.
+  - **`planning-and-task-breakdown` → `spec-driven`**: Merged dependency-graph mapping, vertical slicing, task sizing guidelines (XS–XL), output file conventions, and checkpoint strategy into the Tasks phase.
+  - **`git-workflow-and-versioning` → `git-commit-learning`**: Merged trunk-based development, atomic commits, branching strategy, worktrees, save point pattern, change summaries, pre-commit hygiene, generated file handling, git debugging, semantic versioning, tagging, and changelog best practices.
+
+  Removed skill folders: `spec-driven-development`, `planning-and-task-breakdown`, `git-workflow-and-versioning`.
+
+- 384c1e0: Improve legacy-lock interoperability and TUI presentation:
+
+  - **Legacy lock dual-read:** the TUI reads legacy lock entries but never overwrites shared `targets`, `fileHashes`, `hash`, `version`, or `installed` fields; verified installs are recorded additively in scoped `tuiTargets` records only.
+  - **Scoped ownership records:** status and audit verify scoped `tuiTargets` records, and scoped removals drop a skill entry only when ownership is fully gone while preserving shared legacy fields and surviving copies.
+  - **Ownership-unknown reporting:** `status` and `audit` report legacy and targetless copies as ownership-unknown instead of tampered or omitted; `audit --json` includes the new `ownershipUnknown` field.
+  - **TUI banner:** new banner art with a compact fallback and common-width alignment, plus a raised confirm gate requiring 80x22 for safe confirmation rendering.
+
+### Patch Changes
+
+- 2f4cd2f: Clear stale targetless legacy ownership claims after scoped removals.
+- f80f11e: Prune stale legacy ownership when removal leaves no copy in either resolved scope.
+
 ## 1.1.1
 
 ### Patch Changes
