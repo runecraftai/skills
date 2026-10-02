@@ -1,6 +1,6 @@
 {
   "name": "@runecraft/grimoire-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "On-demand MCP server for the Runecraft skill catalog",
   "repository": {
     "type": "git",
@@ -10,7 +10,9 @@
   "bin": {
     "grimoire-mcp": "./dist/index.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">=20.12.0"
   },
