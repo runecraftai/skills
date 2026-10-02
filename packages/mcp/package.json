@@ -2,6 +2,10 @@
   "name": "@runecraft/grimoire-mcp",
   "version": "1.0.0",
   "description": "On-demand MCP server for the Runecraft skill catalog",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/runecraftai/skills"
+  },
   "type": "module",
   "bin": {
     "grimoire-mcp": "./dist/index.js"
@@ -12,6 +16,7 @@
   },
   "scripts": {
     "build": "bun build src/index.ts --target=node --outdir=dist && chmod +x dist/index.js",
+    "prepack": "npm run build",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },

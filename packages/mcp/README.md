@@ -6,7 +6,7 @@ This is not a security guarantee about skill content: a skill body can influence
 
 ## Configure a client
 
-These snippets configure each host to launch the stdio server using `npx`. The generic stdio roundtrip test in this repository exercises launch, tool discovery, and a bounded `read_skill` call through the MCP SDK. It does not launch or certify any of these host applications; use the host's own documentation for additional configuration options.
+These snippets configure each host to launch the stdio server using `npx`. The generic stdio roundtrip test exercises the MCP protocol through the SDK; native host validation is recorded separately below. Use each host's documentation for additional configuration options.
 
 ### Claude Code
 
@@ -95,7 +95,21 @@ Add to `opencode.json`:
 
 ### Pi
 
-Pi is not listed as a supported MCP host here. This release has not verified a native MCP integration or adapter for Pi, so do not configure or rely on this server through Pi. The separate Grimoire CLI supports native Pi skill installation.
+Pi 0.99.0 has native MCP stdio support; no adapter or extension is required. Add this server to `~/.pi/agent/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "runecraft": {
+      "command": "npx",
+      "args": ["-y", "@runecraft/grimoire-mcp"],
+      "exposure": "codemode"
+    }
+  }
+}
+```
+
+Pi's default MCP exposure is `codemode`. Start a session normally and call the MCP tools through `codemode`; do not pass `--tools` unless you include the required tools, because that flag replaces Pi's default tool selection. Run `pi mcp list` to check connection and discovery. No catalog-wide skill descriptions are inserted at startup; search and read content arrive only after explicit tool calls. The explicitly read skill content can influence the session. The separate Grimoire CLI installs selected skills natively and is a distinct workflow.
 
 ## MCP and CLI are separate, and can be used together
 
@@ -107,4 +121,4 @@ The MCP path avoids automatic catalog-wide description injection by this server:
 
 ## Verification
 
-`bun run --cwd packages/mcp test` includes a generic MCP SDK client that starts the built server over stdio, discovers its tools, and reads one bounded fixture skill through a local test catalog. It does not verify launching with real Claude Code, Cursor, VS Code/Copilot, Claude Desktop, Codex, or OpenCode binaries.
+`bun run --cwd packages/mcp test` includes a generic MCP SDK client that starts the built server over stdio, discovers its tools, and reads one bounded fixture skill through a local test catalog. It does not certify other host applications. Pi 0.99.0 was separately exercised as a real host with the extracted package tarball: native stdio launch and discovery of all five tools, followed by bounded `search_skills` and explicit `read_skill` calls against the production catalog. The host transcript and commands are recorded in the task validation artifacts; that local tarball check does not establish public npm availability.
