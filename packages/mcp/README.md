@@ -6,7 +6,7 @@ This is not a security guarantee about skill content: a skill body can influence
 
 ## Configure a client
 
-These snippets configure each host to launch the stdio server using `npx`. The generic stdio roundtrip test exercises the MCP protocol through the SDK; native host validation is recorded separately below. Use each host's documentation for additional configuration options.
+These snippets configure each host to launch the stdio server using `npx`. The generic stdio roundtrip test exercises the MCP protocol through the SDK, launching the built server both directly and through an npm-style `grimoire-mcp` bin symlink; native host validation is recorded separately below. Use each host's documentation for additional configuration options.
 
 ### Claude Code
 
@@ -121,4 +121,4 @@ The MCP path avoids automatic catalog-wide description injection by this server:
 
 ## Verification
 
-`bun run --cwd packages/mcp test` includes a generic MCP SDK client that starts the built server over stdio, discovers its tools, and reads one bounded fixture skill through a local test catalog. It does not certify other host applications. Pi 0.99.0 was separately exercised as a real host with the extracted package tarball: native stdio launch and discovery of all five tools, followed by bounded `search_skills` and explicit `read_skill` calls against the production catalog. The host transcript and commands are recorded in the task validation artifacts; that local tarball check does not establish public npm availability.
+`bun run --cwd packages/mcp test` launches the built server over stdio two ways — directly and through an npm-style `grimoire-mcp` bin symlink — discovers all five tools, and reads one bounded fixture skill through a local test catalog. It does not certify other host applications. Pi 0.99.0 was separately exercised as a real host with the extracted package tarball: native stdio launch and discovery of all five tools, followed by bounded `search_skills` and explicit `read_skill` calls against the production catalog. The host transcript and commands are recorded in the task validation artifacts; that local tarball check does not establish public npm availability.
