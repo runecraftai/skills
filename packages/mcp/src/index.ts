@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
+import { realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -131,4 +133,13 @@ export async function createServer(handlersOverride?: ReturnType<typeof createHa
   return server;
 }
 export async function start(transport: { connect(server: McpServer): Promise<void> }) { const server=await createServer(); await transport.connect(server); }
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) start({connect:async(server)=>server.connect(new StdioServerTransport())}).catch((error)=>{console.error(error);process.exitCode=1;});
+function isDirectExecution() {
+  const entrypoint = process.argv[1];
+  if (!entrypoint) return false;
+  try {
+    return realpathSync(entrypoint) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+}
+if (isDirectExecution()) start({connect:async(server)=>server.connect(new StdioServerTransport())}).catch((error)=>{console.error(error);process.exitCode=1;});
