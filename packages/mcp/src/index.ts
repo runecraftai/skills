@@ -137,7 +137,7 @@ function isDirectExecution() {
   const entrypoint = process.argv[1];
   if (!entrypoint) return false;
   try {
-    return realpathSync(entrypoint) === fileURLToPath(import.meta.url);
+    return realpathSync(entrypoint) === realpathSync(fileURLToPath(import.meta.url));
   } catch {
     return false;
   }
