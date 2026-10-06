@@ -12,6 +12,24 @@ describe("shared core",()=>{
  test("validates generated registry and rejects malformed schema",()=>{expect(()=>validateRegistry(registry)).not.toThrow();expect(()=>validateRegistry({...registry, extra:true})).toThrow();});
  test.each(fixtures)("ranks %s first",(query,id)=>expect(rankSkills(query,registry.skills)[0]?.skill.id).toBe(id));
  test("irrelevant query has no matches",()=>expect(rankSkills("quantum underwater basket weaving",registry.skills)).toEqual([]));
+ test("short keyword queries behave as documented",()=>{
+   expect(rankSkills("pdf",registry.skills)).toEqual([]);
+   const docs=rankSkills("write documentation",registry.skills);
+   expect(docs).toHaveLength(1);
+   expect(docs[0]?.skill.id).toBe("documentation-and-adrs");
+ });
+ test("a realistic multi-word sentence does not match almost everything via stopwords",()=>{
+   const ranked=rankSkills("I need help reviewing the code in this pull request for my team",registry.skills);
+   expect(ranked.length).toBeLessThan(registry.skills.length);
+   expect(ranked.map(r=>r.skill.id)).toContain("code-review-and-quality");
+ });
+ test("a second no-match control returns no results instead of guessing",()=>expect(rankSkills("purple elephant sandwich recipe",registry.skills)).toEqual([]));
+ test("whole-word matching ignores mid-word substrings of non-stopword tokens",()=>{
+   const base={version:"1.0.0",category:"test",license:"MIT",attribution:[{name:"t",text:"t",url:"https://example.com"}],entrypoint:"SKILL.md",files:[],contentSha256:"0".repeat(64)};
+   const unrelated:Skill={...base,id:"deploy-pipeline",name:"deploy-pipeline",description:"Automates how a pulley started shipping releases"};
+   const relevant:Skill={...base,id:"code-review",name:"code-review",description:"Reviews pull requests for quality and correctness"};
+   expect(rankSkills("review the pull request art",[unrelated,relevant]).map(r=>r.skill.id)).toEqual(["code-review"]);
+ });
  const fileContent="hello, world";
  const fileBytes=new TextEncoder().encode(fileContent);
  const fileSha256="09ca7e4eaa6e8ae9c7d261167129184883644d07dfba7cbfbc4c8a2e08360d5b";

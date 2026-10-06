@@ -2,6 +2,8 @@
 
 `@runecraft/grimoire-mcp` provides on-demand access to the Runecraft skill catalog over MCP stdio. It requires Node.js 20.12 or newer and does not install skills into agent directories. Tool discovery advertises tool schemas; catalog descriptions are returned only after an explicit tool call. Search returns a bounded set of matches, and `read_skill` returns only the requested skill.
 
+`search_skills` ranks the catalog with a stopword-aware, whole-word lexical scorer (`rankSkills` in `@runecraft/grimoire-core`) and always stays within its 1200-byte response ceiling: a query that matches more skills than fit in that budget is degraded gracefully — lower-ranked matches are dropped first — rather than throwing. Its response is `{ "skills": [...], "truncated": boolean }`; `truncated` is `true` when one or more otherwise-ranked matches were dropped to fit the byte ceiling, so a caller can tell a short list from a cut-off one.
+
 This is not a security guarantee about skill content: a skill body can influence the session after you explicitly read it. The server does not register MCP prompts or a `skills://catalog` resource.
 
 ## Configure a client
