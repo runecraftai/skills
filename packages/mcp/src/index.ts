@@ -42,8 +42,10 @@ export function createHandlers(options: { catalog: () => Promise<Catalog>; fetch
       if (typeof query !== "string" || query.length > 300) throw new Error("query must be at most 300 characters");
       if (!Number.isInteger(limit) || limit < 1 || limit > 5) throw new Error("limit must be between 1 and 5");
       const { registry } = await catalog();
-      const skills = rankSkills(query, registry.skills).slice(0, limit).map(({skill, score, matchQuality}) => ({ id: skill.id, name: skill.name, category: skill.category, description: skill.description.slice(0, 100), score, matchQuality, version: skill.version }));
-      return bounded({ skills }, MAX.search);
+      let skills = rankSkills(query, registry.skills).slice(0, limit).map(({skill, score, matchQuality}) => ({ id: skill.id, name: skill.name, category: skill.category, description: skill.description.slice(0, 100), score, matchQuality, version: skill.version }));
+      let truncated = false;
+      while (Buffer.byteLength(JSON.stringify({ skills, truncated }), "utf8") > MAX.search && skills.length) { skills = skills.slice(0, -1); truncated = true; }
+      return JSON.stringify({ skills, truncated });
     },
     async read_skill({ id, revision }: { id: string; revision?: string }) {
       const { result, skill } = await getSkill(id, revision);

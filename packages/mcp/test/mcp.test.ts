@@ -39,3 +39,38 @@ describe("MCP tool budgets and exposure",()=>{
    expect(response.omitted).toHaveLength(2);
  });
 });
+
+describe("search_skills byte ceiling and ranking reliability",()=>{
+ const manyRecord=(path:string,bytes:Uint8Array)=>({path,size:bytes.length,sha256:createHash("sha256").update(bytes).digest("hex")});
+ const manySkillBody=new TextEncoder().encode("---\nname: many\ndescription: many\n---\n# Many\n");
+ const manyRegistry: Registry={schemaVersion:1,catalogVersion:"1.0.0",revision:"many-rev",generatedAt:"2026-01-01T00:00:00Z",skills:Array.from({length:10},(_,i)=>({
+   id:`skill-review-quality-variant-${i}`,name:`Skill Review Quality Variant ${i}`,version:"1.0.0",
+   category:"Code Quality and Testing Extended Category",
+   description:`Reviews code for quality, correctness, and maintainability in pull requests. Variant ${i} covering linting, testing, and documentation practices for teams working on large codebases.`,
+   license:"MIT",attribution:[{name:"Test",url:"https://example.com",text:"Test"}],entrypoint:"SKILL.md",
+   files:[manyRecord("SKILL.md",manySkillBody)],contentSha256:"0".repeat(64),
+ }))};
+ const manyHandlers=createHandlers({catalog:async()=>({registry:manyRegistry,freshness:"fresh"}),fetchFile:async()=>manySkillBody});
+
+ test("a realistic multi-word sentence that matches many skills returns bounded bytes without throwing",async()=>{
+   const raw=await manyHandlers.search_skills({query:"I need help reviewing the quality and correctness of this pull request for my team",limit:5});
+   expect(Buffer.byteLength(raw,"utf8")).toBeLessThanOrEqual(1200);
+   const parsed=JSON.parse(raw);
+   expect(Array.isArray(parsed.skills)).toBe(true);
+   expect(typeof parsed.truncated).toBe("boolean");
+   expect(parsed.truncated).toBe(true);
+   expect(parsed.skills.length).toBeLessThan(5);
+ });
+
+ test("the byte ceiling is honored at the maximum permitted limit regardless of match count",async()=>{
+   for(const limit of [1,2,3,4,5] as const){
+     const raw=await manyHandlers.search_skills({query:"reviewing quality correctness pull request teams codebases",limit});
+     expect(Buffer.byteLength(raw,"utf8")).toBeLessThanOrEqual(1200);
+   }
+ });
+
+ test("a no-match query returns an empty result instead of throwing or guessing",async()=>{
+   const raw=await manyHandlers.search_skills({query:"xyz nonexistent widget",limit:5});
+   expect(JSON.parse(raw)).toEqual({skills:[],truncated:false});
+ });
+});

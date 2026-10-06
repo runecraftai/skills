@@ -13,6 +13,10 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 - The `@runecraft/grimoire` package name and `grimoire` executable are fixed; `@runecraft/grimoire-mcp` is the separate MCP server package with its own `grimoire-mcp` executable.
 - The seed `LICENSE` carries `Copyright (c) 2026 Arcanum` verbatim — leave it untouched unless a maintainer decides otherwise.
 
+## Search ranking contract
+
+- `rankSkills` (`packages/core/src/index.ts`) is a stopword-aware, whole-word lexical scorer, not BM25 or an LLM. `search_skills` (`packages/mcp/src/index.ts`) degrades gracefully instead of throwing when matches exceed its 1200-byte ceiling: it drops lowest-ranked matches and returns `{ skills, truncated }`. Changes to either must keep both the ranking regression tests in `packages/core/test/core.test.ts` and the ceiling tests in `packages/mcp/test/mcp.test.ts` green.
+
 ## Validation
 
 - `npm pack --dry-run --workspace @runecraft/grimoire` — confirms the catalog, metadata, references, and installer are packaged.
