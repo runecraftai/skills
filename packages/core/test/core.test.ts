@@ -26,7 +26,7 @@ describe("shared core",()=>{
  test("a second no-match control returns no results instead of guessing",()=>expect(rankSkills("purple elephant sandwich recipe",registry.skills)).toEqual([]));
  test("whole-word matching ignores mid-word substrings of non-stopword tokens",()=>{
    const base={version:"1.0.0",category:"test",license:"MIT",attribution:[{name:"t",text:"t",url:"https://example.com"}],entrypoint:"SKILL.md",files:[],contentSha256:"0".repeat(64)};
-   const unrelated:Skill={...base,id:"deploy-pipeline",name:"deploy-pipeline",description:"Automates how a team started shipping releases"};
+   const unrelated:Skill={...base,id:"deploy-pipeline",name:"deploy-pipeline",description:"Automates how a pulley started shipping releases"};
    const relevant:Skill={...base,id:"code-review",name:"code-review",description:"Reviews pull requests for quality and correctness"};
    expect(rankSkills("review the pull request art",[unrelated,relevant]).map(r=>r.skill.id)).toEqual(["code-review"]);
  });
