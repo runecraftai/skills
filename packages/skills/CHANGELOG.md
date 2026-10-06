@@ -1,5 +1,11 @@
 # @runecraft/grimoire
 
+## 2.0.1
+
+### Patch Changes
+
+- de8d661: Bound `search_skills` responses within the MCP byte ceiling instead of throwing, and make shared skill ranking stopword-aware with whole-word description/category matching.
+
 ## 2.0.0
 
 ### Major Changes
