@@ -1,6 +1,6 @@
 {
   "name": "@runecraft/grimoire",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Full-screen catalog and installer for agent skills",
   "repository": {
     "type": "git",
