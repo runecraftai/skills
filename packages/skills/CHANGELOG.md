@@ -1,5 +1,11 @@
 # @runecraft/grimoire
 
+## 2.1.0
+
+### Minor Changes
+
+- 83a317e: Add the `knowledge-pass` skill for code-grounded implementation handoffs and one-question-at-a-time understanding checks.
+
 ## 2.0.1
 
 ### Patch Changes
