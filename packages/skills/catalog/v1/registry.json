@@ -460,11 +460,11 @@
         },
         {
           "path": "SKILL.md",
-          "size": 8286,
-          "sha256": "4be3ac01b861b25e8401ada38d9ed5396ae892c494e15663029df2711769be43"
+          "size": 8341,
+          "sha256": "f1c8160c624a36004d40808813143eb58441bd6aaa69e3dbe0f7f45cf558bb61"
         }
       ],
-      "contentSha256": "1a3c883837498b891101d161fb96617c80b29e252fe96f819f1490b6ca842f21"
+      "contentSha256": "3cbf7528a7e3914a328df427166e7f5fedc0c96be8e55efec28cac3bdd72b17c"
     },
     {
       "id": "linkedin-audit",

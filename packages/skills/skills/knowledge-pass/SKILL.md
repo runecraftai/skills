@@ -51,12 +51,13 @@ A decision written down when it was made is worth ten rebuilt from a diff.
 Read `assets/knowledge-pass-template.md` before writing.
 Keep each section to roughly 5-12 lines, and the whole pass under about 120 lines: this is a briefing, not a design document.
 
-1. **Three-line summary** - problem, mechanism, outcome.
-2. **Problem solved** - the observable symptom, the behavior before, the behavior now, and what the change deliberately leaves alone.
-3. **Rules** - one line per rule, with where it is enforced. Split domain rules from engineering constraints so the user can tell which is which.
-4. **Flow** - the runtime path as numbered hops, each with a reference, plus the failure path.
-5. **Decisions** - for each: what was chosen, what was rejected and why, the cost accepted, the residual risk.
-6. **Verification** - a table of proof, command or test, what it covers, and what it does not cover. The last column is the most valuable one; never leave it empty.
+Open with an unnumbered **three-line summary** - problem, mechanism, outcome. Then the five numbered sections:
+
+1. **Problem solved** - the observable symptom, the behavior before, the behavior now, and what the change deliberately leaves alone.
+2. **Rules** - one line per rule, with where it is enforced. Split domain rules from engineering constraints so the user can tell which is which.
+3. **Flow** - the runtime path as numbered hops, each with a reference, plus the failure path.
+4. **Decisions** - for each: what was chosen, what was rejected and why, the cost accepted, the residual risk.
+5. **Verification** - a table of proof, command or test, what it covers, and what it does not cover. The last column is the most valuable one; never leave it empty.
 
 Reference the code the reader will open, not the file the agent happened to touch: entry point, the rule's enforcement site, the branch that changed behavior, the test that pins it.
 
