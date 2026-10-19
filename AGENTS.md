@@ -5,7 +5,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 ## What this repo is
 
 - Grimoire is the unified agent-skill catalog and installer, published as **`@runecraft/grimoire`** (see `packages/skills/package.json`).
-- Content layout: one folder per skill under `packages/skills/skills/` (each with `SKILL.md` + optional `references/`, `scripts/`, `.skill-meta.json`); shared docs under `packages/skills/references/` (`definition-of-done.md`, `testing-patterns.md`).
+- Content layout: one folder per skill under `packages/skills/skills/` (each with `SKILL.md` + optional `references/`, `assets/`, `scripts/`, `.skill-meta.json`); shared docs under `packages/skills/references/` (`definition-of-done.md`, `testing-patterns.md`).
 - `packages/skills/` publishes the catalog and `grimoire` executable; `packages/core/` is the private shared client core; `packages/mcp/` publishes `@runecraft/grimoire-mcp`, a stdio-first MCP server. `catalog.json` is a generated taxonomy (rebuilt by `catalog:generate` from the validated registry). Catalog contract: [`packages/skills/catalog/README.md`](packages/skills/catalog/README.md).
 
 ## Identity rules (hard constraints)
@@ -25,7 +25,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 - `bun run typecheck` — typechecks all packages.
 - `bun run --cwd packages/skills catalog:generate` — rebuilds `catalog/v1/registry.json`, copies allowlisted skill files, and regenerates `catalog.json` from the validated registry.
 - `python3 packages/skills/skills/skill-forge/scripts/validate.py packages/skills/skills/skill-forge` — SKILL.md structure validator (23 checks; 1 pre-existing warning, not a failure).
-- New skills must ship `SKILL.md` + `references/` and follow the skill-forge conventions.
+- New skills must follow the skill-forge conventions (`packages/skills/skills/skill-forge/SKILL.md` §2.2 folder layout): `SKILL.md` plus `references/`, `assets/`, or `scripts/` only when the skill's content justifies them.
 
 ## Maintaining this file
 
