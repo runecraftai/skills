@@ -10,11 +10,11 @@ const goodSkill = (id = "sample"): CatalogSkill => ({ id, name: "Sample Skill", 
 const registry = (...skills: CatalogSkill[]): CatalogRegistry => ({ schemaVersion: 1, catalogVersion: "1.0.0", revision: "abc", generatedAt: "2026-09-26T00:00:00.000Z", skills });
 
 describe("strict catalog contract", () => {
-  test("generated catalog has 32 verified skills and matching taxonomy", async () => {
+  test("generated catalog has 33 verified skills and matching taxonomy", async () => {
     const root = join(import.meta.dir, "..");
     const generated = JSON.parse(await readFile(join(root, "catalog/v1/registry.json"), "utf8")) as CatalogRegistry;
     validateRegistry(generated);
-    expect(generated.skills).toHaveLength(32);
+    expect(generated.skills).toHaveLength(33);
     expect(generated.skills.flatMap((skill) => skill.files).some((file) => /(?:__pycache__|\\.pyc$|node_modules|\\.DS_Store)/.test(file.path))).toBe(false);
     const taxonomy = JSON.parse(await readFile(join(root, "catalog.json"), "utf8")) as { categories: Record<string, string[]> };
     expect([...validateTaxonomy(taxonomy.categories).keys()].sort()).toEqual(generated.skills.map((skill) => skill.id).sort());

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2.0.0",
-  "revision": "90dcdf28cfa2145420ce986a14dd71a88c679e48",
-  "generatedAt": "2026-09-26T18:53:07.000Z",
+  "catalogVersion": "2.1.0",
+  "revision": "e2a3085cc9c2062c01151272bf63a67a4be8aac8",
+  "generatedAt": "2026-10-09T18:35:27.000Z",
   "skills": [
     {
       "id": "api-and-interface-design",
@@ -15,7 +15,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -39,7 +39,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -63,7 +63,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -87,7 +87,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -111,7 +111,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -135,7 +135,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -159,7 +159,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -183,7 +183,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -212,7 +212,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -241,7 +241,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -265,7 +265,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -289,7 +289,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -323,7 +323,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -347,7 +347,7 @@
         {
           "name": "Tech Leads Club - github.com/tech-leads-club",
           "url": "https://github.com/tech-leads-club/agent-skills",
-          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-discover @ v0.9.0; catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-discover @ v0.9.0; catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -376,7 +376,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -400,7 +400,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -424,7 +424,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -438,6 +438,35 @@
       "contentSha256": "96879df2c176900b0e452996d9b89034c2f312e2e9b9588b69b787e95aa1a596"
     },
     {
+      "id": "knowledge-pass",
+      "name": "knowledge-pass",
+      "version": "1.0.0",
+      "category": "Code Quality & Testing",
+      "description": "Load this skill the moment a request asks you to implement, fix, add, refactor, or change code - before the first edit - and again when explaining an existing PR, commit, branch, or diff (\"me explica o que foi feito\", \"passa o conhecimento\", \"walk me through\"). It keeps a decision ledger while you work, then converts the delivery into a code-grounded pass over the problem solved, the rules obeyed, the flow of execution, the decisions taken, and the verification, and verifies the user's understanding one question at a time. Use it even for a one-line fix, and even when the user never asks for an explanation. Do NOT use for code review verdicts, architecture proposals, incident postmortems, or status reports that deliver no code.",
+      "license": "CC-BY-4.0",
+      "attribution": [
+        {
+          "name": "Runecraft",
+          "url": "https://github.com/runecraftai/skills",
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
+        }
+      ],
+      "entrypoint": "SKILL.md",
+      "files": [
+        {
+          "path": "assets/knowledge-pass-template.md",
+          "size": 2427,
+          "sha256": "7ca38b25ff9dfdf116a5d1456628f35e708d5de419e204401db7676d8a081960"
+        },
+        {
+          "path": "SKILL.md",
+          "size": 8286,
+          "sha256": "4be3ac01b861b25e8401ada38d9ed5396ae892c494e15663029df2711769be43"
+        }
+      ],
+      "contentSha256": "1a3c883837498b891101d161fb96617c80b29e252fe96f819f1490b6ca842f21"
+    },
+    {
       "id": "linkedin-audit",
       "name": "linkedin-audit",
       "version": "1.0.0",
@@ -448,7 +477,7 @@
         {
           "name": "runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -477,7 +506,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -501,7 +530,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -525,7 +554,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -549,7 +578,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -573,7 +602,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -597,7 +626,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -656,7 +685,7 @@
         {
           "name": "addyosmani/agent-skills",
           "url": "https://github.com/addyosmani/agent-skills",
-          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "addyosmani/agent-skills (MIT, Copyright 2025 Addy Osmani); catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -680,7 +709,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -769,7 +798,7 @@
         {
           "name": "runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -793,7 +822,7 @@
         {
           "name": "Tech Leads Club - github.com/tech-leads-club",
           "url": "https://github.com/tech-leads-club/agent-skills",
-          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-plan @ v0.2.0; catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-plan @ v0.2.0; catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -822,7 +851,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -846,7 +875,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -870,7 +899,7 @@
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
-          "text": "Copyright Runecraft. Runecraft-authored; source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "Copyright Runecraft. Runecraft-authored; source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -894,7 +923,7 @@
         {
           "name": "Tech Leads Club - github.com/tech-leads-club",
           "url": "https://github.com/tech-leads-club/agent-skills",
-          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-implement @ v0.1.0; catalog source revision 90dcdf28cfa2145420ce986a14dd71a88c679e48."
+          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-implement @ v0.1.0; catalog source revision e2a3085cc9c2062c01151272bf63a67a4be8aac8."
         }
       ],
       "entrypoint": "SKILL.md",
