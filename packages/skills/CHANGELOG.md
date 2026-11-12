@@ -1,5 +1,12 @@
 # @runecraft/grimoire
 
+## 2.1.0
+
+### Minor Changes
+
+- 83a317e: Add the `knowledge-pass` skill for code-grounded implementation handoffs and one-question-at-a-time understanding checks.
+- 511a6c4: Extend skill-forge with forward-link checks, bounded script self-tests, published trigger collision warnings, prerequisite presence, and artifact ownership declarations. Add good/bad regression fixtures and catalog-wide CI and catalog-release validation with an explicit four-finding legacy baseline.
+
 ## 2.0.1
 
 ### Patch Changes
