@@ -25,11 +25,10 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - name: Validate skill content
+      - name: Validate skill mechanisms against the listed baseline
         run: |
-          find packages/skills/skills -mindepth 1 -maxdepth 1 -type d -print0 | while IFS= read -r -d '' skill; do
-            python3 packages/skills/skills/skill-forge/scripts/validate.py "$skill"
-          done
+          python3 -B packages/skills/scripts/validate-skills.py \
+            --baseline packages/skills/skills/skill-forge/references/validation-baseline.json
       - name: Semgrep security gate
         run: |
           python3 -m pip install --disable-pip-version-check semgrep==1.131.0

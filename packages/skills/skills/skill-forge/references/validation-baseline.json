@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Initial additive forward-link findings. These remain validator errors, not waivers in the validator. Other skills are outside this change's authorized surface. Catalog CI rejects new findings and stale baseline entries.",
+  "description": "Initial additive forward-link findings. These remain validator errors, not waivers in the validator. Other skills are outside this change's authorized surface. Both catalog CI and the catalog release security job run the validator through packages/skills/scripts/validate-skills.py, which rejects new findings and stale baseline entries.",
   "errors": {
     "constraint-driven-development": [
       "forward_link:SKILL.md:references/floor-guard.md"

@@ -703,13 +703,13 @@
         },
         {
           "path": "references/spec.md",
-          "size": 16875,
-          "sha256": "a052345498b922453bd27a6d7f80aed26643197a2e4ad5ce7c52dadfd9dc245a"
+          "size": 18643,
+          "sha256": "f97ac1e8e9632b01b6911709df10b736dd49d1b0141d0388590c9dea83650f2b"
         },
         {
           "path": "references/validation-baseline.json",
-          "size": 677,
-          "sha256": "058036a9a37029956b18b5a3a52b7cf207d6604fa2ab44156b2eaf3117a6aa5e"
+          "size": 795,
+          "sha256": "2ab0e2e6d79cb696d084dfb5697c46896adf168ebc33c1cd9f1ede2e8d9ef063"
         },
         {
           "path": "scripts/validate.py",
@@ -722,7 +722,7 @@
           "sha256": "f8f0dee71c64f22f024d00f62ba87b2db6aab80196de3d75ebdcc601d2bd8a3f"
         }
       ],
-      "contentSha256": "526e033f0fd58b604d5daeb0f4f1860b277f6aef6c0b7a0ecc6b0042698ca8da"
+      "contentSha256": "30c741e6532fa8823e8890a6da057511e2dfb9a171315a88b715bda7aa97d409"
     },
     {
       "id": "source-driven-development",

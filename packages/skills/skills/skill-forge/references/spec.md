@@ -234,7 +234,7 @@ python3 scripts/validate.py --self-test
 python3 scripts/validate.py ./candidate --format json --json-out ./report.json
 ```
 
-The bundled `assets/test_validate.py` runs good and bad fixture controls under `assets/fixtures/`, executing the CLI as well as the Python API. It proves missing links, import failure, timeout failure, collision warnings, prerequisite readiness, scratch isolation, and preservation of format errors. Test outputs are created only in temporary directories. The repository's standard `bun run test` invokes this suite, and CI runs `python3 -B packages/skills/scripts/validate-skills.py` across the catalog.
+The bundled `assets/test_validate.py` runs good and bad fixture controls under `assets/fixtures/`, executing the CLI as well as the Python API. It proves missing links, import failure, timeout failure, collision warnings, prerequisite readiness, scratch isolation, and preservation of format errors. Test outputs are created only in temporary directories. The repository's standard `bun run test` invokes this suite, and both CI and the tag-triggered catalog release run `python3 -B packages/skills/scripts/validate-skills.py --baseline packages/skills/skills/skill-forge/references/validation-baseline.json` across the catalog. Never add a strict per-skill `scripts/validate.py` loop to a repository workflow: that bypasses the ratchet and fails on the listed findings.
 
 JSON keeps `path`, `checks` (each with `name`, `passed`, `message`, `severity`), `passed`, `failed`, `warnings`, `summary`, and `next_steps`. Additions on a structurally parseable skill are:
 
@@ -256,3 +256,14 @@ The baseline is an integration ratchet, not a relaxation of any validator check.
 | `using-agent-skills` | definition-of-done reference |
 
 These four skills continue to receive error verdicts from the validator. They are outside this change's content scope. The catalog CI command accepts exactly these named findings; new errors fail it, and resolved findings require removal of their now-stale baseline entries. All 33 existing skills passed the original format checks before this addition.
+
+Do not fix these four by editing the validator or the baseline entry shape: correct the citation inside the owning skill, then delete that skill's baseline entry in the same change, which the ratchet requires. Corrections are tracked as separate follow-ups so each owning skill can restore the cited reference:
+
+| Follow-up | Owning skill | Citation to correct | Baseline entry to remove once resolved |
+|---|---|---|---|
+| Point the body at the existing floor-guard guidance or restore the reference file | `constraint-driven-development` | floor-guard reference | `forward_link:SKILL.md:references/floor-guard.md` |
+| Point the body at the shared definition-of-done document or ship a skill-local copy | `shipping-and-launch` | definition-of-done reference | `forward_link:SKILL.md:references/definition-of-done.md` |
+| Point the body at the shared testing-patterns document or ship a skill-local copy | `test-driven-development` | testing-patterns reference | `forward_link:SKILL.md:references/testing-patterns.md` |
+| Point the body at the shared definition-of-done document or ship a skill-local copy | `using-agent-skills` | definition-of-done reference | `forward_link:SKILL.md:references/definition-of-done.md` |
+
+The validator keeps reporting these as errors for direct single-skill runs (`python3 scripts/validate.py <skill>`); only the repository-level checker treats them as accepted debt. A run that prints `Stale baseline` means the owning skill was fixed and its entry must be deleted.
