@@ -5,6 +5,10 @@ description: >
   EN and PT trigger phrases if your audience is bilingual>. Do NOT use for
   <explicit exclusions to prevent misfiring>.
 license: CC-BY-4.0
+requires: none
+artifact-owner: project
+# If scripts are bundled, map each path to bounded behavioral test arguments:
+# script-tests: '{"scripts/check.py": "--self-test"}'
 metadata:
   author: <your-name-or-org>
   version: 0.1.0

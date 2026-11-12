@@ -99,28 +99,25 @@ Install manually by copying `skills/skill-forge/` into your agent's skills direc
 skill-forge/
 ├── SKILL.md                            # The 6-phase workflow (agent instructions)
 ├── references/
-│   ├── spec.md                         # open SKILL.md format specification
+│   ├── spec.md                         # open SKILL.md format + mechanism field/check contract
 │   ├── authoring-patterns.md           # Best practices: gotchas, templates, validation loops
 │   ├── description-optimization.md     # Trigger eval with train/val split
 │   ├── output-evaluation.md            # With-skill vs without-skill quality eval
-│   └── scripts-guide.md                # PEP 723, agentic script design, --help, exit codes
+│   ├── scripts-guide.md                # PEP 723, agentic script design, --help, exit codes
+│   └── validation-baseline.json        # Catalog findings accepted as the initial baseline
 ├── scripts/
-│   └── validate.py                     # Stdlib-only spec validator (PEP 723 friendly)
+│   └── validate.py                     # Stdlib-only format + mechanism validator; --self-test runs its controls
 └── assets/
-    └── SKILL.template.md               # Blank template for new skills
+    ├── SKILL.template.md               # Blank template for new skills
+    ├── test_validate.py                # Good/bad fixture controls for the validator
+    └── fixtures/                       # good-skill/, bad-skill/, catalog.json
 ```
 
 ### Conformance to the open SKILL.md format
 
-| Spec field | skill-forge value |
-|---|---|
-| `name` | `skill-forge` (kebab-case, matches folder) |
-| `description` | 1024-char max, EN+PT triggers, explicit exclusions |
-| `license` | `CC-BY-4.0` |
-| `metadata.version` | `1.0.0` |
-| Frontmatter delimiters | Exactly `---` on their own lines |
-| `SKILL.md` casing | Exact |
-| Body length | Under the 500-line cap |
+The authoritative conformance record is skill-forge's own frontmatter in [`skills/skill-forge/SKILL.md`](../skills/skill-forge/SKILL.md); field grammar, including the mechanism fields `requires`, `artifact-owner`, and `script-tests`, is specified in [`references/spec.md`](../skills/skill-forge/references/spec.md). Do not copy those values into human docs — they change every release.
+
+Validate one skill with `python3 skills/skill-forge/scripts/validate.py <skill-folder>` (`--self-test` runs the good/bad fixtures); validate the whole catalog from the repository root with `python3 -B packages/skills/scripts/validate-skills.py`, which accepts only the findings listed in [validation-baseline.json](../skills/skill-forge/references/validation-baseline.json). A PASS covers the format and mechanism checks, not prerequisite availability: read `environment_ready` in `--format json` output before trusting a runtime-dependent verdict.
 
 ### Compatibility
 

@@ -1,0 +1,12 @@
+{
+  "skills": [
+    {
+      "id": "skill-forge",
+      "description": "Use when authoring a skill. Triggers: \"/forge\"."
+    },
+    {
+      "id": "unrelated-fixture",
+      "description": "Use when checking a different operation. Triggers: \"/different-operation\"."
+    }
+  ]
+}

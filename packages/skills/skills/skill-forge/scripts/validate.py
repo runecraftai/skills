@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # /// script
-# requires-python = ">=3.10"
+# requires-python = ">=3.8"
 # ///
 """
 Validate a skill folder against the open SKILL.md format.
@@ -9,6 +9,7 @@ Usage:
     python3 scripts/validate.py <path-to-skill-folder>
     python3 scripts/validate.py <path-to-skill-folder> --format json
     python3 scripts/validate.py <path-to-skill-folder> --json-out /tmp/skill-report.json
+    python3 scripts/validate.py --self-test
     python3 scripts/validate.py --help
 
 Exit codes:
@@ -16,7 +17,8 @@ Exit codes:
     1 = fail (at least one error)
     2 = usage error (bad arguments, missing path)
 
-Errors are format violations. Warnings are quality nudges.
+Errors include format and mechanism failures. Warnings include incomplete coverage.
+Only run on trusted scripts: scratch copying is not an OS sandbox.
 """
 
 from __future__ import annotations
@@ -24,8 +26,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from pathlib import Path
 import re
+import shlex
+import shutil
+import signal
+import subprocess
 import sys
+import tempfile
 from typing import Any
 
 
@@ -148,7 +156,9 @@ def _parse_frontmatter_stdlib(frontmatter_raw: str) -> dict[str, Any]:
                 raise FrontmatterParseError(
                     f"List syntax requires PyYAML near line {i + 1}."
                 )
-            data[key] = _parse_scalar(raw_value)
+            # YAML's plain 'none' is a string for the new enum declarations;
+            # retain the legacy scalar parser's null behavior for existing fields.
+            data[key] = "none" if key in {"requires", "artifact-owner"} and raw_value == "none" else _parse_scalar(raw_value)
             i += 1
             continue
 
@@ -190,7 +200,7 @@ def _parse_frontmatter_stdlib(frontmatter_raw: str) -> dict[str, Any]:
                 raise FrontmatterParseError(
                     f"List syntax requires PyYAML near line {k + 1}."
                 )
-            nested_match = top_key_pattern.match(content)
+            nested_match = re.match(r"^([^:\s]+)\s*:\s*(.*)$", content)
             if not nested_match:
                 raise FrontmatterParseError(
                     f"Invalid nested mapping near line {k + 1}: {nested_line}"
@@ -218,7 +228,148 @@ def _parse_frontmatter_stdlib(frontmatter_raw: str) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def check_skill(skill_path: str) -> dict:
+def _parse_frontmatter(raw: str) -> dict:
+    try:
+        return _parse_frontmatter_stdlib(raw)
+    except FrontmatterParseError:
+        # Full YAML remains optional; never install it during validation.
+        try:
+            import yaml
+        except ImportError:
+            raise FrontmatterParseError("Unsupported YAML; use the stdlib subset or provide PyYAML")
+        parsed = yaml.safe_load(raw)
+        if not isinstance(parsed, dict):
+            raise FrontmatterParseError("Frontmatter must be a mapping")
+        return parsed
+
+
+def _prose(markdown: str) -> str:
+    """Keep command fences; exclude Markdown templates and explicit example fences."""
+    lines = []
+    fence = None
+    example = False
+    for line in markdown.splitlines():
+        marker = re.match(r"^\s*(`{3,}|~{3,})(.*)$", line)
+        if marker:
+            token, info = marker.groups()
+            if fence is None:
+                fence = token
+                example = info.strip().split()[:1] in (["markdown"], ["md"]) or "example" in info.split()
+            elif token[0] == fence[0] and len(token) >= len(fence) and not info.strip():
+                fence = None
+                example = False
+            continue
+        if not example:
+            lines.append(line)
+    return "\n".join(lines)
+
+
+def _forward_links(root: Path, source: Path, markdown: str):
+    prose = _prose(markdown)
+    citations = set(re.findall(
+        r"(?<![\w/:.-])(?:references|scripts|assets)/[^\s`\"'<>()[\]{}|,;]+", prose
+    ))
+    # Also check sibling Markdown links used by references, e.g. (spec.md).
+    citations.update(re.findall(r"\]\(([^\s)]+)\)", prose))
+    for citation in sorted(citations):
+        citation = citation.split("#", 1)[0].rstrip(".,:")
+        if not citation or re.search(r"[:*?<>${}]", citation) or citation.endswith("/"):
+            continue
+        if not Path(citation).suffix:
+            continue
+        base = root if citation.startswith(("references/", "scripts/", "assets/")) else source.parent
+        target = (base / citation).resolve()
+        try:
+            target.relative_to(root)
+            inside = True
+        except ValueError:
+            inside = False
+        yield citation, inside and target.is_file()
+
+
+def _triggers(description: str) -> set:
+    positive = re.split(r"(?i)do not use|don't use|not for", description)[0]
+    match = re.search(r"(?i)\btriggers?\b\s*(?:\([^)]*\))?\s*:", positive)
+    if not match:
+        return set()
+    section = positive[match.end():]
+    phrases = re.findall(r'["“]([^"”]+)["”]|\x27([^\x27]+)\x27', section)
+    values = [a or b for a, b in phrases]
+    if not values:
+        values = re.split(r"[,;\n]", section)
+    normalized = set()
+    for phrase in values:
+        phrase = phrase.strip().rstrip(".").casefold()
+        words = re.findall(r"\w+", phrase)
+        if phrase.startswith("/") or len(words) >= 2:
+            normalized.add("/" + " ".join(words) if phrase.startswith("/") else " ".join(words))
+    return normalized
+
+
+def _catalog_path(root: Path):
+    for parent in root.parents:
+        path = parent / "catalog" / "v1" / "registry.json"
+        if path.is_file():
+            return path
+    return None
+
+
+def _exercise_script(root: Path, relative: str, arguments: str, timeout: float):
+    """Run trusted scripts from a disposable copy, never from the source folder."""
+    runners = {".py": [sys.executable, "-B"], ".sh": [shutil.which("bash")],
+               ".js": [shutil.which("node")], ".mjs": [shutil.which("node")],
+               ".ts": [shutil.which("bun"), "--no-install", "--no-env-file"]}
+    runner = runners.get(Path(relative).suffix)
+    if runner is None or not runner[0]:
+        return None, "No available runner; script was NOT exercised"
+    try:
+        args = shlex.split(arguments)
+        if any(Path(arg.split("=", 1)[-1]).is_absolute() or ".." in Path(arg.split("=", 1)[-1]).parts for arg in args):
+            return False, "Self-test arguments must stay relative to scratch"
+        # Do not follow links back into the original skill or repository.
+        if any(path.is_symlink() for path in root.rglob("*")):
+            return False, "Cannot exercise a skill containing symlinks"
+        with tempfile.TemporaryDirectory(prefix="skill-self-test-") as scratch:
+            work = Path(scratch) / root.name
+            shutil.copytree(str(root), str(work), ignore=shutil.ignore_patterns("__pycache__", ".git"))
+            env = {"PATH": os.environ.get("PATH", ""), "HOME": scratch,
+                   "TMPDIR": scratch, "TMP": scratch, "TEMP": scratch,
+                   "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}
+            if "SYSTEMROOT" in os.environ:
+                env["SYSTEMROOT"] = os.environ["SYSTEMROOT"]
+            with tempfile.TemporaryFile(dir=scratch) as output:
+                process = subprocess.Popen(
+                    runner + [str(work / relative)] + args, cwd=str(work), env=env,
+                    stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT,
+                    start_new_session=(os.name == "posix"),
+                )
+                timed_out = False
+                try:
+                    process.wait(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    timed_out = True
+                if process.poll() is None:
+                    # The child is still unreaped, so its process group id cannot be recycled.
+                    if os.name == "posix":
+                        try:
+                            os.killpg(process.pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                    else:
+                        process.kill()
+                    process.wait()
+                if timed_out:
+                    return False, f"Timed out after {timeout:g}s"
+                output.seek(0)
+                detail = output.read(4096).decode("utf-8", errors="replace").strip()
+                return process.returncode == 0, f"exit {process.returncode}" + (f": {detail}" if detail else "")
+    except (OSError, ValueError) as exc:
+        return False, str(exc)
+
+
+def check_skill(skill_path: str, catalog_path=None, script_timeout: float = 10) -> dict:
+    if not 0 < script_timeout <= 30:
+        raise ValueError("script_timeout must be >0 and <=30")
     results: dict = {
         "path": skill_path,
         "checks": [],
@@ -295,7 +446,7 @@ def check_skill(skill_path: str) -> dict:
     add("frontmatter_delimiters", True, "YAML frontmatter delimiters present")
 
     try:
-        fm = _parse_frontmatter_stdlib(fm_match.group(1))
+        fm = _parse_frontmatter(fm_match.group(1))
         add("frontmatter_valid_yaml", True, "Frontmatter parsed (stdlib subset; install PyYAML for full YAML).")
     except Exception as e:
         add("frontmatter_valid_yaml", False, f"YAML parse error: {e}")
@@ -429,7 +580,101 @@ def check_skill(skill_path: str) -> dict:
                         severity=SEVERITY_WARNING,
                     )
 
-    # 13. summary
+    # 13. Forward links in instructions and all reference Markdown (not templates).
+    root = Path(skill_path).resolve()
+    sources = [(root / "SKILL.md", body)]
+    sources.extend((path, path.read_text(encoding="utf-8"))
+                   for path in sorted((root / "references").rglob("*.md")))
+    for source, markdown in sources:
+        for citation, exists in _forward_links(root, source, markdown):
+            origin = source.relative_to(root).as_posix()
+            add(f"forward_link:{origin}:{citation}", exists,
+                f"{origin} cites {citation}: " + ("file exists" if exists else "missing file or path outside skill"))
+
+    # 14. Prerequisite presence is separate from the quality verdict.
+    results["prerequisites"] = []
+    results["environment_ready"] = None
+    requires = fm.get("requires")
+    if "requires" not in fm:
+        add("requires_declared", False, "Declare requires (command names or 'none'); prerequisite presence is unknown", SEVERITY_WARNING)
+    else:
+        valid = isinstance(requires, str) and bool(requires.strip()) and all(
+            re.fullmatch(r"[A-Za-z0-9_.+-]+", command) for command in requires.split()) and (
+                requires == "none" or "none" not in requires.split())
+        add("requires_valid", bool(valid), "requires must be a space-separated command string, or 'none'")
+        if valid:
+            commands = [] if requires == "none" else requires.split()
+            for command in commands:
+                present = shutil.which(command) is not None
+                results["prerequisites"].append({"command": command, "present": present})
+                add(f"prerequisite:{command}", present,
+                    f"{command}: " + ("present on PATH" if present else "missing on PATH; verdict is not environment-ready"), SEVERITY_WARNING)
+            results["environment_ready"] = all(item["present"] for item in results["prerequisites"])
+
+    # 15. Artifact ownership is declared, never inferred from prose.
+    owner = fm.get("artifact-owner")
+    results["artifact_owner"] = owner
+    if "artifact-owner" not in fm:
+        add("artifact_owner_declared", False, "Declare artifact-owner: project, tool, or none", SEVERITY_WARNING)
+    else:
+        add("artifact_owner_valid", isinstance(owner, str) and owner in {"project", "tool", "none"},
+            "artifact-owner must be project, tool, or none")
+
+    # 16. Every script gets a bounded executable probe; declared tests go beyond help.
+    tests = fm.get("script-tests", {})
+    if isinstance(tests, str):
+        try:
+            tests = json.loads(tests)
+        except ValueError:
+            tests = None
+    valid_tests = isinstance(tests, dict) and all(
+        isinstance(key, str) and key.startswith("scripts/") and "\\" not in key and ".." not in Path(key).parts
+        and isinstance(value, str) and bool(value.strip()) for key, value in tests.items())
+    add("script_tests_valid", valid_tests, "script-tests must map scripts/relative-path to non-empty argument strings")
+    scripts = [path for path in sorted((root / "scripts").rglob("*"))
+               if path.is_file() and "__pycache__" not in path.parts and path.suffix != ".pyc"]
+    script_paths = {path.relative_to(root).as_posix() for path in scripts}
+    if valid_tests:
+        for relative in tests:
+            add(f"script_test_target:{relative}", relative in script_paths,
+                f"Declared self-test target {relative}: " + ("exists" if relative in script_paths else "missing script"))
+    for path in scripts:
+        relative = path.relative_to(root).as_posix()
+        declared = valid_tests and relative in tests
+        arguments = tests[relative] if declared else "--help"
+        add(f"script_test_declared:{relative}", declared,
+            "Behavioral self-test declared" if declared else "Only --help smoke-tested; declare script-tests for behavioral coverage", SEVERITY_WARNING)
+        passed, message = _exercise_script(root, relative, arguments, script_timeout)
+        add(f"script_execution:{relative}", passed is True, f"{arguments}: {message}",
+            SEVERITY_WARNING if passed is None else SEVERITY_ERROR)
+
+    # 17. Compare explicit positive triggers with the published catalog, not filenames.
+    catalog = Path(catalog_path) if catalog_path is not None else _catalog_path(root)
+    if catalog is None:
+        add("catalog_available", False, "Published catalog unavailable; collision check not performed (use --catalog)", SEVERITY_WARNING)
+    else:
+        try:
+            published = json.loads(catalog.read_text(encoding="utf-8"))["skills"]
+            if not isinstance(published, list):
+                raise ValueError("skills must be an array")
+            for other in published:
+                other_name = other["id"]
+                other_desc = other["description"]
+                if not isinstance(other_name, str) or not isinstance(other_desc, str):
+                    raise ValueError("Catalog skill id and description must be strings")
+                if other_name == name:
+                    continue
+                overlap = _triggers(str(desc or "")) & _triggers(other_desc)
+                identical = " ".join(str(desc or "").casefold().split()) == " ".join(other_desc.casefold().split())
+                if overlap or identical:
+                    detail = ", ".join(sorted(overlap)) if overlap else "identical description"
+                    add(f"trigger_collision:{other_name}", False,
+                        f"{name} overlaps {other_name}: {detail}", SEVERITY_WARNING)
+            add("catalog_available", True, f"Compared against {catalog}")
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            add("catalog_available", False, f"Cannot compare published catalog: {exc}", SEVERITY_WARNING)
+
+    # 18. summary
     if results["failed"] == 0:
         results["summary"] = (
             f"PASS — {results['passed']} checks passed"
@@ -486,7 +731,10 @@ def main(argv: list[str] | None = None) -> int:
         prog="validate.py",
         description="Validate a skill folder against the open SKILL.md format.",
     )
-    parser.add_argument("path", help="Path to the skill folder containing SKILL.md")
+    parser.add_argument("path", nargs="?", help="Path to the skill folder containing SKILL.md")
+    parser.add_argument("--catalog", help="Published registry JSON for trigger comparison (auto-discovered in this catalog)")
+    parser.add_argument("--script-timeout", type=float, default=10, help="Per-script timeout in seconds, >0 and <=30 (default: 10)")
+    parser.add_argument("--self-test", action="store_true", help="Run bundled good/bad fixture regression tests")
     parser.add_argument(
         "--format",
         choices=["human", "json", "both"],
@@ -502,11 +750,20 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.self_test:
+        import runpy
+        suite = Path(__file__).resolve().parent.parent / "assets" / "test_validate.py"
+        runpy.run_path(str(suite), run_name="__main__")
+        return 0
+    if args.path is None:
+        parser.error("path is required unless --self-test is used")
+    if not 0 < args.script_timeout <= 30:
+        parser.error("--script-timeout must be >0 and <=30")
     if not os.path.isdir(args.path):
         print(f"Error: not a directory: {args.path}", file=sys.stderr)
         return 2
 
-    results = check_skill(args.path)
+    results = check_skill(args.path, catalog_path=args.catalog, script_timeout=args.script_timeout)
 
     if args.format in {"human", "both"}:
         print_report(results, verbose=args.verbose)

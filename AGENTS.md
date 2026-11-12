@@ -24,7 +24,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 - `bun run build` — bundles `packages/skills/dist/grimoire.js` and `packages/mcp/dist/index.js`.
 - `bun run typecheck` — typechecks all packages.
 - `bun run --cwd packages/skills catalog:generate` — rebuilds `catalog/v1/registry.json`, copies allowlisted skill files, and regenerates `catalog.json` from the validated registry.
-- `python3 packages/skills/skills/skill-forge/scripts/validate.py packages/skills/skills/skill-forge` — SKILL.md structure validator (23 checks; 1 pre-existing warning, not a failure).
+- `python3 -B packages/skills/scripts/validate-skills.py` — runs the skill-forge mechanism validator over every catalog skill and ratchets findings against `packages/skills/skills/skill-forge/references/validation-baseline.json`; only listed legacy errors are accepted, and new or stale baseline entries fail. CI and the catalog release security job both use this command; never add a strict per-skill `validate.py` loop to a workflow. Single skill: `python3 packages/skills/skills/skill-forge/scripts/validate.py <skill-dir>` (`--self-test` runs the good/bad fixture suite).
 - New skills must follow the skill-forge conventions (`packages/skills/skills/skill-forge/SKILL.md` §2.2 folder layout): `SKILL.md` plus `references/`, `assets/`, or `scripts/` only when the skill's content justifies them.
 
 ## Maintaining this file

@@ -32,6 +32,8 @@ jobs:
       - run: bun run typecheck
       - run: bun run test
       - run: bun run lint
+      - name: Validate skill mechanisms against the listed baseline
+        run: python3 -B packages/skills/scripts/validate-skills.py
       - name: Verify generated catalog is up to date
         run: |
           export CATALOG_REVISION=$(node -e 'console.log(require("./packages/skills/catalog/v1/registry.json").revision)')
