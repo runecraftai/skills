@@ -4,10 +4,12 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parent.parent
@@ -50,6 +52,36 @@ class MechanismTests(unittest.TestCase):
         self.assertTrue(any(c["name"] == "script_execution:scripts/check.py" and c["passed"] for c in result["checks"]))
         after = {p.relative_to(good): p.read_bytes() for p in good.rglob("*") if p.is_file()}
         self.assertEqual(before, after)
+
+    @unittest.skipUnless(os.name == "posix", "process groups are POSIX-only")
+    def test_clean_exit_does_not_signal_a_reaped_process_group(self):
+        good = self.copy_good()
+        calls = []
+        real_killpg = os.killpg
+
+        def record(pid, sig):
+            calls.append(pid)
+            return real_killpg(pid, sig)
+
+        with mock.patch.object(os, "killpg", record):
+            result = self.check(good)
+        self.assertEqual(self.errors(result), set(), result)
+        self.assertEqual(calls, [])
+
+    @unittest.skipUnless(os.name == "posix", "process groups are POSIX-only")
+    def test_timeout_kills_the_unreaped_process_group(self):
+        calls = []
+        real_killpg = os.killpg
+
+        def record(pid, sig):
+            calls.append(sig)
+            return real_killpg(pid, sig)
+
+        with mock.patch.object(os, "killpg", record):
+            result = self.check(FIXTURES / "bad-skill")
+        messages = {c["name"]: c["message"] for c in result["checks"]}
+        self.assertEqual(messages["script_execution:scripts/slow.py"], "--self-test: Timed out after 0.5s")
+        self.assertEqual(calls, [signal.SIGKILL])
 
     def test_bad_fixture_names_missing_body_reference_script_and_timeout(self):
         result = self.check(FIXTURES / "bad-skill")

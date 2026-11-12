@@ -347,14 +347,14 @@ def _exercise_script(root: Path, relative: str, arguments: str, timeout: float):
                     process.wait(timeout=timeout)
                 except subprocess.TimeoutExpired:
                     timed_out = True
-                finally:
-                    # Kill descendants too, including ones left after the parent exits.
+                if process.poll() is None:
+                    # The child is still unreaped, so its process group id cannot be recycled.
                     if os.name == "posix":
                         try:
                             os.killpg(process.pid, signal.SIGKILL)
                         except ProcessLookupError:
                             pass
-                    elif process.poll() is None:
+                    else:
                         process.kill()
                     process.wait()
                 if timed_out:

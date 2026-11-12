@@ -678,8 +678,8 @@
         },
         {
           "path": "assets/test_validate.py",
-          "size": 11685,
-          "sha256": "0467c07eba652b8046279205c2166195dd5ce8f421c3b3a767758c901a757f0a"
+          "size": 12882,
+          "sha256": "85211a4a48f5fdc054c98441b2a3311a82a7556df28e9b5ee77ee5fe702573b4"
         },
         {
           "path": "references/authoring-patterns.md",
@@ -698,13 +698,13 @@
         },
         {
           "path": "references/scripts-guide.md",
-          "size": 9795,
-          "sha256": "1c480feb98203dedc464738a13f74163073297adb62229a2a3084ad9cc418375"
+          "size": 9805,
+          "sha256": "e592640efca3d51a560cb3bb8c1f88892fd36c85d1634d02fe4cc04163ec7774"
         },
         {
           "path": "references/spec.md",
-          "size": 16756,
-          "sha256": "f077c0f73a843c3234b06bb780988b6a67d466ad7bfa93833baef88cf15a6281"
+          "size": 16875,
+          "sha256": "a052345498b922453bd27a6d7f80aed26643197a2e4ad5ce7c52dadfd9dc245a"
         },
         {
           "path": "references/validation-baseline.json",
@@ -713,8 +713,8 @@
         },
         {
           "path": "scripts/validate.py",
-          "size": 32563,
-          "sha256": "ae22cb46cc9bf97476e62267e1f544d1234fdf4ec71a1f42c0fa264c097b6cae"
+          "size": 32565,
+          "sha256": "8d8d2dfa4f89dbde79637cfc9eeb2bd9be370a95b35a70c8ea720b2d6a381e9c"
         },
         {
           "path": "SKILL.md",
@@ -722,7 +722,7 @@
           "sha256": "f8f0dee71c64f22f024d00f62ba87b2db6aab80196de3d75ebdcc601d2bd8a3f"
         }
       ],
-      "contentSha256": "bb95c3f9049f22808b297bd7fa0266087652216be97d543945e745f53b410822"
+      "contentSha256": "526e033f0fd58b604d5daeb0f4f1860b277f6aef6c0b7a0ecc6b0042698ca8da"
     },
     {
       "id": "source-driven-development",
