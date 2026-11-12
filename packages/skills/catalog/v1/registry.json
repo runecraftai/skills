@@ -618,7 +618,7 @@
     {
       "id": "skill-forge",
       "name": "skill-forge",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "Agent Skills",
       "description": "Designs, authors, validates, and optimizes new Agent Skills from scratch. Use when creating a new skill, packaging a workflow as a skill, improving a skill's triggering accuracy, or evaluating whether a skill improves output quality. Covers the full lifecycle: DISCOVER, DESIGN, AUTHOR, VALIDATE, OPTIMIZE, DELIVER. Produces skills that follow the open SKILL.md format (YAML frontmatter + Markdown body, progressive disclosure, validation loops). EN triggers: /forge, create a skill, write a skill, build a skill, new skill, author a skill, package this as a skill, validate a skill, improve skill triggering, optimize skill description, evaluate skill quality. PT triggers: /forge, criar uma skill, escrever uma skill, construir uma skill, nova skill, empacotar como skill, validar skill, melhorar disparo, otimizar descrição de skill. Do NOT use for: discovering which existing skill to apply (use a dispatch/meta skill), planning feature implementation, or designing software architecture.",
       "license": "CC-BY-4.0",
@@ -632,14 +632,59 @@
       "entrypoint": "SKILL.md",
       "files": [
         {
+          "path": "assets/fixtures/bad-skill/references/guide.md",
+          "size": 62,
+          "sha256": "8b4a7ad6592fd8777ef8f3e802800c379d1afb074fa79318dfbfb286f3d8b315"
+        },
+        {
+          "path": "assets/fixtures/bad-skill/scripts/broken.py",
+          "size": 49,
+          "sha256": "2be01352efc7347127e57ad3de9f529e1d56225188eb811821df6c6a3fc64385"
+        },
+        {
+          "path": "assets/fixtures/bad-skill/scripts/slow.py",
+          "size": 28,
+          "sha256": "b19767d3a2ee32a264e44755917be6b8688499abf76d41cb3c33e60c5ecb5140"
+        },
+        {
+          "path": "assets/fixtures/bad-skill/SKILL.md",
+          "size": 398,
+          "sha256": "82a9a120af2e585c364b547f76199075525b5303cd1a0325077357459bbae116"
+        },
+        {
+          "path": "assets/fixtures/catalog.json",
+          "size": 280,
+          "sha256": "7e6ef5724aef3a685e66e44fafdc44023bb6442bf99b6f70524edabcea5d8680"
+        },
+        {
+          "path": "assets/fixtures/good-skill/references/guide.md",
+          "size": 53,
+          "sha256": "21534531a28db4664f5015461ffb14f0cdac7310af2933aa1a5b0669bcbbbcad"
+        },
+        {
+          "path": "assets/fixtures/good-skill/scripts/check.py",
+          "size": 381,
+          "sha256": "6c89a5f91235fe4ad2630a428bd1fb649eaf5b75c2cc8bacd5b464ef3227fa65"
+        },
+        {
+          "path": "assets/fixtures/good-skill/SKILL.md",
+          "size": 322,
+          "sha256": "acd9052af624ca7d1522c06f6de0bdc52a75c5694c3891ec3f6493527872a99e"
+        },
+        {
           "path": "assets/SKILL.template.md",
-          "size": 1462,
-          "sha256": "f3646eb12a1e34ec80be876bc1eeb0fbad2501cd3d566e9f0253cb6bfe175f0a"
+          "size": 1633,
+          "sha256": "8ce29c3bbe13cf47d9f980fe793f98bd2a1e4d5fe4496299b242cd97cb1d48c1"
+        },
+        {
+          "path": "assets/test_validate.py",
+          "size": 11685,
+          "sha256": "0467c07eba652b8046279205c2166195dd5ce8f421c3b3a767758c901a757f0a"
         },
         {
           "path": "references/authoring-patterns.md",
-          "size": 10838,
-          "sha256": "408b458653d8d1593610b679d9ae1bcae9d72ba138934663e27f0d4bc7ccf789"
+          "size": 10913,
+          "sha256": "126814ce68fa75ae1b39aaf2b25f0401cb1a90816b905c38d8d74872e31fa1cb"
         },
         {
           "path": "references/description-optimization.md",
@@ -653,26 +698,31 @@
         },
         {
           "path": "references/scripts-guide.md",
-          "size": 8440,
-          "sha256": "6b96b481ef6a35d2967130d1b3554c0b0a1601887ae828ba71b374489adabe3e"
+          "size": 9795,
+          "sha256": "1c480feb98203dedc464738a13f74163073297adb62229a2a3084ad9cc418375"
         },
         {
           "path": "references/spec.md",
-          "size": 6363,
-          "sha256": "ab40e14c210b31285f20292819e11a45818bbbba15338024d199ed1b3a819d2d"
+          "size": 16756,
+          "sha256": "f077c0f73a843c3234b06bb780988b6a67d466ad7bfa93833baef88cf15a6281"
+        },
+        {
+          "path": "references/validation-baseline.json",
+          "size": 677,
+          "sha256": "058036a9a37029956b18b5a3a52b7cf207d6604fa2ab44156b2eaf3117a6aa5e"
         },
         {
           "path": "scripts/validate.py",
-          "size": 19138,
-          "sha256": "ee7d323ca10fc464bddbb40fdd7d2ceacc3195829047b7747f4be9ae6ff970e2"
+          "size": 32563,
+          "sha256": "ae22cb46cc9bf97476e62267e1f544d1234fdf4ec71a1f42c0fa264c097b6cae"
         },
         {
           "path": "SKILL.md",
-          "size": 13327,
-          "sha256": "7f259e42b273a0d4457d54bb14b51fd68a87908f84d0ce447179894c6f490aba"
+          "size": 14883,
+          "sha256": "f8f0dee71c64f22f024d00f62ba87b2db6aab80196de3d75ebdcc601d2bd8a3f"
         }
       ],
-      "contentSha256": "0a9815b4b876d0a0b7da0a2c00d675c5a468d17464a6255aa03e68c286b0ad51"
+      "contentSha256": "bb95c3f9049f22808b297bd7fa0266087652216be97d543945e745f53b410822"
     },
     {
       "id": "source-driven-development",

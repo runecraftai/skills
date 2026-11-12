@@ -77,7 +77,13 @@ Comprehensive skills can hurt — the agent struggles to extract what's relevant
 
 Keep `SKILL.md` under 500 lines and 5000 tokens — the core the agent needs on every run. When more is legitimately needed, move detail to `references/` and tell the agent **when** to load each file.
 
-> "Read `references/api-errors.md` if the API returns a non-200 status code" is more useful than a generic "see references/ for details."
+For example, a hypothetical API skill can say:
+
+```text example
+Read references/api-errors.md if the API returns a non-200 status code.
+```
+
+That is more useful than a generic "see references/ for details."
 
 ## Calibrating control
 
@@ -98,7 +104,7 @@ Not every part needs the same level of prescriptiveness. Match specificity to fr
 
 **Be prescriptive** when operations are fragile, consistency matters, or a specific sequence must be followed.
 
-```markdown
+````markdown
 ## Database migration
 
 Run exactly this sequence:
@@ -108,7 +114,7 @@ python scripts/migrate.py --verify --backup
 ```
 
 Do not modify the command or add additional flags.
-```
+````
 
 Most skills have a mix. Calibrate each part independently.
 
@@ -116,7 +122,7 @@ Most skills have a mix. Calibrate each part independently.
 
 When multiple tools or approaches could work, pick a default and mention alternatives briefly.
 
-```markdown
+````markdown
 <!-- Too many options -->
 You can use pypdf, pdfplumber, PyMuPDF, or pdf2image...
 
@@ -128,7 +134,7 @@ import pdfplumber
 ```
 
 For scanned PDFs requiring OCR, use pdf2image with pytesseract instead.
-```
+````
 
 ### Favor procedures over declarations
 
@@ -174,7 +180,7 @@ When the agent makes a mistake you have to correct, add the correction to the go
 
 When the agent must produce output in a specific format, provide a template. Agents pattern-match well against concrete structures. Short templates can live inline; longer ones go in `assets/`.
 
-```markdown
+````markdown
 ## Report structure
 
 Use this template, adapting sections as needed:
@@ -193,7 +199,7 @@ Use this template, adapting sections as needed:
 1. Specific actionable recommendation
 2. Specific actionable recommendation
 ```
-```
+````
 
 ### Checklists for multi-step workflows
 

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "description": "Initial additive forward-link findings. These remain validator errors, not waivers in the validator. Other skills are outside this change's authorized surface. Catalog CI rejects new findings and stale baseline entries.",
+  "errors": {
+    "constraint-driven-development": [
+      "forward_link:SKILL.md:references/floor-guard.md"
+    ],
+    "shipping-and-launch": [
+      "forward_link:SKILL.md:references/definition-of-done.md"
+    ],
+    "test-driven-development": [
+      "forward_link:SKILL.md:references/testing-patterns.md"
+    ],
+    "using-agent-skills": [
+      "forward_link:SKILL.md:references/definition-of-done.md"
+    ]
+  }
+}

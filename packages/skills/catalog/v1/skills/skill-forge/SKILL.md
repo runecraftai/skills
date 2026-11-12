@@ -14,8 +14,11 @@ description: >
   Do NOT use for: discovering which existing skill to apply (use a dispatch/meta skill),
   planning feature implementation, or designing software architecture.
 license: CC-BY-4.0
+requires: python3
+artifact-owner: project
+script-tests: '{"scripts/validate.py": "--self-test"}'
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # skill-forge
@@ -200,19 +203,23 @@ For each `references/*.md` or `scripts/*`:
 
 ## Phase 4: VALIDATE
 
-**Goal:** Catch structural and spec errors before delivery.
+**Goal:** Catch structural and mechanism errors before delivery.
 
 ### 4.1 Run the bundled validator
 
 ```bash
 python3 scripts/validate.py <skill-folder>
-# or, with PEP 723 inline dependencies via uv:
-uv run --no-project scripts/validate.py <skill-folder>
+# Exercise the validator's positive and negative controls:
+python3 scripts/validate.py --self-test
 ```
 
-The validator checks: folder kebab-case, SKILL.md exists, frontmatter YAML valid, `name` rules, `description` rules, body line count, examples present, references linked, no XML in description.
+The validator keeps the format checks and adds forward links from instructions and reference prose, bounded script execution, prerequisite presence, artifact ownership, and published-catalog trigger collision warnings. Read [references/spec.md](references/spec.md) for exact fields, check names, and limits before interpreting a verdict.
 
-Pass = exit code 0. Warnings are allowed. Errors are not.
+Declare `requires` (space-separated executable names, or `none`), `artifact-owner` (`project`, `tool`, or `none`), and `script-tests` (JSON-encoded map of script paths → argument strings, kept scalar for catalog compatibility). Use behavioral self-tests that assert both accepted and rejected inputs; `--help` alone only establishes startup health. The bundled [assets/fixtures](assets/fixtures) and [assets/test_validate.py](assets/test_validate.py) demonstrate good/bad controls, import failure, and timeout detection.
+
+Only validate trusted scripts: the runner uses disposable copies and scratch working/home/temp directories, but is not an OS sandbox. It never installs prerequisites. Project-owned artifacts follow the consuming project's conventions; tool-owned artifacts follow explicit paths documented by that tool. Do not invent a competing output directory.
+
+Pass = exit code 0. Warnings are allowed. Errors are not. A PASS is not proof that prerequisites are available: check `environment_ready` and `prerequisites` in `--format json` or `--json-out FILE`; unknown or missing requirements must be resolved before relying on a runtime-dependent verdict.
 
 ### 4.2 Spec re-check
 
@@ -294,6 +301,7 @@ Keep the skill self-contained. Make sure the skill folder is at a path the targe
 - **[references/scripts-guide.md](references/scripts-guide.md)** — using scripts in skills: PEP 723, agentic script design, --help, exit codes.
 - **[scripts/validate.py](scripts/validate.py)** — stdlib-only validator; `--json-out` for agentic consumption.
 - **[assets/SKILL.template.md](assets/SKILL.template.md)** — blank template for new skills.
+- **[references/validation-baseline.json](references/validation-baseline.json)** — catalog findings accepted as the initial additive-check baseline; consult when the catalog check reports a regression.
 
 ## Anti-patterns to avoid
 

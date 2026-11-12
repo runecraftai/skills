@@ -31,6 +31,9 @@ A skill may also include `evals/evals.json` for output-quality evaluation (see [
 | `compatibility` | No | 1-500 chars; intended product, system packages, network access, etc. |
 | `metadata` | No | Arbitrary key→string mapping. Use unique key names to avoid conflicts. |
 | `allowed-tools` | No | Space-separated string of pre-approved tools. Experimental. |
+| `requires` | No, warning when absent | Space-separated executable names to locate on PATH, or the literal `none`. |
+| `artifact-owner` | No, warning when absent | Exactly `project`, `tool`, or `none`. |
+| `script-tests` | No, warning per undeclared script | JSON-encoded map in a YAML string scalar: skill-root-relative script path → behavioral self-test arguments. Standalone validation also accepts a one-level YAML map. |
 
 ### `name` rules
 
@@ -94,6 +97,28 @@ allowed-tools: Bash(git:*) Bash(jq:*) Read
 ```
 
 Support varies across agents.
+
+### Mechanism fields (additive catalog conventions)
+
+These fields extend the catalog's authoring conventions without changing the underlying TLC/open SKILL.md format or its existing checks. They use the dependency-free YAML subset. Keep published catalog additions scalar because its frontmatter reader only supports the pre-existing nested `metadata` block. PyYAML is an optional fallback for syntax outside that subset, never an installed dependency.
+
+```yaml example
+requires: python3 git
+artifact-owner: project
+script-tests: '{"scripts/check.py": "--self-test"}'
+```
+
+**`requires`:** Declare executable names, not shell commands, version predicates, paths, package names, or installation instructions. Names contain only letters, digits, `_`, `.`, `+`, or `-`; separate names with whitespace. Use exactly `none` for no executable prerequisites; do not combine it with other names. An empty value, boolean, or mapping is invalid. Presence means `shutil.which` finds an executable on the current PATH; it does not prove version compatibility, service availability, MCP connectivity, or authorization. Keep additional compatibility constraints in `compatibility` and verify those separately. The validator never executes prerequisite probes or installs anything.
+
+**`artifact-owner`:** `project` means artifacts follow the consuming project's existing paths and conventions. `tool` means the skill's named tool owns artifact paths; document those paths in the body. `none` means the skill produces no persistent artifacts (stdout is allowed). The validator checks the declaration, not whether prose or arbitrary code faithfully follows it. Do not invent a competing artifact directory when the project already has one.
+
+Both fields are optional-with-warning during migration: absence is unknown, not an implicit `none`. Invalid declarations are errors immediately. Absence becomes an error only in a later, explicitly versioned catalog policy after existing skills have been migrated; this release has no strict-absence mode and does not retroactively require the fields.
+
+**`script-tests`:** Encode a JSON object in a quoted YAML string scalar, as above, for the catalog. Standalone validation also accepts a one-level YAML mapping with the same keys and values. JSON parse failures or non-object values are errors. Keys are paths under `scripts/`, using forward slashes and no `..` components. Values are non-empty argument strings, split with `shlex.split`, never passed to a shell. For example, `--self-test` should run assertions for both valid and rejected inputs and exit 0 only when all assertions hold. Each declared target must exist. Every regular file recursively under `scripts/` is probed, excluding bytecode and `__pycache__`; keep non-executable test data in `assets/`. An undeclared script runs with `--help` and emits a coverage warning: this is startup smoke coverage, not proof of its gates.
+
+Self-tests must be non-interactive, offline, bounded, and scratch-only. Do not install dependencies, use absolute/parent-relative output paths, modify external files, or launch detached processes. The runner rejects absolute/parent-relative arguments and symlink-containing skills. It copies the skill per script, sets cwd to the copy and HOME/temp variables to scratch, supplies a minimal environment, closes stdin, and captures combined output (up to 4096 bytes in the report). Default timeout: 10 seconds per script; `--script-timeout` accepts a finite number greater than 0 and at most 30. Nonzero exit, launch failure, or timeout is an error. POSIX process groups are killed on completion/timeout, including descendants. On non-POSIX systems only the direct process is killed; self-tests must not spawn children there.
+
+Runners: `.py` uses the current Python interpreter with bytecode disabled; `.sh` uses available Bash; `.js`/`.mjs` use Node; `.ts` uses Bun. Missing or unsupported runners produce an explicit unexercised warning, not a successful execution check. Bun probes disable automatic package installation. Python 3.8+ and its stdlib are sufficient for the validator and its own tests. The execution contract is for **trusted code**, not an OS sandbox: a malicious script can bypass cwd/environment isolation. Inspect untrusted skills before running this validator.
 
 ## Body content
 
@@ -163,7 +188,7 @@ Implications for skill design:
 
 When referencing other files, use **relative paths from the skill root**:
 
-```markdown
+````markdown
 See [the reference guide](references/spec.md) for details.
 
 Run the validator:
@@ -171,10 +196,63 @@ Run the validator:
 ```bash
 python3 scripts/validate.py ./my-skill
 ```
-```
+````
 
 Keep references one level deep from `SKILL.md`. Avoid deeply nested chains.
 
 ## Validation
 
 This skill ships its own bundled validator at `../scripts/validate.py` (stdlib-only, no external deps, JSON output for agentic consumption). Use it as the single source of truth for what the format requires.
+
+### Added checks
+
+All existing format, body, and reverse-link checks remain. New checks are additive:
+
+| Check name | Failure severity | Meaning |
+|---|---|---|
+| `forward_link:SOURCE:TARGET` | Error | A concrete file citation does not resolve to a regular file inside the skill. |
+| `requires_declared` | Warning | Executable prerequisites are undeclared; presence is unknown. |
+| `requires_valid` | Error | A declared `requires` value violates the field grammar above. |
+| `prerequisite:COMMAND` | Warning | A declared executable is missing on PATH. Never installed automatically. |
+| `artifact_owner_declared` | Warning | Artifact ownership is undeclared. |
+| `artifact_owner_valid` | Error | Declared owner is not one of the three enum values. |
+| `script_tests_valid` | Error | The script-test map or an argument value is malformed. |
+| `script_test_target:PATH` | Error | A declared test points at a missing script. |
+| `script_test_declared:PATH` | Warning | No behavioral test is declared; only help is probed. |
+| `script_execution:PATH` | Error, or warning if no runner | Probe failed, timed out, could not launch, or could not be exercised. The message distinguishes these outcomes. |
+| `catalog_available` | Warning | The published registry could not be found/read; collision checking is incomplete. |
+| `trigger_collision:OTHER` | Warning | Candidate and another published skill claim an identical explicit positive trigger or identical description. The message names both. |
+
+**Forward-link scope:** Scan the SKILL.md body and every Markdown file recursively under `references/`. Check concrete `references/`, `scripts/`, and `assets/` path citations in prose, inline code, and command fences, plus local Markdown link targets (including sibling links). Root-prefixed paths resolve from the skill root; sibling/parent-relative Markdown links resolve from the containing document. Strip fragments and trailing prose punctuation. External URLs, directory-only mentions, globs, and placeholder paths are not concrete file citations. Markdown/MD template fences and fences explicitly labeled `example` are illustrative, not file dependencies. Use a four-backtick outer fence when showing a template that itself contains triple-backtick fences. Asset templates and fixture bodies are not recursively validated as skills during their parent's validation; fixture tests validate them independently.
+
+**Collision scope:** Auto-discover the ancestor package's `catalog/v1/registry.json`, or pass `--catalog FILE` with its `{skills: [{id, description}]}` data shape. Skip the candidate's own ID. Compare case/whitespace-normalized complete descriptions and exact normalized explicit trigger phrases after a `Trigger:`/`Triggers:` label. Quoted phrases are preferred; comma/semicolon-separated phrases are supported otherwise. Normalize phrase punctuation and case; accept slash triggers or phrases with at least two words. Exclude `Do NOT use`, `Don't use`, and `Not for` clauses. Shared generic description words alone do not warn. This conservative lexical check does not claim semantic similarity detection.
+
+### Executable controls and reporting
+
+```bash
+python3 scripts/validate.py --self-test
+python3 scripts/validate.py ./candidate --format json --json-out ./report.json
+```
+
+The bundled `assets/test_validate.py` runs good and bad fixture controls under `assets/fixtures/`, executing the CLI as well as the Python API. It proves missing links, import failure, timeout failure, collision warnings, prerequisite readiness, scratch isolation, and preservation of format errors. Test outputs are created only in temporary directories. The repository's standard `bun run test` invokes this suite, and CI runs `python3 -B packages/skills/scripts/validate-skills.py` across the catalog.
+
+JSON keeps `path`, `checks` (each with `name`, `passed`, `message`, `severity`), `passed`, `failed`, `warnings`, `summary`, and `next_steps`. Additions on a structurally parseable skill are:
+
+- `prerequisites`: array of `{command, present}`; no installation paths or environment secrets.
+- `environment_ready`: `true` when all declared executable prerequisites are present (including `requires: none`), `false` when one is missing, `null` when undeclared or invalid. Early format failures do not include these fields; treat absence as unknown.
+- `artifact_owner`: the declared owner, or `null` when absent.
+
+A warning has `passed: false` and `severity: warning`; it never increments `failed`. Exit 0 means no errors, **not** complete behavioral coverage or environment readiness. Exit 1 means errors; exit 2 means invalid CLI usage. `--format json`, `--format both`, `--pretty-json`, and `--json-out` retain their reporting semantics. Check warning details as well as readiness before trusting a runtime-dependent verdict.
+
+### Initial catalog baseline
+
+The baseline is an integration ratchet, not a relaxation of any validator check. `references/validation-baseline.json` lists these pre-existing missing citations exposed by the new checks:
+
+| Skill | Missing citation |
+|---|---|
+| `constraint-driven-development` | floor-guard reference |
+| `shipping-and-launch` | definition-of-done reference |
+| `test-driven-development` | testing-patterns reference |
+| `using-agent-skills` | definition-of-done reference |
+
+These four skills continue to receive error verdicts from the validator. They are outside this change's content scope. The catalog CI command accepts exactly these named findings; new errors fail it, and resolved findings require removal of their now-stale baseline entries. All 33 existing skills passed the original format checks before this addition.

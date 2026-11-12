@@ -45,7 +45,7 @@ List available scripts in your `SKILL.md` so the agent knows they exist:
 
 Then instruct the agent to run them:
 
-```markdown
+````markdown
 ## Workflow
 
 1. Run the validation script:
@@ -59,9 +59,17 @@ Then instruct the agent to run them:
    ```bash
    python3 scripts/process.py --input results.json
    ```
-```
+````
 
 The same relative-path convention works in support files like `references/*.md` — script execution paths are relative to the **skill directory root**.
+
+## Bounded validation self-tests
+
+Declare each bundled script in `script-tests`, a JSON-encoded map in a YAML string scalar (for catalog parser compatibility). Each map value is an argument string split without a shell; use `--self-test` to exercise accepted inputs, rejected inputs, and assertions without external services or installs. Run `python3 scripts/validate.py --self-test` to exercise this skill's own good/bad controls.
+
+The validator copies the skill to scratch, sets working/home/temp directories there, closes stdin, limits each process to 10 seconds (configurable up to 30), and kills its POSIX process group on completion or timeout. Source-relative writes land in the copy. Self-tests must not use absolute output paths, modify external files, launch detached processes, or install dependencies. This is a trusted-code execution contract, not an OS sandbox; inspect untrusted scripts before validating them.
+
+Absent declarations get a `--help` smoke probe plus a coverage warning; successful help is not proof of gate correctness. Missing runners are reported as unexercised warnings, never as executed passes. Keep runtime dependencies in `requires` and interpret `environment_ready` separately from the format verdict. See [spec.md](spec.md) for the exact field and result contracts.
 
 ## Self-contained scripts
 
@@ -87,7 +95,7 @@ print(BeautifulSoup(html, "html.parser").select_one("p.info").get_text())
 
 Run with `uv` (recommended):
 
-```bash
+```bash example
 uv run scripts/extract.py
 ```
 
@@ -107,7 +115,7 @@ const $ = cheerio.load(html);
 console.log($("p.info").text());
 ```
 
-```bash
+```bash example
 deno run scripts/extract.ts
 ```
 
@@ -127,7 +135,7 @@ const $ = cheerio.load(html);
 console.log($("p.info").text());
 ```
 
-```bash
+```bash example
 bun run scripts/extract.ts
 ```
 
@@ -150,7 +158,7 @@ doc = Nokogiri::HTML(html)
 puts doc.at_css('p.info').text
 ```
 
-```bash
+```bash example
 ruby scripts/extract.rb
 ```
 
@@ -166,7 +174,7 @@ Hard requirement of the agent environment. Agents operate in non-interactive she
 
 Accept all input via command-line flags, environment variables, or stdin:
 
-```text
+```text example
 # Bad: hangs waiting for input
 $ python scripts/deploy.py
 Target environment: _
@@ -181,7 +189,7 @@ Usage: python scripts/deploy.py --env staging --tag v1.2.3
 
 `--help` output is the primary way an agent learns your script's interface. Include a brief description, available flags, and usage examples:
 
-```text
+```text example
 Usage: scripts/process.py [OPTIONS] INPUT_FILE
 
 Process input data and produce a summary report.
