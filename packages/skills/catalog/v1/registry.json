@@ -713,8 +713,8 @@
         },
         {
           "path": "scripts/validate.py",
-          "size": 32565,
-          "sha256": "8d8d2dfa4f89dbde79637cfc9eeb2bd9be370a95b35a70c8ea720b2d6a381e9c"
+          "size": 32609,
+          "sha256": "8f8be20ee78431e1ed9650200b9bfffdebc0f67f577276cf91290633951d37c0"
         },
         {
           "path": "SKILL.md",
@@ -722,7 +722,7 @@
           "sha256": "f8f0dee71c64f22f024d00f62ba87b2db6aab80196de3d75ebdcc601d2bd8a3f"
         }
       ],
-      "contentSha256": "30c741e6532fa8823e8890a6da057511e2dfb9a171315a88b715bda7aa97d409"
+      "contentSha256": "75246eee9204dd25d04ed3acb4cfe9ab602610a8fac7535226eab2115dc2eafa"
     },
     {
       "id": "source-driven-development",

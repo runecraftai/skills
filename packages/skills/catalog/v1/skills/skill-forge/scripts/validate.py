@@ -9,6 +9,7 @@ Usage:
     python3 scripts/validate.py <path-to-skill-folder>
     python3 scripts/validate.py <path-to-skill-folder> --format json
     python3 scripts/validate.py <path-to-skill-folder> --json-out /tmp/skill-report.json
+    python3 scripts/validate.py --self-test
     python3 scripts/validate.py --help
 
 Exit codes:
