@@ -65,11 +65,11 @@ Plan and implement features with precision. Verifiable slices. Clear dependencie
 - **Specify and Execute are always required on the pipeline path** — you always need to know WHAT and DO it; **Cut only** is the single exception, because a source that is already decided carries its own WHAT
 - **Design is skipped** when the change is straightforward (no architectural decisions, no new patterns)
 - **Tasks is skipped** when there are ≤3 obvious steps (they become implicit in Execute)
-- **Cut only is a complete run** — when someone already decided the source and nobody asked for a `.specs/` pipeline, stop at `.tasks/<name>.md`. That path is the Tasks phase without the phases around it, not a lesser one: it skips nothing about the cut, the grounding, the surfaces or the sweep.
+- **Cut only is a complete run** — a decided source, with nobody asking for a `.specs/` pipeline, stops at `.tasks/<name>.md`. It is the Tasks phase without the phases around it, not a lesser one: it skips nothing about the cut, the grounding, the surfaces or the sweep.
 - **Discuss is triggered within Specify** when the agent detects ambiguous gray areas that need user input, or when the feature has any implicit-requirement dimension present (persistence/state, external calls, auth, payments, concurrency, state transitions)
 - **Interactive UAT is triggered within Execute** only for user-facing features with complex behavior
 
-**Safety valve:** Even when Tasks is skipped, Execute ALWAYS starts by listing atomic steps inline (see [implement.md](references/implement.md)). If that listing reveals >5 steps or complex dependencies, STOP and create a formal `tasks.md` — the Tasks phase was wrongly skipped.
+**Safety valve:** Even when Tasks is skipped, Execute starts by listing atomic steps inline. If that listing reveals >5 steps or complex dependencies, STOP and create a formal `tasks.md` — the Tasks phase was wrongly skipped.
 
 ## .specs Structure
 
@@ -107,53 +107,17 @@ Written on the Cut-only path, and whenever the cut is itself the deliverable. [d
 
 Most requests describe one capability. If this one does, skip this phase and go straight to Specify — it exists for the exception, not the rule, and puts no hierarchy on single-capability features.
 
-**Decompose before specifying when a single requirement bundles several independently testable capabilities:**
-- The requirement names distinct capabilities with their own consumers or data (e.g. identity, billing, notifications, reporting)
-- Acceptance criteria cluster into groups that could ship and be verified separately
-- One capability could be cut or replaced without rewriting the others' requirements
+**Decompose before specifying when a single requirement bundles several independently testable capabilities:** they name distinct capabilities with their own consumers or data, their acceptance criteria cluster into groups that could ship and be verified separately, and one could be cut or replaced without rewriting the others' requirements.
 
-**Propose a capability map before writing any spec.** Small and reviewable — a module table plus a build order, not a project plan:
+**Propose a capability map before writing any spec.** Small and reviewable — a module table plus a build order, not a project plan — and gated like every phase: the human reviews module boundaries, dependency direction and build order before any module spec is written. Then recurse per module in dependency order, one spec per module scoped to that module's objective.
 
-```markdown
-# Capability Map: [Initiative Name]
+Module-id, dependency-direction and boundary rules, and the map template, have one owner: [specify.md](references/specify.md) § Capability Mapping.
 
-| Module id | Responsibility | Depends on |
-|---|---|---|
-| identity | Accounts, sessions, SSO | — |
-| billing | Plans, invoices, payments | identity |
-| notifications | Email and webhook fan-out | identity |
-| reporting | Usage dashboards | billing, notifications |
+### Plan and Task List Files
 
-Build order: identity → billing, notifications → reporting
-```
+**Plan document:** save the implementation plan to `tasks/plan.md` — always markdown, because design decisions, risks and open questions don't map cleanly onto individual tracker issues. **Task list:** record each task in the task list target — default a checklist-style `tasks/todo.md`, or one tracker item per task when the project's agent rules or the user designate an issue tracker (note it in `tasks/plan.md`).
 
-- **Stable module ids.** Kebab-case, chosen once, never renamed mid-initiative. Specs, plans, and downstream commands select work by these ids instead of guessing which spec is active.
-- **Dependency direction, no cycles.** Arrows point one way. If two modules each need the other, they are one module.
-- **Interfaces live at the boundary.** The map records that `billing` depends on `identity`; the contract between them belongs in the provider module's spec.
-
-**The map is gated like every phase.** The human reviews module boundaries, dependency direction, and build order before any module spec is written.
-
-**Then recurse per module.** Run Specify → Plan → Tasks → Implement for each module in dependency order. Each module gets its own spec, scoped to that module's objective, boundaries, and success criteria. Save the approved map at the project root and each module's spec alongside it, named by module id (`SPEC-identity.md`, `SPEC-billing.md`) — the map, not filename guessing, is the index of what exists.
-
-### Plan Document and Output Files
-
-**Plan document:** Save the implementation plan to `tasks/plan.md`. This is always a markdown file — design decisions, risks, and open questions don't map cleanly onto individual tracker issues.
-
-**Task list:** Record each task in the **task list target** (defined below). Create the `tasks/` directory if it does not exist.
-
-**Never overwrite an incomplete plan.** Before writing `tasks/plan.md` or `tasks/todo.md`, check whether they already exist and still contain unchecked tasks:
-
-- Same work being replanned (the user asked to revise or extend this plan) → update the existing files in place.
-- Different work → **stop and ask.** The unchecked tasks may be mid-build in another session. Do not delete, overwrite, or rename the existing files on your own; present the conflict and let the user decide.
-
-The same rule applies to an external task list target: never bulk-close or delete another plan's open tracker items to make room for new ones.
-
-**Task list target:** Where tasks and checkpoints are recorded.
-
-- **Default: a checklist-style markdown file at `tasks/todo.md`.** This is the convention downstream tooling expects. Use it unless the project says otherwise.
-- **External tracker:** if the project's agent rules (`CLAUDE.md`, `AGENTS.md`, etc.) or the user designate an issue tracker (e.g. GitHub Issues, Jira, Linear), create one tracker item per task instead of writing `tasks/todo.md`. Map the task structure onto the tracker's fields. Record Step 5 checkpoints as tracker items too.
-
-When using an external tracker, note it in `tasks/plan.md` so downstream steps know where to look.
+**Never overwrite an incomplete plan.** Before writing either file, check whether it exists and still contains unchecked tasks: same work being replanned → update in place; different work → **stop and ask**, and never delete, rename or bulk-close another plan's open items on your own. Conventions, the external-tracker mapping and the conflict handling have one owner: [implement.md](references/implement.md) § Plan and Task List Files.
 
 ### Resume work:
 
@@ -163,9 +127,7 @@ Read `.specs/STATE.md` — Handoff section for in-flight state, Decisions sectio
 
 Cut the source. Ground it in the code. Write the task.
 
-The Tasks phase for work someone already decided. A one-line ticket counts; a blank "we should do something about billing" does not. This turns that decision into work a builder can pick up without guessing, and stops at the first thing nobody decided. It finds the operational hole the source left implicit by walking two fixed lists, not by inventing a feature.
-
-Reach for it when a design doc, PRD, RFC or thread describes what to build and you need tasks; when the user says "write the task" or "cut this into work"; when work is decided but nobody has broken it into verifiable slices; or when you need to ground a plan in the actual codebase before handing it off.
+The Tasks phase for work someone already decided: a design doc, PRD, RFC, thread or one-line ticket. Reach for it when the user says "write the task" or "cut this into work", or when work is decided but nobody has broken it into verifiable slices. It turns that decision into work a builder can pick up without guessing, and stops at the first thing nobody decided by walking two fixed lists instead of inventing a feature.
 
 ```
 CUT ──────────→ GROUND ──────────→ WRITE
@@ -174,77 +136,13 @@ CUT ──────────→ GROUND ──────────→ W
 tasks)                               is forced)
 ```
 
-### Cut
+**A slice is one observable outcome, never a layer.** Default to one task for the whole source; split only when a piece cannot land before another without breaking production, waits on an answer only someone else can give, or belongs to another team. A slice that spans schema, API and UI is one task when one run can settle it; four tasks on the same file are four tasks when each proves something the others cannot.
 
-Read every source completely first. Then enumerate the slices and only after that decide how many tasks they become.
+**The mechanics have one owner: [cut.md](references/cut.md).** Read it before cutting — it carries the cut, the grounding questions, the five surface kinds and the decisions each carries, the nine-dimension sweep, the refuse-rather-than-guess checks and the write step.
 
-**A slice is one observable outcome, never a layer.** "Schema first, then endpoints" produces pieces nobody can verify alone.
+**The artifact has one owner: [document-format.md](references/document-format.md).** Read it when writing `.tasks/<name>.md` — it owns the document's sections and the canonical nine-dimension rubric. Present the cut, then the tasks, then the open questions with blocking ones first; lead with the verdict.
 
-**Default to one task for the whole source.** Split only when: a piece cannot land before another without breaking production, a piece waits on an answer only someone else can give, or a piece belongs to another team. Six slices with no doors is safe whole; three slices with four doors and a migration is not.
-
-When big, show the seams — order constraints first, then thematic groupings with reasons. Let the user pick where to cut.
-
-### Ground
-
-Now open the repository. Three things only the code answers:
-
-- **What the change disturbs.** Which existing term changes meaning, and who depends on it today.
-- **Which decisions are actually one-way.** You cannot tell a new pattern from an ordinary one without reading conventions.
-- **Where the source is simply wrong.** Names the system does not use, APIs that do not exist.
-
-What you do **not** settle here is placement — the repository's conventions answer most of it and the rest is reversible.
-
-### Walk the surfaces
-
-A surface is anything outside the system that meets it. Five kinds exist, and each carries the same decisions every time — this table is their single owner:
-
-| Surface | The decisions it always has |
-| --- | --- |
-| screen or view | empty, loading, error, unauthorised states; layout and density; ordering; interactions and visual hierarchy; destructive action confirmation |
-| API or webhook | response shape, error shape with codes, who may call it, versioning, rate limit behaviour |
-| command or scheduled task | output format, every flag and default, modes and verbosity, exit codes, failure output |
-| document or copy | structure, tone, depth, flow and navigation, what the reader does next |
-| collection being organised | grouping criterion, naming, ordering, duplicates, the exception |
-
-**Backend, state and contract is a sixth lane with no surface of its own** — it is the nine-dimension rubric below. When the work exposes it, the sweep is the walk.
-
-**The walk finds gaps. It does not write criteria.** Each item resolves to a criterion **already in the source or already written from it**, to something the code already does (`existing - <what>`), to `n/a - <reason>`, or to `Unresolved <n>`. The `n/a` escape is mandatory and it is what stops the list from inventing scope: a webhook has no empty state, and saying so costs a line. A landing that would need new behaviour is a question, never a numbered line.
-
-**Record in `## Observable`** in the task, one row per item.
-
-### Sweep the nine
-
-The fixed list of what nobody writes down has one owner: [document-format.md](references/document-format.md) § Canonical rubric. Load it, walk all nine dimensions, and land each one — a criterion already written, something the code already does, `n/a` with the reason, or `Unresolved`. Concurrency and observability hide better than the other seven.
-
-A landing must observe **that** dimension. Reaching for a number already used on another line is the tell it is uncovered. The `n/a` escape stops the list from manufacturing requirements.
-
-**Record in `## Swept`** in the task, one line each.
-
-### Refuse rather than guess
-
-Five things must be true of every criterion:
-
-- Someone could **observe** the outcome
-- It carries a **concrete value** — never "gracefully", "properly" or "fast"
-- **One run settles it** — a single execution satisfies or fails it
-- When it claims something will **not** happen, you can name what prevents it
-- The **boundary** is stated
-
-**One run settles it.** Percentiles, averages, uptime and error rates are service targets, not criteria. Split the line.
-
-**A guarantee needs a mechanism.** Nothing prevents a duplicate by default. Point at the code or the `Decided` row, or it is a hope.
-
-Missing one is normal. **Ask** — not note it and move on. A gray area is a decision that is genuinely the user's, has more than one defensible answer, and is not settled by the code.
-
-Questions follow turn-cost rules: concrete options never open prompts; lead with recommendation; assume first when safe; at most two independent questions per turn; the boundary is fixed — asking clarifies how, never whether to add capability.
-
-**Facts you look up; decisions you ask.** What survives is what only Product or a tech lead can settle, and that goes to `Unresolved`.
-
-### Write
-
-Produce the artifact; do not narrate the phase. Read [document-format.md](references/document-format.md) when writing `.tasks/<name>.md`: intent, numbered criteria, the surface and sweep landings, impact, `Decided` as one-way doors, sources, and `Unresolved` as a table. Present the cut, then the tasks, then the open questions with blocking ones first. Lead with the verdict. State decisions definitively.
-
-In-pipeline (Large/Complex) the same cut lands in `.specs/features/[feature]/tasks.md` per [tasks.md](references/tasks.md), which adds the Test Coverage Matrix, the Parallelism Assessment and the Gate Check Commands. Cut-only produces `.tasks/<name>.md` and stops.
+Cut-only produces `.tasks/<name>.md` and stops after the task. In-pipeline (Large/Complex) the same cut lands in `.specs/features/[feature]/tasks.md` per [tasks.md](references/tasks.md), which adds the Test Coverage Matrix, the Parallelism Assessment and the Gate Check Commands.
 
 ## Context Loading Strategy
 
@@ -272,13 +170,9 @@ In-pipeline (Large/Complex) the same cut lands in `.specs/features/[feature]/tas
 
 **Offer-then-confirm** — never auto-spawn. The user must accept before any sub-agent is dispatched.
 
-**One worker per phase:** Each phase worker executes all its tasks in order (implement → gate → atomic commit), then reports a compact summary (tasks done, commit hashes, test counts, deviations). Workers never spawn further sub-agents.
+**Verifier (always-on, never prompted):** After the final task is committed, the orchestrator dispatches a fresh Verifier sub-agent automatically — regardless of phase count. Validation never requires a user prompt; it is the closing step of Execute. **Author ≠ verifier**: the Verifier re-derives coverage independently using evidence-or-zero and does not inherit the author's mental model. It runs the spec-anchored outcome check and the discrimination sensor, writes `.specs/features/[feature]/validation.md`, distills each grounded failure into a project lesson ([lessons.md](references/lessons.md)), and returns a compact verdict with ranked gaps; the fix→re-verify loop is bounded to 3 iterations before escalating. Process and report format: [sub-agents.md](references/sub-agents.md).
 
-**Verifier (always-on, never prompted):** After the final task is committed, the orchestrator dispatches a fresh Verifier sub-agent automatically — regardless of phase count. Validation never requires a user prompt; it is the closing step of Execute. **Author ≠ verifier**: the Verifier re-derives coverage independently using evidence-or-zero; it does not inherit the author's mental model. The Verifier: (1) performs a **spec-anchored outcome check** — confirms each test's asserted value matches the spec-defined expected outcome, flags spec-precision gaps; (2) runs a **discrimination sensor** — injects behavior-level faults in scratch state, confirms tests kill them, discards mutations, surviving mutants become fix tasks; (3) writes `.specs/features/[feature]/validation.md` (PASS/FAIL, per-AC evidence, sensor result, diff range); (4) returns a compact verdict + ranked gap list to the orchestrator in chat. Gaps become fix tasks; the fix→re-verify loop is bounded to 3 iterations before escalating. (5) **distills lessons** — turns each grounded failure (surviving mutant, spec-precision gap, failed AC, SPEC_DEVIATION) into a reusable project-local lesson via `scripts/lessons.py`; a clean PASS records nothing (see [lessons.md](references/lessons.md)).
-
-**Standalone fallback:** Without sub-agents, run `validate.md` as an independent fresh-eyes pass after the final commit — including the spec-anchored check and discrimination sensor.
-
-Full mechanics (worker payload, compact summary format, failure handling, context sizing, Verifier report format): [sub-agents.md](references/sub-agents.md).
+**Standalone fallback:** Without sub-agents, run [validate.md](references/validate.md) as an independent fresh-eyes pass after the final commit. Worker payload, compact summary format, failure handling, context sizing and Verifier report format: [sub-agents.md](references/sub-agents.md).
 
 ## Commands
 
@@ -289,7 +183,8 @@ Full mechanics (worker payload, compact summary format, failure handling, contex
 | Discuss feature, capture context, how should this work | [discuss.md](references/discuss.md) |
 | Design feature, architecture | [design.md](references/design.md) |
 | Break into tasks, create tasks | [tasks.md](references/tasks.md) |
-| Cut decided work into a task, write the task | [document-format.md](references/document-format.md) |
+| Task-document format, the canonical rubric | [document-format.md](references/document-format.md) |
+| Cut decided work into a task, write the task | [cut.md](references/cut.md) |
 | Implement task, build, execute | [implement.md](references/implement.md) |
 | Validate, verify, test, UAT, walk me through it | [validate.md](references/validate.md) |
 
@@ -343,10 +238,8 @@ Use available tools with graceful degradation. See [code-analysis.md](references
 | "Planning is overhead" | Planning is the task. Implementation without a plan is just typing. |
 | "I can hold it all in my head" | Context windows are finite. Written plans survive session boundaries and compaction. |
 | "It's one big feature; splitting it is overhead" | If acceptance criteria cluster into independently testable groups, a ten-line capability map is the cheap alternative. |
-| "Split it into smaller tasks" | Default to one. Split only for order constraints, external answers, or another team. |
-| "This criterion sounds fine" | If it lacks a concrete value, it is too vague. Push until it has one. |
-| "Just note the question and move on" | A note without a default is an open loop. State the default and invite correction. |
-| "The source has too many requirements to walk all nine dimensions" | Walking all nine is the mechanism. Skipping one is how concurrency or observability ships unhandled. |
+
+The traps specific to the cut — splitting into smaller tasks, settling for a vague criterion, noting a question instead of asking it, skipping a dimension — live with the cut itself: [cut.md](references/cut.md#common-rationalizations).
 
 ## Red Flags
 
@@ -361,12 +254,7 @@ Use available tools with graceful degradation. See [code-analysis.md](references
 - Overwriting a `tasks/plan.md` or `tasks/todo.md` that still has unchecked tasks for different work, without asking
 - Tasks that say "implement the feature" without acceptance criteria
 - No verification steps in the plan
-- Slices cut by layer instead of by observable outcome
-- Criteria that use words like "gracefully", "properly", or "fast" without a number
-- A sweep dimension that lands on a criterion from a different dimension
-- More than two questions in a single turn
-- A task with no `Unresolved` section and no `None`
-- Criteria that could only be proven by running the full suite
+- A cut that skipped its own traps and hand-off checks ([cut.md](references/cut.md#hand-off-checks))
 - No checkpoints between tasks
 - Dependency order isn't considered
 
@@ -384,16 +272,13 @@ Before proceeding to implementation, confirm:
 - [ ] Task dependencies are identified and ordered correctly
 - [ ] Tasks are recorded in the task list target (default `tasks/todo.md`)
 - [ ] No pre-existing incomplete plan was overwritten without explicit user confirmation
-- [ ] Every criterion is an observable outcome with a concrete value, and one run settles each one
-- [ ] `Observable` has a landing per surface item, and `Swept` has all nine
-- [ ] `Decided` carries only hard-to-reverse choices with literal shapes
-- [ ] `Unresolved` is a table (or `None` with one row), and no criterion carries two triggers or two independently failable outcomes
-- [ ] The task names which skill builds it (`verified-implementation`)
 - [ ] Checkpoints exist between major phases
+
+On the Cut-only path, the checks that belong to the cut — landings, one-way doors, `Unresolved`, who builds it — are [cut.md](references/cut.md#hand-off-checks) § Hand-off checks.
 
 ## See Also
 
-Acceptance criteria are per-task and answer "did we build the right thing?". They sit on top of the project-wide Definition of Done, the standing bar every task clears before it counts as done. See `../../references/definition-of-done.md`.
+Acceptance criteria are per-task and answer "did we build the right thing?". They sit on top of the project-wide Definition of Done — the standing bar every task clears before it counts as done (`../../references/definition-of-done.md`).
 
 - **`git-commit-learning`** — for writing AI-learnable commit messages during Execute.
 - **`idea-discovery`** — produces the design document the Tasks phase cuts into work.

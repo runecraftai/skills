@@ -11,7 +11,7 @@ import { fetchRegistry, normalizePath, rankSkills, writeCacheFile, type Registry
 
 const BASE = process.env.GRIMOIRE_CATALOG_BASE ?? "https://cdn.jsdelivr.net/gh/runecraftai/skills@main/packages/skills/catalog/v1";
 const CACHE = process.env.GRIMOIRE_MCP_CACHE ?? join(homedir(), ".cache/runecraft/grimoire-mcp");
-const MAX = { search: 1200, read: 24000, fetch: 50000, prepare: 1500, list: 4000 } as const;
+export const MAX = { search: 1200, read: 24000, fetch: 50000, prepare: 1500, list: 4000 } as const;
 type Catalog = { registry: Registry; freshness: "fresh" | "stale"; warning?: string };
 const validId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 function bounded(value: unknown, ceiling: number): string {

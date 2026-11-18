@@ -4,6 +4,31 @@
 
 If the feature has ambiguous gray areas (multiple valid approaches for user-facing behavior), the agent will automatically trigger the [discuss gray areas](discuss.md) process within this phase. For clear, well-defined features, it goes straight to the next phase.
 
+## Capability Mapping
+
+When a single requirement bundles several independently testable capabilities (identity, billing, notifications, reporting), propose a capability map before writing any spec. Small and reviewable — a module table plus a build order, not a project plan:
+
+```markdown
+# Capability Map: [Initiative Name]
+
+| Module id | Responsibility | Depends on |
+|---|---|---|
+| identity | Accounts, sessions, SSO | — |
+| billing | Plans, invoices, payments | identity |
+| notifications | Email and webhook fan-out | identity |
+| reporting | Usage dashboards | billing, notifications |
+
+Build order: identity → billing, notifications → reporting
+```
+
+- **Stable module ids.** Kebab-case, chosen once, never renamed mid-initiative. Specs, plans, and downstream commands select work by these ids instead of guessing which spec is active.
+- **Dependency direction, no cycles.** Arrows point one way. If two modules each need the other, they are one module.
+- **Interfaces live at the boundary.** The map records that `billing` depends on `identity`; the contract between them belongs in the provider module's spec.
+
+**The map is gated like every phase.** The human reviews module boundaries, dependency direction, and build order before any module spec is written.
+
+**Then recurse per module.** Run Specify → Plan → Tasks → Implement for each module in dependency order. Each module gets its own spec, scoped to that module's objective, boundaries, and success criteria. Save the approved map at the project root and each module's spec alongside it, named by module id (`SPEC-identity.md`, `SPEC-billing.md`) — the map, not filename guessing, is the index of what exists.
+
 ## Implicit-Requirement Dimensions
 
 The canonical rubric for requirements that are easy to miss — the nine dimensions, what each covers, and how each lands — is owned by [document-format.md](document-format.md#canonical-rubric-the-nine-unwritten-requirement-dimensions) § Canonical rubric. It is defined there, not duplicated here.
