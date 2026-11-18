@@ -820,8 +820,8 @@
         },
         {
           "path": "references/document-format.md",
-          "size": 25194,
-          "sha256": "91fddc4a8e363b90419bc76b03c88280abd1064681ddcd33f297b3a41631f949"
+          "size": 25729,
+          "sha256": "a441558399c12de295eaf10a5ec5ed17b58102ee8d1898e0a8d51232763232d0"
         },
         {
           "path": "references/implement.md",
@@ -850,8 +850,8 @@
         },
         {
           "path": "references/tasks.md",
-          "size": 22552,
-          "sha256": "2d8f10abb9d8e2f835d055f09b9e9312791bffdb9391f39d1259e5c1189f2dc6"
+          "size": 22628,
+          "sha256": "a6851a002f262a6a83cdc8e4349de4caba63da7067d29000c3b78f90ca481e0c"
         },
         {
           "path": "references/validate.md",
@@ -869,7 +869,7 @@
           "sha256": "d49e29a8d1d3ab2c5131436d8d3b381abea9e3c67343900f9b8bb7c16b171d1f"
         }
       ],
-      "contentSha256": "8a6b1dab88c1d72283186684d63285deed4a7374c5c3654bb1dd4cbb9b36b995"
+      "contentSha256": "0e544e13ef871e87c62d4b669ba473f8ed5c53e7c1aa583f994a23c6c1960c3b"
     },
     {
       "id": "spec-loop",
@@ -985,8 +985,8 @@
       "files": [
         {
           "path": "references/checklist-format.md",
-          "size": 12297,
-          "sha256": "41327bad5eb40bd7834b7b6d063f1986a5f232fc79f4dedbf17e040e3b5df106"
+          "size": 12446,
+          "sha256": "da15db1851c99a94a264dd71c7de43887d9fda0b953f8110be47929ead756ea7"
         },
         {
           "path": "references/screens.md",
@@ -1009,7 +1009,7 @@
           "sha256": "db55a8bcd20e0abb18d93cf6552fa72904582bd62294a0116a427620dcfa91ae"
         }
       ],
-      "contentSha256": "f79555c0663dfad0e3504984cdd07f342117b849aa0f337804a568891c0b186d"
+      "contentSha256": "9cc202543bcfeb83d54dd8081402dcb448dc1b6c8666382bd592e766edde6184"
     }
   ]
 }

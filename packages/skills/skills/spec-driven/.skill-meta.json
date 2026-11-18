@@ -1,8 +1,8 @@
 {
   "name": "spec-driven",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "type": "skill",
-  "description": "Feature planning with 4 adaptive phases (Specify, Design, Tasks, Execute) + Verifier (author != verifier) + self-improving lessons layer",
+  "description": "Planning and implementation across four adaptive phases (Specify, Design, Tasks, Execute) with observable task criteria, an independent Verifier (author != verifier) and a self-improving lessons layer; also cuts decided work (a PRD, design doc, RFC, or thread) into tasks a builder can act on",
   "phases": ["specify", "design", "tasks", "execute", "validate", "memory", "lessons"],
   "trigger": ["/spec", "/explore", "/plan", "/apply"],
   "scope": "public",

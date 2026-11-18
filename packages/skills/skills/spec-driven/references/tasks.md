@@ -33,7 +33,7 @@ Each vertical slice delivers working, testable functionality.
 
 ## Task Weight
 
-A task's size is not a splitting criterion, so there is no size table here and no file-count ceiling to check. Record the weight instead: files touched, `wc -c` over them, and the expected token cost on the slice heading, per [document-format.md](document-format.md) and the slice headings `verified-implementation` copies. Weight is what ranks the work and what makes an over-large slice visible without turning "8+ files" into a rule that splits a single observable outcome into unverifiable pieces.
+A task's size is not a splitting criterion, so there is no size table here and no file-count ceiling to check. Record the weight instead: files touched, `wc -c` over them, and the expected token cost on the slice heading — [document-format.md](document-format.md) gives the heading its shape, and `verified-implementation`'s checklist format (`checklist-format.md`) gives the arithmetic it copies. Weight is what ranks the work and what makes an over-large slice visible without turning "8+ files" into a rule that splits a single observable outcome into unverifiable pieces.
 
 ---
 
