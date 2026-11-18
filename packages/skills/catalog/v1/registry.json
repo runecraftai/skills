@@ -255,6 +255,35 @@
       "contentSha256": "9a3e9da7aa5250612bc49c973aff622211964775962a5f8366a86b65f61ed778"
     },
     {
+      "id": "feature-parity",
+      "name": "feature-parity",
+      "version": "1.0.0",
+      "category": "Code Quality & Testing",
+      "description": "Scores how much of a target product a rebuild or clone already reproduces, from a features.csv ledger of must, should, and nice features, and gates the result on must-haves with an exit code. Use when measuring feature parity against a reference product, deciding whether a rebuild is shippable, gating a release on must-have features, or when the user mentions parity, feature coverage, must-have gaps, or a features.csv ledger. Do NOT use for visual or pixel comparison, UI snapshot diffs, code-quality review, test coverage metrics, or designing how a new feature should work.",
+      "license": "CC-BY-4.0",
+      "attribution": [
+        {
+          "name": "Runecraft",
+          "url": "https://github.com/runecraftai/skills",
+          "text": "Copyright Runecraft. Runecraft-authored; source revision ddd9f9fcab37954132d7ca42dc4b884b588510c8."
+        }
+      ],
+      "entrypoint": "SKILL.md",
+      "files": [
+        {
+          "path": "scripts/feature-parity.ts",
+          "size": 8597,
+          "sha256": "8a74dc1fdaaff9e23b2bd7015a76724f84ec7cdae055764694f04246545ad60e"
+        },
+        {
+          "path": "SKILL.md",
+          "size": 4865,
+          "sha256": "8a3c08f34431f96716528f0b852658e81276a898ab89c4abac9f1206b44535f5"
+        }
+      ],
+      "contentSha256": "9547096550c6bfcd673551bb916312fe6d94e2d3f751a3cd3f9c605bab160024"
+    },
+    {
       "id": "frontend-ui-engineering",
       "name": "frontend-ui-engineering",
       "version": "1.0.0",
@@ -703,8 +732,8 @@
         },
         {
           "path": "references/spec.md",
-          "size": 18643,
-          "sha256": "f97ac1e8e9632b01b6911709df10b736dd49d1b0141d0388590c9dea83650f2b"
+          "size": 18632,
+          "sha256": "76909d3a6686058e503a0b48b51a9ddee45ff1403cdba0e31edb3eb672952610"
         },
         {
           "path": "references/validation-baseline.json",
@@ -722,7 +751,7 @@
           "sha256": "f8f0dee71c64f22f024d00f62ba87b2db6aab80196de3d75ebdcc601d2bd8a3f"
         }
       ],
-      "contentSha256": "75246eee9204dd25d04ed3acb4cfe9ab602610a8fac7535226eab2115dc2eafa"
+      "contentSha256": "02ba6f3f37faab2f9297b5a60627acd4da560c209980f28395e6df2f33cd801c"
     },
     {
       "id": "source-driven-development",

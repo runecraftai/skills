@@ -255,7 +255,7 @@ The baseline is an integration ratchet, not a relaxation of any validator check.
 | `test-driven-development` | testing-patterns reference |
 | `using-agent-skills` | definition-of-done reference |
 
-These four skills continue to receive error verdicts from the validator. They are outside this change's content scope. The catalog CI command accepts exactly these named findings; new errors fail it, and resolved findings require removal of their now-stale baseline entries. All 33 existing skills passed the original format checks before this addition.
+These four skills continue to receive error verdicts from the validator. They are outside this change's content scope. The catalog CI command accepts exactly these named findings; new errors fail it, and resolved findings require removal of their now-stale baseline entries. Every skill present at that time passed the original format checks.
 
 Do not fix these four by editing the validator or the baseline entry shape: correct the citation inside the owning skill, then delete that skill's baseline entry in the same change, which the ratchet requires. Corrections are tracked as separate follow-ups so each owning skill can restore the cited reference:
 
