@@ -26,11 +26,12 @@ interface Report {
   notScored: { id: string; feature: string; priority: string; notes: string }[];
 }
 
-const USAGE = `Usage: feature-parity.ts [features.csv] [--format md|json]
+const USAGE = `Usage: feature-parity.ts [features.csv] [--format md|json] [--self-test]
 
 Columns: id,feature,priority(must|should|nice),status(yes|partial|no|skip),evidence,notes
 Exit: 0 shippable, 1 a must-have is not yes, 2 invalid ledger or usage.
 A skip row needs a reason in notes; skip rows are listed but not scored.
+--self-test runs the in-process assertions for the gate and exits 0 only if all hold.
 `;
 
 // RFC 4180-style parser: quoted fields may contain commas, newlines, and doubled quotes.
@@ -148,6 +149,43 @@ function toMarkdown(report: Report): string {
   return `${lines.join("\n")}\n`;
 }
 
+const SELF_TESTS: { assertion: string; ledger: string; exitCode: number }[] = [
+  {
+    assertion: "a ledger whose must-haves are all yes exits 0",
+    ledger: "id,feature,priority,status,evidence,notes\nf1,Login,must,yes,tests/login.test.ts,\nf2,Export,should,partial,,\n",
+    exitCode: 0,
+  },
+  {
+    assertion: "a ledger with one missing must-have exits 1",
+    ledger: "id,feature,priority,status,evidence,notes\nf1,Login,must,yes,,\nf2,Export,must,no,,\n",
+    exitCode: 1,
+  },
+  {
+    assertion: "an unknown status exits 2",
+    ledger: "id,feature,priority,status,evidence,notes\nf1,Login,must,done,,\n",
+    exitCode: 2,
+  },
+  {
+    assertion: "priority=critical exits 2",
+    ledger: "id,feature,priority,status,evidence,notes\nf1,Login,critical,no,,\n",
+    exitCode: 2,
+  },
+];
+
+function selfTest(): number {
+  const failures: string[] = [];
+  for (const test of SELF_TESTS) {
+    const { exitCode } = evaluate(test.ledger);
+    if (exitCode !== test.exitCode) failures.push(`${test.assertion}: expected exit ${test.exitCode}, got ${exitCode}`);
+  }
+  if (failures.length > 0) {
+    process.stderr.write(`feature-parity: self-test failed\n${failures.map((failure) => `- ${failure}`).join("\n")}\n`);
+    return 1;
+  }
+  process.stdout.write(`feature-parity: self-test passed (${SELF_TESTS.length} assertions)\n`);
+  return 0;
+}
+
 function main(args: string[]): number {
   const fail = (message: string): number => {
     process.stderr.write(`feature-parity: ${message}\n${USAGE}`);
@@ -158,6 +196,7 @@ function main(args: string[]): number {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === "--help" || arg === "-h") { process.stdout.write(USAGE); return 0; }
+    if (arg === "--self-test") return selfTest();
     if (arg === "--format") format = args[++i] ?? "";
     else if (arg.startsWith("-")) return fail(`unknown option ${arg}`);
     else positional.push(arg);

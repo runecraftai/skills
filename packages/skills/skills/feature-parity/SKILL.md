@@ -10,6 +10,7 @@ description: >
 license: CC-BY-4.0
 requires: bun
 artifact-owner: none
+script-tests: '{"scripts/feature-parity.ts": "--self-test"}'
 metadata:
   version: 1.0.0
 ---
@@ -59,6 +60,37 @@ Any other `priority` or `status` value is an error (exit 2). It is never treated
    bun scripts/feature-parity.ts features.csv --format json   # for a gate
    ```
 
+   Example input `features.csv`:
+
+   ```
+   id,feature,priority,status,evidence,notes
+   login,Email login,must,yes,tests/login.spec.ts,
+   export-csv,CSV export,must,no,,
+   sso,SAML SSO,nice,skip,,Enterprise tier; not in the rebuild target
+   ```
+
+   Command and result (exit `1`):
+
+   ```
+   ## Feature parity: not shippable (exit 1)
+
+   Reproduced 1 of 2 scored features (50%).
+
+   | Priority | Scored | Yes |
+   | --- | --- | --- |
+   | must | 2 | 1 |
+   | should | 0 | 0 |
+   | nice | 0 | 0 |
+
+   ### Missing must-haves
+
+   - `export-csv` CSV export (no)
+
+   ### Not scored (skip)
+
+   - `sso` SAML SSO: Enterprise tier; not in the rebuild target
+   ```
+
 5. Act on the exit code, not on the wording:
 
 | Exit | Meaning | Action |
@@ -72,39 +104,6 @@ Any other `priority` or `status` value is an error (exit 2). It is never treated
 - Scored rows are every row whose status is not `skip`.
 - Coverage is `yes` divided by scored rows. `partial` counts as not reproduced.
 - Coverage is also reported per priority, so a high overall number cannot hide a missing must-have.
-
-## Example
-
-Input `features.csv`:
-
-```
-id,feature,priority,status,evidence,notes
-login,Email login,must,yes,tests/login.spec.ts,
-export-csv,CSV export,must,no,,
-sso,SAML SSO,nice,skip,,Enterprise tier; not in the rebuild target
-```
-
-Command and result (exit `1`):
-
-```
-## Feature parity: not shippable (exit 1)
-
-Reproduced 1 of 2 scored features (50%).
-
-| Priority | Scored | Yes |
-| --- | --- | --- |
-| must | 2 | 1 |
-| should | 0 | 0 |
-| nice | 0 | 0 |
-
-### Missing must-haves
-
-- `export-csv` CSV export (no)
-
-### Not scored (skip)
-
-- `sso` SAML SSO: Enterprise tier; not in the rebuild target
-```
 
 ## Common Rationalizations
 

@@ -272,16 +272,16 @@
       "files": [
         {
           "path": "scripts/feature-parity.ts",
-          "size": 7103,
-          "sha256": "edeb8a550f34300291d38217516f4c59aa9cc02860fd889dc7adbe3e351c7fc1"
+          "size": 8597,
+          "sha256": "8a74dc1fdaaff9e23b2bd7015a76724f84ec7cdae055764694f04246545ad60e"
         },
         {
           "path": "SKILL.md",
-          "size": 4745,
-          "sha256": "7ffe0c08a96f8e521d88f6d27ebb656777cba1a6bf0354892a4b38e8a53948fb"
+          "size": 4865,
+          "sha256": "8a3c08f34431f96716528f0b852658e81276a898ab89c4abac9f1206b44535f5"
         }
       ],
-      "contentSha256": "16b005ee4781f1b877ba67f218094d083776b41bb4422f78f1b2823e3f4e4f6b"
+      "contentSha256": "9547096550c6bfcd673551bb916312fe6d94e2d3f751a3cd3f9c605bab160024"
     },
     {
       "id": "frontend-ui-engineering",
