@@ -22,7 +22,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 - `npm pack --dry-run --workspace @runecraft/grimoire` — confirms the catalog, metadata, references, and installer are packaged.
 - `bun run test` — unit tests for all packages (temp dirs only; never real user dirs).
 - `bun run build` — bundles `packages/skills/dist/grimoire.js` and `packages/mcp/dist/index.js`.
-- `bun run typecheck` — typechecks all packages.
+- `bun run typecheck` — typechecks all packages. TypeScript skill scripts are covered only when their path is listed in the `packages/skills/tsconfig.json` `include` array (for example `skills/feature-parity/scripts/feature-parity.ts`); adding a `.ts` script under `skills/` does not typecheck it by itself.
 - `bun run --cwd packages/skills catalog:generate` — rebuilds `catalog/v1/registry.json`, copies allowlisted skill files, and regenerates `catalog.json` from the validated registry.
 - `python3 -B packages/skills/scripts/validate-skills.py` — runs the skill-forge mechanism validator over every catalog skill and ratchets findings against `packages/skills/skills/skill-forge/references/validation-baseline.json`; only listed legacy errors are accepted, and new or stale baseline entries fail. CI and the catalog release security job both use this command; never add a strict per-skill `validate.py` loop to a workflow. Single skill: `python3 packages/skills/skills/skill-forge/scripts/validate.py <skill-dir>` (`--self-test` runs the good/bad fixture suite).
 - New skills must follow the skill-forge conventions (`packages/skills/skills/skill-forge/SKILL.md` §2.2 folder layout): `SKILL.md` plus `references/`, `assets/`, or `scripts/` only when the skill's content justifies them.
