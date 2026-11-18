@@ -255,6 +255,35 @@
       "contentSha256": "9a3e9da7aa5250612bc49c973aff622211964775962a5f8366a86b65f61ed778"
     },
     {
+      "id": "feature-parity",
+      "name": "feature-parity",
+      "version": "1.0.0",
+      "category": "Code Quality & Testing",
+      "description": "Scores how much of a target product a rebuild or clone already reproduces, from a features.csv ledger of must, should, and nice features, and gates the result on must-haves with an exit code. Use when measuring feature parity against a reference product, deciding whether a rebuild is shippable, gating a release on must-have features, or when the user mentions parity, feature coverage, must-have gaps, or a features.csv ledger. Do NOT use for visual or pixel comparison, UI snapshot diffs, code-quality review, test coverage metrics, or designing how a new feature should work.",
+      "license": "CC-BY-4.0",
+      "attribution": [
+        {
+          "name": "Runecraft",
+          "url": "https://github.com/runecraftai/skills",
+          "text": "Copyright Runecraft. Runecraft-authored; source revision ddd9f9fcab37954132d7ca42dc4b884b588510c8."
+        }
+      ],
+      "entrypoint": "SKILL.md",
+      "files": [
+        {
+          "path": "scripts/feature-parity.ts",
+          "size": 7103,
+          "sha256": "edeb8a550f34300291d38217516f4c59aa9cc02860fd889dc7adbe3e351c7fc1"
+        },
+        {
+          "path": "SKILL.md",
+          "size": 4745,
+          "sha256": "7ffe0c08a96f8e521d88f6d27ebb656777cba1a6bf0354892a4b38e8a53948fb"
+        }
+      ],
+      "contentSha256": "16b005ee4781f1b877ba67f218094d083776b41bb4422f78f1b2823e3f4e4f6b"
+    },
+    {
       "id": "frontend-ui-engineering",
       "name": "frontend-ui-engineering",
       "version": "1.0.0",

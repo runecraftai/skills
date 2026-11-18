@@ -62,6 +62,7 @@ The catalog is the source of truth for these categories; descriptions below come
 | Code Quality & Testing | `typescript-patterns` | Covers type-safe TypeScript patterns including unions, generics, and narrowing. |
 | Code Quality & Testing | `code-simplification` | Simplifies code for clarity while preserving exact behavior. |
 | Code Quality & Testing | `constraint-driven-development` | Establishes a project's quality bar as a written contract and stops agents quietly lowering it. |
+| Code Quality & Testing | `feature-parity` | Scores how much of a target product a rebuild reproduces from a feature ledger, and gates on must-have features with an exit code. |
 | Code Quality & Testing | `incremental-implementation` | Delivers changes incrementally in thin, verifiable slices. |
 | Code Quality & Testing | `knowledge-pass` | Explains completed code changes with grounded references, then checks understanding one question at a time. |
 | Code Quality & Testing | `source-driven-development` | Grounds every implementation decision in official documentation. |
