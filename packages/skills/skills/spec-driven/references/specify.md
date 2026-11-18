@@ -6,19 +6,9 @@ If the feature has ambiguous gray areas (multiple valid approaches for user-faci
 
 ## Implicit-Requirement Dimensions
 
-The canonical rubric for requirements that are easy to miss. Referenced by [discuss.md](discuss.md) — defined here, not duplicated.
+The canonical rubric for requirements that are easy to miss — the nine dimensions, what each covers, and how each lands — is owned by [document-format.md](document-format.md#canonical-rubric-the-nine-unwritten-requirement-dimensions) § Canonical rubric. It is defined there, not duplicated here.
 
-| Dimension | What to cover |
-| --------- | ------------- |
-| Input validation & bounds | Limits, formats, sanitization |
-| Failure / partial-failure states | Timeouts, partial saves, rollbacks |
-| Idempotency / retry / duplicate handling | Safe retries, dedup keys |
-| Auth boundaries & rate limits | Who can call what, throttle rules |
-| Concurrency / ordering | Race conditions, ordering guarantees |
-| Data lifecycle / expiry | TTL, archival, deletion |
-| Observability | Logging, metrics, tracing hooks |
-| External-dependency failure | Circuit breakers, fallbacks |
-| State-transition integrity | Valid transitions, guards |
+Every requirement pass sweeps all nine. A dimension the spec does not cover lands as `n/a` with the reason, or becomes an open question; it never silently disappears. [discuss.md](discuss.md) uses the same canonical list for the backend/state lane of its surface walk.
 
 ---
 

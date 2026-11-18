@@ -47,7 +47,7 @@ If there is no `tasks.md` for this feature, you MUST list atomic steps before wr
 
 **Each step must be:**
 
-- ONE deliverable (one component, one function, one endpoint, one file change)
+- ONE deliverable (one observable outcome, one concept)
 - Independently verifiable (can prove it works before moving on)
 - Independently committable (gets its own atomic git commit)
 

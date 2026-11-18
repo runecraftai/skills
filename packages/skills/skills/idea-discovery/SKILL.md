@@ -6,7 +6,7 @@ description: >
   early; has a verdict gate that decides whether to build at all. Use when the user says "research
   this", "help me understand this problem", "should we build this", "discovery", "explore this
   problem", "figure out if we should do X", or "idea discovery". Do NOT use to cut a finished
-  design into tasks (use task-cutting), to implement (use verified-implementation), or to refine
+  design into tasks (use spec-driven), to implement (use verified-implementation), or to refine
   an already-understood idea (use idea-refine).
 license: CC-BY-4.0
 metadata:
@@ -49,13 +49,13 @@ The artifact is a design document anyone can plan from without having been in th
 
 ## The interview
 
-Ask what is answerable now. Every question whose prerequisites are settled is fair; one whose prerequisite is still open is not. **You are done when nothing answerable is left**, not when all sections have been visited. Nothing is owed a paragraph merely because it exists.
+Run the interview protocol from `interview-me`: one question at a time, each carrying the agent's recommended answer and the reason. It is owned there and not restated here.
 
-**Every question carries your recommended answer and the reason, in a line.** Agreeing costs a word, disagreeing costs a sentence. A question you have no recommendation for is usually one to look up instead.
+What a discovery adds on top of that protocol is its own:
 
-**Facts you look up; decisions you ask.** Keep delivery small: one question when answers depend on each other, two when they do not.
-
-**Some questions cannot be answered by talking at all.** Route them to a spike or a designer. That routing is a result, not a failure.
+- **Facts you look up; decisions you ask.** Keep delivery small: one question when answers depend on each other, two when they do not.
+- **You are done when nothing answerable is left**, not when all sections have been visited. Nothing is owed a paragraph merely because it exists. Every question whose prerequisites are settled is fair; one whose prerequisite is still open is not.
+- **Some questions cannot be answered by talking at all.** Route them to a spike or a designer. That routing is a result, not a failure.
 
 ## Situation
 
@@ -161,7 +161,6 @@ After completing discovery:
 
 ## See Also
 
-- `task-cutting` — turns the design document this skill produces into tasks a builder can act on
+- `spec-driven` — the full pipeline from specify through execute; it cuts the design document this skill produces into tasks a builder can act on
 - `idea-refine` — stress-tests an already-understood idea through divergent/convergent thinking
-- `interview-me` — structured one-question-at-a-time extraction of intent
-- `spec-driven` — full pipeline from specify through execute
+- `interview-me` — structured one-question-at-a-time extraction of intent; it owns the interview protocol this skill runs

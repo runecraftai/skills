@@ -1,10 +1,35 @@
 # Task document format
 
-Load this file only when writing `.tasks/<name>.md` — after the cut, the grounding, the surface walk, and the sweep. Do not load it during Cut.
+Load this file when writing `.tasks/<name>.md` — after the cut, the grounding, the surface walk, and the sweep — and when you only need the canonical nine-dimension rubric below for a sweep. Do not load it during Cut.
 
 Section headings stay as they are — the next skill refers to them by name — while the prose follows the language of the document and identifiers are never translated. The document is for humans first: `verified-implementation` copies criteria into checks, and nothing under `Unresolved` gets settled while building.
 
 Replace every placeholder with a concrete value, or omit the section. A heading with "N/A" under it does not appear.
+
+## Canonical rubric: the nine unwritten-requirement dimensions
+
+The sweep has one owner: this list. Every other skill that sweeps — `specify` in this same pipeline, `verified-implementation` — points here instead of restating the keys, so a dimension added or renamed here reaches every sweep at once. Walk all nine, every time, in this order.
+
+| Dimension | What to cover |
+| --- | --- |
+| validation | Input limits, formats, sanitization, bounds |
+| failure modes | Timeouts, partial saves, rollbacks, partial-failure states |
+| idempotency and retry | Safe retries, dedup keys, duplicate handling |
+| authorization | Who may call what, auth boundaries, rate limits |
+| concurrency and ordering | Race conditions, ordering guarantees |
+| data lifecycle | TTL, archival, expiry, deletion |
+| external-dependency failure | Circuit breakers, fallbacks, dependency outages |
+| state transitions | Valid transitions, guards, integrity |
+| observability | Logging, metrics, tracing hooks |
+
+Every dimension lands in one of four kinds, and `n/a` is mandatory rather than a shrug:
+
+- a criterion number already written for it
+- `existing - <what in the code already covers it>`
+- `n/a - <reason>` — a webhook has no empty state, and saying so costs a line
+- `Unresolved <n>` — a landing that would need new behaviour is a question, never a numbered line
+
+A landing must observe **that** dimension. Reaching for a number already used on another line is the tell it is uncovered. Concurrency and observability hide better than the other seven.
 
 ## Template
 

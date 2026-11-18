@@ -48,15 +48,9 @@ Proof: `npm test -- -t "retry is idempotent"`
 
 ## Swept
 
-- validation: C5
-- failure modes: C1
-- idempotency: C3
-- authorization: existing auth guard already covers this route
-- concurrency: C7 - second concurrent start returns 409
-- data lifecycle: not in scope - nothing is retained
-- dependency failure: C6
-- state transitions: C1, C2
-- observability: not in scope - no log requirement in V1
+The nine canonical dimensions with their landings, one line each. Keys and landing kinds have a
+single owner — `spec-driven`'s task-document reference (`document-format.md`, § Canonical rubric) —
+so this file names no keys of its own.
 
 ## Coverage
 

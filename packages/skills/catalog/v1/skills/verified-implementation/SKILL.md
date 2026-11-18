@@ -5,8 +5,8 @@ description: >
   builds it, and proves every check with an independent verifier (author != verifier). Use when
   the user says "extract a checklist", "build this ticket", "implement this spec", "implement
   this", or "verified implementation". Do NOT use when nobody has decided what to build (use
-  idea-discovery), to design the work (use task-cutting), or for general coding without a planned
-  artifact.
+  idea-discovery), to cut the work into tasks (use spec-driven), or for general coding without a
+  planned artifact.
 license: CC-BY-4.0
 metadata:
   version: 1.0.0
@@ -76,7 +76,7 @@ Read the source completely first — ticket, PRD, RFC, thread. Then walk the cod
 - Every claim has a **concrete value** — never "gracefully", "properly" or "fast"
 - The boundary is stated — you can say what is explicitly out
 
-**Sweep for what the source does not mention.** Nine dimensions, one line each: validation, failure modes, idempotency and retry, authorization, concurrency and ordering, data lifecycle, external-dependency failure, state transitions, observability. Raising one is free; growing scope is the user's call.
+**Sweep for what the source does not mention.** The nine unwritten-requirement dimensions and their landing kinds have one owner: `spec-driven`, whose task-document reference (`document-format.md`, § Canonical rubric) holds them. Load it from that skill and land all nine, one line each. Raising one is free; growing scope is the user's call.
 
 Read `references/checklist-format.md` when writing `.checks/<feature>.md`.
 
@@ -139,7 +139,7 @@ After implementation:
 
 ## See Also
 
-- `task-cutting` — produces the planned work item this skill implements
+- `spec-driven` — cuts the planned work item this skill implements (`.tasks/<name>.md`), and owns the nine-dimension rubric this skill sweeps
 - `idea-discovery` — produces the design document that feeds into planning
 - `test-driven-development` — the RED/GREEN/REFACTOR cycle for writing tests
 - `source-driven-development` — grounding decisions in official documentation

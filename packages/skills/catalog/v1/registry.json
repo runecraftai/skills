@@ -370,7 +370,7 @@
       "name": "idea-discovery",
       "version": "1.0.0",
       "category": "Planning & Specification",
-      "description": "Interviews an unshaped idea into a verdict plus a design document (decisions, flows, schema, contracts) that someone else can plan from without having been in the room. Refuses to converge early; has a verdict gate that decides whether to build at all. Use when the user says \"research this\", \"help me understand this problem\", \"should we build this\", \"discovery\", \"explore this problem\", \"figure out if we should do X\", or \"idea discovery\". Do NOT use to cut a finished design into tasks (use task-cutting), to implement (use verified-implementation), or to refine an already-understood idea (use idea-refine).",
+      "description": "Interviews an unshaped idea into a verdict plus a design document (decisions, flows, schema, contracts) that someone else can plan from without having been in the room. Refuses to converge early; has a verdict gate that decides whether to build at all. Use when the user says \"research this\", \"help me understand this problem\", \"should we build this\", \"discovery\", \"explore this problem\", \"figure out if we should do X\", or \"idea discovery\". Do NOT use to cut a finished design into tasks (use spec-driven), to implement (use verified-implementation), or to refine an already-understood idea (use idea-refine).",
       "license": "CC-BY-4.0",
       "attribution": [
         {
@@ -388,11 +388,11 @@
         },
         {
           "path": "SKILL.md",
-          "size": 11848,
-          "sha256": "b898ae981605f3e11fe2a73f7847539b2f3ca12117e40f95fe0aa0fe9e87f774"
+          "size": 11882,
+          "sha256": "70323dd15cd1a82ef43d32475ca5b5b47797d3eb68680631905f4874bcf23cc2"
         }
       ],
-      "contentSha256": "a6ead1474e01fa2e4cf556ae3d8901bd2b8ad1fbcad13dcac2f1f8a007f1933e"
+      "contentSha256": "1c681d4718bd967485f527d2bda9ceb3190b7cdef8998f4de17a68e0cb9ca97e"
     },
     {
       "id": "idea-refine",
@@ -780,9 +780,9 @@
     {
       "id": "spec-driven",
       "name": "spec-driven",
-      "version": "5.0.0",
+      "version": "6.0.0",
       "category": "Planning & Specification",
-      "description": "Planning and implementation with 4 adaptive phases — Specify, Design, Tasks, Execute. Auto-sizes depth by complexity. Atomic tasks with verification criteria, atomic git commits, requirement traceability. Independent Verifier (author != verifier, evidence-or-zero), decision log (STATE.md), test-coverage-matrix-driven tests, self-improving lessons layer. Stack-agnostic. Use when planning features (requirements, design, task breakdown), implementing with verification and atomic commits, or validating against a spec. Triggers (PT/EN): \"specify feature\", \"vamos especificar\", \"discutir feature\", \"design\", \"design da feature\", \"tarefas\", \"quebrar em tarefas\", \"implementar\", \"build\", \"validar\", \"verify work\", \"UAT\", \"validar implementação\", \"/spec\", \"/planning\", \"planning and task breakdown\", \"break work into tasks\". Do NOT use for architecture decomposition analysis (use architecture skills) or technical design docs (Complex scope: gray areas + architecture-focused design).",
+      "description": "Planning and implementation across four adaptive phases — Specify, Design, Tasks, Execute — with observable task criteria, atomic commits, an independent Verifier (author != verifier) and a lessons layer. Also cuts decided work (a PRD, design doc, RFC, or thread) into tasks a builder can act on: slices grounded in the code, every surface walked, nine unwritten-requirement dimensions swept. Stack-agnostic. Use when planning features or cutting decided work into tasks. Triggers (PT/EN): \"specify feature\", \"vamos especificar\", \"discutir feature\", \"design\", \"design da feature\", \"tarefas\", \"quebrar em tarefas\", \"implementar\", \"build\", \"validar\", \"verify work\", \"UAT\", \"validar implementação\", \"/spec\", \"/planning\", \"planning and task breakdown\", \"break into tasks\", \"write the task\", \"cut this PRD into tasks\", \"turn this design doc into work\". Do NOT use for discovery (idea-discovery), intent extraction (interview-me), a decided ticket with no plan (verified-implementation), or architecture decomposition.",
       "license": "CC-BY-4.0",
       "attribution": [
         {
@@ -815,13 +815,18 @@
         },
         {
           "path": "references/discuss.md",
-          "size": 6110,
-          "sha256": "306859ab484217d6083f2764edc23b013d93b9d7735d80bbe48d246c0958d779"
+          "size": 5509,
+          "sha256": "3037f3d55d20164e9a5424502fe1ec78a378667020f30eff0d345c43865a8113"
+        },
+        {
+          "path": "references/document-format.md",
+          "size": 25194,
+          "sha256": "91fddc4a8e363b90419bc76b03c88280abd1064681ddcd33f297b3a41631f949"
         },
         {
           "path": "references/implement.md",
-          "size": 23683,
-          "sha256": "54d913ad025966e4cd90cec7877c0b1743b82470441764526297a9980cffbb6f"
+          "size": 23660,
+          "sha256": "832108ccf0537bb7bac528da227cf92d87bd0a1e99e4d28a02709e20c4175453"
         },
         {
           "path": "references/lessons.md",
@@ -835,8 +840,8 @@
         },
         {
           "path": "references/specify.md",
-          "size": 10427,
-          "sha256": "0c0c316d4d04dd0f75957182d12a3af47ea348c2a6a6b28595f61d71795385b0"
+          "size": 10232,
+          "sha256": "d2113aeac14b6b52dcd9f9d1623005324f45fc02598e21b808ac220291939a7f"
         },
         {
           "path": "references/sub-agents.md",
@@ -845,8 +850,8 @@
         },
         {
           "path": "references/tasks.md",
-          "size": 22784,
-          "sha256": "5f6647728a5cd2f8ed903a2c742c50a88fa000eaa1af5905c7a6c5f60dd944f0"
+          "size": 22552,
+          "sha256": "2d8f10abb9d8e2f835d055f09b9e9312791bffdb9391f39d1259e5c1189f2dc6"
         },
         {
           "path": "references/validate.md",
@@ -860,11 +865,11 @@
         },
         {
           "path": "SKILL.md",
-          "size": 20021,
-          "sha256": "bfbbbcfd32b3640d7cc12bde8733cda749aa4c2a5be4b60559bdaacf79b4b81f"
+          "size": 29749,
+          "sha256": "d49e29a8d1d3ab2c5131436d8d3b381abea9e3c67343900f9b8bb7c16b171d1f"
         }
       ],
-      "contentSha256": "6c1347522eb6a6918947b51354c6b0ba33be0c1a70d9b81739296e84bc080f1f"
+      "contentSha256": "8a6b1dab88c1d72283186684d63285deed4a7374c5c3654bb1dd4cbb9b36b995"
     },
     {
       "id": "spec-loop",
@@ -889,35 +894,6 @@
         }
       ],
       "contentSha256": "98605f39428520362b49635b24939456535e74f56a9fe678b4552cc71e905e12"
-    },
-    {
-      "id": "task-cutting",
-      "name": "task-cutting",
-      "version": "1.0.0",
-      "category": "Planning & Specification",
-      "description": "Turns already-decided work (a PRD, design doc, RFC, or thread) into tasks a builder can act on without guessing: slices that each prove something, grounded in the code, with intent, observable criteria carrying concrete values, the boundary, what the change disturbs, and only the hard-to-reverse decisions. Walks every surface the work exposes and sweeps nine unwritten-requirement dimensions. Use when the user says \"write the task\", \"cut this PRD into tasks\", \"turn this design doc into work\", \"break this into tasks\", or \"task cutting\". Do NOT use for discovery itself (use idea-discovery — a one-line ticket is a decision; a blank wish is not) or to implement (use verified-implementation).",
-      "license": "CC-BY-4.0",
-      "attribution": [
-        {
-          "name": "Tech Leads Club - github.com/tech-leads-club",
-          "url": "https://github.com/tech-leads-club/agent-skills",
-          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-plan @ v0.2.0; catalog source revision ddd9f9fcab37954132d7ca42dc4b884b588510c8."
-        }
-      ],
-      "entrypoint": "SKILL.md",
-      "files": [
-        {
-          "path": "references/document-format.md",
-          "size": 23573,
-          "sha256": "34e8862b112bd663a07eaca9fdfde32ea186f994b88b1a4b29f609a256eee84e"
-        },
-        {
-          "path": "SKILL.md",
-          "size": 8777,
-          "sha256": "e11c92321deea594224947c30ba53d5bf095b67bc770f91eaa24b5152d83ea62"
-        }
-      ],
-      "contentSha256": "9450be07ecbae3c0c2a80ae36d9628f975d01469e52fa5f503d8a80d7922a285"
     },
     {
       "id": "test-driven-development",
@@ -996,7 +972,7 @@
       "name": "verified-implementation",
       "version": "1.0.0",
       "category": "Planning & Specification",
-      "description": "Implements work already planned: extracts a checklist of named proofs from a planned work item, builds it, and proves every check with an independent verifier (author != verifier). Use when the user says \"extract a checklist\", \"build this ticket\", \"implement this spec\", \"implement this\", or \"verified implementation\". Do NOT use when nobody has decided what to build (use idea-discovery), to design the work (use task-cutting), or for general coding without a planned artifact.",
+      "description": "Implements work already planned: extracts a checklist of named proofs from a planned work item, builds it, and proves every check with an independent verifier (author != verifier). Use when the user says \"extract a checklist\", \"build this ticket\", \"implement this spec\", \"implement this\", or \"verified implementation\". Do NOT use when nobody has decided what to build (use idea-discovery), to cut the work into tasks (use spec-driven), or for general coding without a planned artifact.",
       "license": "CC-BY-4.0",
       "attribution": [
         {
@@ -1009,8 +985,8 @@
       "files": [
         {
           "path": "references/checklist-format.md",
-          "size": 12394,
-          "sha256": "d2fcee72892f2527963010a9a8039eeea6d08ddc16db5fd0e4f8a13176069d6c"
+          "size": 12297,
+          "sha256": "41327bad5eb40bd7834b7b6d063f1986a5f232fc79f4dedbf17e040e3b5df106"
         },
         {
           "path": "references/screens.md",
@@ -1029,11 +1005,11 @@
         },
         {
           "path": "SKILL.md",
-          "size": 7707,
-          "sha256": "12119f0ebfdbac7827048c7469ce4b892021dcf9196cf6aef70d6d52cf386250"
+          "size": 7823,
+          "sha256": "db55a8bcd20e0abb18d93cf6552fa72904582bd62294a0116a427620dcfa91ae"
         }
       ],
-      "contentSha256": "1b15033ec10545da90f3a8d27d3741a9d17269e099493b3bdc47709879bc7f48"
+      "contentSha256": "f79555c0663dfad0e3504984cdd07f342117b849aa0f337804a568891c0b186d"
     }
   ]
 }
