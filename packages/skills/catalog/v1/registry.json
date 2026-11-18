@@ -865,11 +865,11 @@
         },
         {
           "path": "SKILL.md",
-          "size": 29749,
-          "sha256": "d49e29a8d1d3ab2c5131436d8d3b381abea9e3c67343900f9b8bb7c16b171d1f"
+          "size": 29871,
+          "sha256": "67fdc88ba94a1f173e5ad1d5ef69265aafad9391e169670986d7ae8067cdb038"
         }
       ],
-      "contentSha256": "0e544e13ef871e87c62d4b669ba473f8ed5c53e7c1aa583f994a23c6c1960c3b"
+      "contentSha256": "fd81f77381ed1d41bd6cefa94d4e98393932db96cd5f81f571b47a1acc90cb6d"
     },
     {
       "id": "spec-loop",

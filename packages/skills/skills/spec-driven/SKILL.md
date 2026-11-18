@@ -62,7 +62,7 @@ Plan and implement features with precision. Verifiable slices. Clear dependencie
 
 **Rules:**
 
-- **Specify and Execute are always required** — you always need to know WHAT and DO it
+- **Specify and Execute are always required on the pipeline path** — you always need to know WHAT and DO it; **Cut only** is the single exception, because a source that is already decided carries its own WHAT
 - **Design is skipped** when the change is straightforward (no architectural decisions, no new patterns)
 - **Tasks is skipped** when there are ≤3 obvious steps (they become implicit in Execute)
 - **Cut only is a complete run** — when someone already decided the source and nobody asked for a `.specs/` pipeline, stop at `.tasks/<name>.md`. That path is the Tasks phase without the phases around it, not a lesser one: it skips nothing about the cut, the grounding, the surfaces or the sweep.

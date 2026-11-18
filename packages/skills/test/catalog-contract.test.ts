@@ -2,10 +2,9 @@ import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { directoryDigest, normalizeCatalogPath, parseFrontmatter, validateRegistry, validateTaxonomy, verifySkillFiles, type CatalogRegistry, type CatalogSkill } from "../src/catalog-contract.js";
+import { basename, join } from "node:path";
+import { directoryDigest, generateCatalog, normalizeCatalogPath, parseFrontmatter, validateRegistry, validateTaxonomy, verifySkillFiles, type CatalogRegistry, type CatalogSkill } from "../src/catalog-contract.js";
 import { readRegistry } from "../src/registry.js";
-import { parseSkillFrontmatter } from "../src/skills.js";
 
 const digest = (bytes: string) => createHash("sha256").update(bytes).digest("hex");
 const goodSkill = (id = "sample"): CatalogSkill => ({ id, name: "Sample Skill", version: "1.0.0", category: "Testing", description: "Display only", license: "MIT", attribution: [{ name: "Runecraft", url: "https://github.com/runecraftai/skills", text: "Copyright Runecraft." }], entrypoint: "SKILL.md", files: [{ path: "SKILL.md", size: 4, sha256: digest("body") }], contentSha256: directoryDigest([{ path: "SKILL.md", bytes: Buffer.from("body") }]) });
@@ -22,15 +21,23 @@ describe("strict catalog contract", () => {
     expect([...validateTaxonomy(taxonomy.categories).keys()].sort()).toEqual(generated.skills.map((skill) => skill.id).sort());
     for (const skill of generated.skills) await verifySkillFiles(skill, join(root, "catalog/v1/skills", skill.id));
   });
-  test("local catalog listing agrees with the declared frontmatter version of every skill", async () => {
+  test("local registry reports the catalog version for every skill that declares one", async () => {
     const root = join(import.meta.dir, "..");
-    const skills = readRegistry(join(root, "skills"));
-    expect(skills.length).toBeGreaterThan(0);
-    for (const skill of skills) {
-      const meta = await readFile(join(skill.dir, ".skill-meta.json"), "utf8").then((raw) => JSON.parse(raw) as { version?: string }, () => ({}));
-      if (!meta.version) continue;
-      const declared = parseSkillFrontmatter(await readFile(join(skill.dir, "SKILL.md"), "utf8")).version;
-      if (declared) expect([skill.name, skill.version]).toEqual([skill.name, declared]);
+    const skillsRoot = join(root, "skills");
+    const outputRoot = await mkdtemp(join(tmpdir(), "catalog-versions-"));
+    try {
+      const generated = await generateCatalog({ skillsRoot, outputRoot, taxonomyPath: join(root, "catalog.json"), catalogVersion: "1.0.0", revision: "abc", generatedAt: "2026-09-26T00:00:00.000Z" });
+      const published = new Map(generated.skills.map((skill) => [skill.id, skill.version]));
+      const local = readRegistry(skillsRoot);
+      expect(local).toHaveLength(generated.skills.length);
+      for (const skill of local) {
+        const meta = await readFile(join(skill.dir, ".skill-meta.json"), "utf8").then((raw) => JSON.parse(raw) as { version?: string }, () => ({}));
+        if (!meta.version) continue;
+        const id = basename(skill.dir);
+        expect([id, skill.version]).toEqual([id, published.get(id)]);
+      }
+    } finally {
+      await rm(outputRoot, { recursive: true, force: true });
     }
   });
   test("directory digest has a pinned canonical vector", () => {
