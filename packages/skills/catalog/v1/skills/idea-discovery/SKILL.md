@@ -53,7 +53,7 @@ Run the interview protocol from `interview-me`: one question at a time, each car
 
 What a discovery adds on top of that protocol is its own:
 
-- **Facts you look up; decisions you ask.** Keep delivery small: one question when answers depend on each other, two when they do not.
+- **Facts you look up; decisions you ask.**
 - **You are done when nothing answerable is left**, not when all sections have been visited. Nothing is owed a paragraph merely because it exists. Every question whose prerequisites are settled is fair; one whose prerequisite is still open is not.
 - **Some questions cannot be answered by talking at all.** Route them to a spike or a designer. That routing is a result, not a failure.
 

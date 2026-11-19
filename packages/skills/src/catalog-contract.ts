@@ -106,10 +106,12 @@ export async function generateCatalog(options: { skillsRoot: string; outputRoot:
     const text = await readFile(source, "utf8");
     const fm = parseFrontmatter(text);
     if (fm.name !== id || !fm.description?.trim() || !LICENSES.has(fm.license ?? "")) throw new Error(`Invalid frontmatter/license for ${id}`);
-    const upstream = fm.upstream || `Runecraft-authored; source revision ${options.revision}`;
-    const name = fm.author || (fm.upstream ? upstream.split(/[,(]/)[0].trim() : "Runecraft");
-    const attributionText = fm.upstream ? `${upstream}; catalog source revision ${options.revision}.` : `Copyright Runecraft. ${upstream}.`;
-    const attributionUrl = fm.upstream?.match(/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)/)?.[1];
+    const upstream = fm.upstream?.trim();
+    const extraUpstreams = parseUpstreams(fm.upstreams);
+    const attribution: CatalogSkill["attribution"] = [];
+    if (!upstream || extraUpstreams.length) attribution.push({ name: fm.author || "Runecraft", url: "https://github.com/runecraftai/skills", text: `Copyright Runecraft. Runecraft-authored; source revision ${options.revision}.` });
+    for (const declaration of upstream ? [upstream] : []) attribution.push(upstreamAttribution(declaration, fm.author, options.revision));
+    for (const declaration of extraUpstreams) attribution.push(upstreamAttribution(declaration, fm.author, options.revision));
     const files: CatalogFile[] = [];
     const content: { path: string; bytes: Uint8Array }[] = [];
     async function walk(folder: string, rel = ""): Promise<void> {
@@ -130,7 +132,7 @@ export async function generateCatalog(options: { skillsRoot: string; outputRoot:
     }
     await walk(dir);
     files.sort((a, b) => a.path.localeCompare(b.path, "en"));
-    const skill: CatalogSkill = { id, name: fm.name || id, version: fm.version || "1.0.0", category: categoryById.get(id)!, description: fm.description.trim(), license: fm.license!, attribution: [{ name, url: `https://github.com/${attributionUrl || "runecraftai/skills"}`, text: attributionText }], entrypoint: "SKILL.md", files, contentSha256: directoryDigest(content) };
+    const skill: CatalogSkill = { id, name: fm.name || id, version: fm.version || "1.0.0", category: categoryById.get(id)!, description: fm.description.trim(), license: fm.license!, attribution, entrypoint: "SKILL.md", files, contentSha256: directoryDigest(content) };
     skills.push(skill);
     for (const file of files) {
       const destination = join(staging, id, ...file.path.split("/"));
@@ -144,6 +146,17 @@ export async function generateCatalog(options: { skillsRoot: string; outputRoot:
   validateRegistry(registry);
   await writeFile(join(options.outputRoot, "registry.json"), `${JSON.stringify(registry, null, 2)}\n`);
   return registry;
+}
+
+function upstreamAttribution(declaration: string, author: string | undefined, revision: string): CatalogSkill["attribution"][number] {
+  return { name: author || declaration.split(/[,(]/)[0]!.trim(), url: `https://github.com/${declaration.match(/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)/)?.[1] || "runecraftai/skills"}`, text: `${declaration}; catalog source revision ${revision}.` };
+}
+
+function parseUpstreams(value: string | undefined): string[] {
+  if (!value) return [];
+  const parsed = JSON.parse(value) as unknown;
+  if (!Array.isArray(parsed) || !parsed.length || parsed.some((entry) => typeof entry !== "string" || !entry.trim())) throw new Error("Invalid upstreams metadata: expected a non-empty JSON array of strings");
+  return parsed.map((entry) => (entry as string).trim());
 }
 
 export function parseFrontmatter(text: string): Record<string, string> {
