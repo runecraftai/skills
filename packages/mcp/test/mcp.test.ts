@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { createHandlers, createServer } from "../src/index.js";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { MAX, createHandlers, createServer } from "../src/index.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import type { Registry } from "../../core/src/index.js";
@@ -72,5 +75,24 @@ describe("search_skills byte ceiling and ranking reliability",()=>{
  test("a no-match query returns an empty result instead of throwing or guessing",async()=>{
    const raw=await manyHandlers.search_skills({query:"xyz nonexistent widget",limit:5});
    expect(JSON.parse(raw)).toEqual({skills:[],truncated:false});
+ });
+});
+
+describe("published catalog readability",()=>{
+ const catalogRoot=fileURLToPath(new URL("../../skills/catalog/v1",import.meta.url));
+ const published=JSON.parse(readFileSync(join(catalogRoot,"registry.json"),"utf8")) as Registry;
+ const handlers=createHandlers({catalog:async()=>({registry:published,freshness:"fresh"}),fetchFile:async(_revision,id,path)=>readFileSync(join(catalogRoot,"skills",id,path))});
+
+ test("every published skill entrypoint is readable through read_skill within the ceiling",async()=>{
+   const over: string[]=[];
+   for(const skill of published.skills){
+     try{
+       const output=await handlers.read_skill({id:skill.id});
+       const bytes=Buffer.byteLength(output,"utf8");
+       if(bytes>MAX.read) over.push(`${skill.id}: ${bytes} bytes`);
+       expect(JSON.parse(output).files.length).toBe(skill.files.length-1);
+     }catch(error){ over.push(`${skill.id}: ${(error as Error).message}`); }
+   }
+   expect(over).toEqual([]);
  });
 });

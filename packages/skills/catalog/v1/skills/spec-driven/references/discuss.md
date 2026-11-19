@@ -21,18 +21,9 @@ The output — `context.md` — feeds directly into Design and Tasks:
 
 ### 1. Analyze the Feature
 
-Read `.specs/features/[feature]/spec.md` and identify the domain:
+Read `.specs/features/[feature]/spec.md` and walk the surface domains it exposes. The five surface kinds and the decisions each one always carries — plus the backend/state lane — have a single owner: [cut.md](cut.md) § Walk the surfaces. Use that table; do not keep a second copy of it here.
 
-| Domain                         | Gray areas to explore                                         |
-| ------------------------------ | ------------------------------------------------------------- |
-| Something users **SEE**        | Layout, density, interactions, empty states, visual hierarchy |
-| Something users **CALL** (API) | Response format, errors, auth, versioning, rate limiting      |
-| Something users **RUN** (CLI)  | Output format, flags, modes, error handling, verbosity        |
-| Something users **READ**       | Structure, tone, depth, flow, navigation                      |
-| Something being **ORGANIZED**  | Grouping criteria, naming, duplicates, exceptions             |
-| Something with **backend / state / contract** | Failure & partial-failure states, idempotency/retry/dedup, auth boundaries & rate limits, data lifecycle/expiry, concurrency/ordering — see [implicit-requirement dimensions](specify.md#implicit-requirement-dimensions) |
-
-Generate 3-4 **feature-specific** gray areas. Not generic categories, but concrete decisions for THIS feature.
+Generate 3-4 **feature-specific** gray areas. Not generic categories, but concrete decisions for THIS feature: the domain tells you which decisions always exist for that kind of surface, and `spec.md` tells you which ones are still open for this one.
 
 ### 2. Present Gray Areas
 

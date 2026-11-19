@@ -1,37 +1,14 @@
 # Tasks
 
-**Goal**: Break into GRANULAR, ATOMIC tasks. Clear dependencies. Right tools. Parallel execution plan.
+**Goal**: Cut the work into slices that each prove something. Clear dependencies. Right tools. Parallel execution plan.
 
 **Skip this phase when:** There are ≤3 obvious steps. In that case, tasks are implicit — go straight to Execute and list them inline in your implementation plan.
 
-## Why Granular Tasks?
+## Grain
 
-| Vague Task (BAD) | Granular Tasks (GOOD)             |
-| ---------------- | --------------------------------- |
-| "Create form"    | T1: Create email input component  |
-|                  | T2: Add email validation function |
-|                  | T3: Create submit button          |
-|                  | T4: Add form state management     |
-|                  | T5: Connect form to API           |
-| "Implement auth" | T1: Create login form             |
-|                  | T2: Create register form          |
-|                  | T3: Add token storage utility     |
-|                  | T4: Create auth API service       |
-|                  | T5: Add route protection          |
+**A slice is one observable outcome, never a layer.** This is the rule the whole Tasks phase runs on, and `SKILL.md` § Tasks — the cut owns it: default to one task for the whole source, and split only for an order constraint, an answer only someone else can give, or another team. A slice that spans schema, API and UI is one task when one run can settle it; four tasks on the same file are four tasks when each proves something the others cannot.
 
-**Benefits of granular:**
-
-- **Agents don't err** - Single focus, no ambiguity
-- **Easy to test** - Each task = one verifiable outcome
-- **Parallelizable** - Independent tasks run simultaneously
-- **Errors isolated** - One failure doesn't block everything
-
-**Rule**: One task = ONE of these:
-
-- One component
-- One function
-- One API endpoint
-- One file change
+So "granular" here means **each task can be verified alone**, not that each task is small. "Schema first, then endpoints" produces pieces nobody can verify alone — that is the failure this rule exists to prevent, not the standard of granularity it asks for.
 
 ## Vertical Slicing
 
@@ -54,23 +31,9 @@ Task 3: User can create a task (task schema + API + UI for creation)
 
 Each vertical slice delivers working, testable functionality.
 
-## Task Sizing Guidelines
+## Task Weight
 
-| Size | Files | Scope | Example |
-|------|-------|-------|---------|
-| **XS** | 1 | Single function or config change | Add a validation rule |
-| **S** | 1-2 | One component or endpoint | Add a new API endpoint |
-| **M** | 3-5 | One feature slice | User registration flow |
-| **L** | 5-8 | Multi-component feature | Search with filtering and pagination |
-| **XL** | 8+ | **Too large — break it down further** | — |
-
-If a task is L or larger, it should be broken into smaller tasks. An agent performs best on S and M tasks.
-
-**When to break a task down further:**
-- It would take more than one focused session (roughly 2+ hours of agent work)
-- You cannot describe the acceptance criteria in 3 or fewer bullet points
-- It touches two or more independent subsystems (e.g., auth and billing)
-- You find yourself writing "and" in the task title (a sign it is two tasks)
+A task's size is not a splitting criterion, so there is no size table here and no file-count ceiling to check. Record the weight instead: files touched, `wc -c` over them, and the expected token cost on the slice heading — [document-format.md](document-format.md) gives the heading its shape, and `verified-implementation`'s checklist format (`checklist-format.md`) gives the arithmetic it copies. Weight is what ranks the work and what makes an over-large slice visible without turning "8+ files" into a rule that splits a single observable outcome into unverifiable pieces.
 
 ---
 
@@ -176,10 +139,10 @@ These defaults may exceed the current repo's depth. That is intentional — they
 
 ### 2. Break Into Atomic Tasks
 
-**Task = ONE deliverable**. Examples:
+**Task = one observable outcome**. Examples:
 
-- ✅ "Create UserService interface" (one file, one concept)
-- ❌ "Implement user management" (too vague, multiple files)
+- ✅ "Create UserService interface" (one concept, checkable on its own)
+- ❌ "Implement user management" (no outcome anyone can observe)
 
 ### 3. Define Dependencies
 
@@ -442,20 +405,21 @@ It is NOT a directive to spawn a sub-agent per task.
 
 ## Task Granularity Check
 
-Before approving tasks, verify they are granular enough:
+Before approving tasks, verify each one is a slice of observable outcome, and that the split reasons are real:
 
-| Task                            | Scope         | Status       |
-| ------------------------------- | ------------- | ------------ |
-| T1: Create email input          | 1 component   | ✅ Granular  |
-| T2: Add validation function     | 1 function    | ✅ Granular  |
-| T3: Create form with all fields | 5+ components | ❌ Split it! |
-| T4: Connect to API              | 1 function    | ✅ Granular  |
+| Task                            | Scope                              | Status                     |
+| ------------------------------- | ---------------------------------- | -------------------------- |
+| T1: Create email input          | one outcome, one run settles it    | ✅ Granular                |
+| T2: Add validation function     | one outcome, one run settles it    | ✅ Granular                |
+| T3: Create form with all fields | one outcome across five components | ✅ If one run settles it   |
+| T4: Connect to API              | separate outcome, no split reason  | ❌ Why is this not in T3?  |
 
 **Granularity check**:
 
-- ✅ 1 component / 1 function / 1 endpoint = Good
-- ⚠️ 2-3 related things in same file = OK if cohesive
-- ❌ Multiple components or files = MUST split
+- ✅ Every criterion in the task is observable from outside it
+- ✅ One run settles the task's criteria
+- ⚠️ A task whose `Done when` cannot be described in observable outcomes = rewrite it, or it is not yet cut
+- ❌ A task that exists only because a layer came first = fold it back; order constraints belong in `Depends on`, not in the cut
 
 ---
 

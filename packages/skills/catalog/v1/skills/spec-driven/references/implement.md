@@ -18,6 +18,28 @@ This is where code gets written. Every task follows the same cycle: plan → imp
 
 ---
 
+## Plan and Task List Files
+
+**Plan document:** Save the implementation plan to `tasks/plan.md`. This is always a markdown file — design decisions, risks, and open questions don't map cleanly onto individual tracker issues.
+
+**Task list:** Record each task in the **task list target** (defined below). Create the `tasks/` directory if it does not exist.
+
+**Never overwrite an incomplete plan.** Before writing `tasks/plan.md` or `tasks/todo.md`, check whether they already exist and still contain unchecked tasks:
+
+- Same work being replanned (the user asked to revise or extend this plan) → update the existing files in place.
+- Different work → **stop and ask.** The unchecked tasks may be mid-build in another session. Do not delete, overwrite, or rename the existing files on your own; present the conflict and let the user decide.
+
+The same rule applies to an external task list target: never bulk-close or delete another plan's open tracker items to make room for new ones.
+
+**Task list target:** Where tasks and checkpoints are recorded.
+
+- **Default: a checklist-style markdown file at `tasks/todo.md`.** This is the convention downstream tooling expects. Use it unless the project says otherwise.
+- **External tracker:** if the project's agent rules (`CLAUDE.md`, `AGENTS.md`, etc.) or the user designate an issue tracker (e.g. GitHub Issues, Jira, Linear), create one tracker item per task instead of writing `tasks/todo.md`. Map the task structure onto the tracker's fields. Record Step 5 checkpoints as tracker items too.
+
+When using an external tracker, note it in `tasks/plan.md` so downstream steps know where to look.
+
+---
+
 ## Process
 
 **Phase worker context:** When this task is executed as part of a phase sub-agent, the worker
@@ -47,7 +69,7 @@ If there is no `tasks.md` for this feature, you MUST list atomic steps before wr
 
 **Each step must be:**
 
-- ONE deliverable (one component, one function, one endpoint, one file change)
+- ONE deliverable (one observable outcome, one concept)
 - Independently verifiable (can prove it works before moving on)
 - Independently committable (gets its own atomic git commit)
 

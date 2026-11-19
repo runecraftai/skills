@@ -1,10 +1,35 @@
 # Task document format
 
-Load this file only when writing `.tasks/<name>.md` — after the cut, the grounding, the surface walk, and the sweep. Do not load it during Cut.
+Load this file twice on a cut: once at the sweep, for the canonical nine-dimension rubric below ([cut.md](cut.md) § Sweep the nine sends you here), and once at the write step, for the template. Nothing here is needed while cutting slices or grounding them in the code.
 
 Section headings stay as they are — the next skill refers to them by name — while the prose follows the language of the document and identifiers are never translated. The document is for humans first: `verified-implementation` copies criteria into checks, and nothing under `Unresolved` gets settled while building.
 
 Replace every placeholder with a concrete value, or omit the section. A heading with "N/A" under it does not appear.
+
+## Canonical rubric: the nine unwritten-requirement dimensions
+
+The sweep has one owner: this list. Every other skill that sweeps — `specify` in this same pipeline, `verified-implementation` — points here instead of restating the keys, so a dimension added or renamed here reaches every sweep at once. Walk all nine, every time, in this order.
+
+| Dimension | What to cover |
+| --- | --- |
+| validation | Input limits, formats, sanitization, bounds |
+| failure modes | Timeouts, partial saves, rollbacks, partial-failure states |
+| idempotency and retry | Safe retries, dedup keys, duplicate handling |
+| authorization | Who may call what, auth boundaries, rate limits |
+| concurrency and ordering | Race conditions, ordering guarantees |
+| data lifecycle | TTL, archival, expiry, deletion |
+| external-dependency failure | Circuit breakers, fallbacks, dependency outages |
+| state transitions | Valid transitions, guards, integrity |
+| observability | Logging, metrics, tracing hooks |
+
+Every dimension lands in one of four kinds, and `n/a` is mandatory rather than a shrug:
+
+- a criterion number already written for it
+- `existing - <what in the code already covers it>`
+- `n/a - <reason>` — a webhook has no empty state, and saying so costs a line
+- `Unresolved <n>` — a landing that would need new behaviour is a question, never a numbered line
+
+A landing must observe **that** dimension. Reaching for a number already used on another line is the tell it is uncovered. Concurrency and observability hide better than the other seven.
 
 ## Template
 
@@ -35,12 +60,12 @@ error, unauthorised, and it names the screen the design gives it. Use whichever 
 actually has - most are When/Then, and the list below is a menu, not a quota. Headings are the
 slices; numbering runs across the whole task.
 
-### <slice - the outcome someone can watch>
+### <slice - the outcome someone can watch> · <files> files · <KB> KB · ~<tokens>k
 
 1. Given <state>, when <trigger>, then <observable outcome with the concrete value>.
 2. When <trigger>, then <observable outcome>.
 
-### <slice>
+### <slice> · <files> files · <KB> KB · ~<tokens>k
 
 3. While <state holds>, <observable outcome>.
 4. If <condition goes wrong>, then <observable outcome>.
@@ -161,6 +186,8 @@ When/Then answers a trigger, and three kinds of criterion have no trigger to ans
 **Write the connectives in the language of the task.** `Given`, `When`, `Then`, `While`, `If` and `Always` are shapes, not keywords, and nothing parses them - a task written in Portuguese writes `Dado`, `Quando`, `Então`. A document that switches language mid-sentence costs the reader a beat on every line and buys nothing. Three tiers, and only the middle one moves: the section headings stay as they are, because they are a schema that this skill and the next one both refer to by name; the prose and the connectives follow the document; identifiers are never translated, so a status value, a field, a route, an HTTP code and a class name keep the spelling the system uses. Translating `Trialing` into a criterion is how a task starts describing a system that does not exist.
 
 The headings are the slices the cut already found. Enumerating them and then writing a flat list throws the shape of the work away: nobody can tell where starting a trial ends and cancelling begins without reading every line, and the seams you would otherwise describe from memory when someone asks about splitting are already drawn. **Number across the whole task, never per heading** - everything downstream refers to a criterion by number, and a `3` that exists three times is worse than no grouping at all. Under about six criteria skip the headings; a list you can see whole does not need signposting.
+
+**A heading carries the slice's weight** - files touched, the `wc -c` byte count over them, the token estimate - because ranking slices by weight is the decision, and the weight on the page is what makes an over-large slice visible without a file-count ceiling that splits one observable outcome into pieces nobody can verify alone. The arithmetic belongs to `verified-implementation`'s checklist format, which copies these headings into its checks.
 
 **The status line** closing `Intent` is the file obeying the rule the chat already follows: lead with the verdict. A reviewer decides in seconds whether to read now or hand it back, and the three facts that decide it - how much work, how much is locked, how much is open - otherwise sit in three different sections, the last of them at the bottom. Count, never characterise: "4 open, 1 blocks go-live" is a fact a reviewer can act on, "mostly settled" is a feeling.
 
