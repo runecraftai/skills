@@ -3,9 +3,9 @@ name: spec-driven
 description: >
   Planning and implementation across four adaptive phases — Specify, Design, Tasks, Execute — with
   observable task criteria, atomic commits, an independent Verifier (author != verifier) and a
-  lessons layer. Also cuts decided work (a PRD, design doc, RFC, or thread) into tasks a builder
-  can act on: slices grounded in the code, every surface walked, nine unwritten-requirement
-  dimensions swept. Stack-agnostic. Use when planning features or cutting decided work into tasks.
+  lessons layer. Also cuts already-decided work (a PRD, design doc, RFC, or thread) into tasks
+  ready to build: slices checked against the code, every surface walked, nine
+  unwritten-requirement dimensions swept. Stack-agnostic. Use when planning features or cutting decided work into tasks.
   Triggers (PT/EN): "specify feature", "vamos especificar", "discutir feature", "design", "design
   da feature", "tarefas", "quebrar em tarefas", "implementar", "build", "validar", "verify
   work", "UAT", "validar implementação", "/spec", "/planning", "planning and task breakdown",
@@ -14,7 +14,7 @@ description: >
   ticket with no plan (verified-implementation), or architecture decomposition.
 license: CC-BY-4.0
 metadata:
-  version: 6.0.0
+  version: 6.0.1
 ---
 
 # spec-driven
@@ -40,11 +40,11 @@ Plan and implement features with precision. Verifiable slices. Clear dependencie
 2. The gate must pass (tests pass) before a task is done — the test runner decides, not self-assessment.
 3. One atomic commit per task. Never batch tasks; never weaken, skip, or delete tests to make them pass.
 4. After the LAST task, a fresh **Verifier always runs automatically** (author ≠ verifier) — spec-anchored outcome check + discrimination sensor. It is never optional and never prompted. See Sub-Agent Delegation.
-5. Every criterion is an **observable outcome with a concrete value**. "The columns exist" is not a criterion.
-6. **Refuse rather than guess.** A gap in the source comes back as a question.
-7. `Decided` carries only what is **hard to reverse**. Everything reversible is decided while building.
-8. **Raising a concern is free; growing scope is the user's call.**
-9. When the source contradicts the code, **amend the source**. The task is the record of decision; linked documents keep the reasoning.
+5. A criterion is an **observable outcome carrying a concrete value**; "the columns exist" does not qualify.
+6. **Refuse rather than guess.** Anything the source leaves out comes back as a question, never as a guess.
+7. `Decided` holds only what is **hard to reverse**; anything reversible gets decided during the build.
+8. **Flagging a concern costs nothing; widening the scope is the user's decision.**
+9. If the source and the code disagree, **correct the source**. The task records the decision; the linked documents keep the reasoning.
 
 **Before Execute:** read [implement.md](references/implement.md) completely; if a formal `tasks.md` has more than 3 phases, present the sub-agent offer first (see Sub-Agent Delegation).
 
@@ -125,22 +125,22 @@ Read `.specs/STATE.md` — Handoff section for in-flight state, Decisions sectio
 
 ## Tasks — the cut
 
-Cut the source. Ground it in the code. Write the task.
+Slice the decided source, check it against the code, then write the task.
 
-The Tasks phase for work someone already decided: a design doc, PRD, RFC, thread or one-line ticket. Reach for it when the user says "write the task" or "cut this into work", or when work is decided but nobody has broken it into verifiable slices. It turns that decision into work a builder can pick up without guessing, and stops at the first thing nobody decided by walking two fixed lists instead of inventing a feature.
+This is the Tasks phase for work that is already decided — a design doc, PRD, RFC, thread or a ticket of one line. Use it when the user asks to "write the task" or "cut this into work", or when the work is settled but has not been split into slices anyone can verify. The result is work a builder can start without filling anything in; the cut halts at the first point the source never decided, and it finds those points by checking two fixed lists, never by adding features.
 
 ```
-CUT ──────────→ GROUND ──────────→ WRITE
-(slices, then   (the repository     (one task,
- how many        it lands in)        unless a seam
-tasks)                               is forced)
+CUT ───────────→ GROUND ──────────→ WRITE
+list the slices,  check them against  one task, unless a
+then count the    the repository      forced seam splits it
+tasks
 ```
 
-**A slice is one observable outcome, never a layer.** Default to one task for the whole source; split only when a piece cannot land before another without breaking production, waits on an answer only someone else can give, or belongs to another team. A slice that spans schema, API and UI is one task when one run can settle it; four tasks on the same file are four tasks when each proves something the others cannot.
+**Slice by observable outcome, never by layer.** Start from a single task for the whole source, and split a piece off for only three reasons: it cannot land ahead of another piece without breaking production, it needs an answer that only someone else can supply, or another team owns it. Schema, API and UI together are still one task if a single run settles them; four tasks touching the same file stay four tasks when each proves something the others cannot.
 
 **The mechanics have one owner: [cut.md](references/cut.md).** Read it before cutting — it carries the cut, the grounding questions, the five surface kinds and the decisions each carries, the nine-dimension sweep, the refuse-rather-than-guess checks and the write step.
 
-**The artifact has one owner: [document-format.md](references/document-format.md).** Read it when writing `.tasks/<name>.md` — it owns the document's sections and the canonical nine-dimension rubric. Present the cut, then the tasks, then the open questions with blocking ones first; lead with the verdict.
+**The artifact has one owner: [document-format.md](references/document-format.md).** Read it when writing `.tasks/<name>.md` — it owns the document's sections and the canonical nine-dimension rubric. Report the cut first, the tasks next and the open questions last, blocking ones on top; open with the verdict.
 
 Cut-only produces `.tasks/<name>.md` and stops after the task. In-pipeline (Large/Complex) the same cut lands in `.specs/features/[feature]/tasks.md` per [tasks.md](references/tasks.md), which adds the Test Coverage Matrix, the Parallelism Assessment and the Gate Check Commands.
 
@@ -281,9 +281,9 @@ On the Cut-only path, the checks that belong to the cut — landings, one-way do
 Acceptance criteria are per-task and answer "did we build the right thing?". They sit on top of the project-wide Definition of Done — the standing bar every task clears before it counts as done (`../../references/definition-of-done.md`).
 
 - **`git-commit-learning`** — for writing AI-learnable commit messages during Execute.
-- **`idea-discovery`** — produces the design document the Tasks phase cuts into work.
-- **`verified-implementation`** — builds from the task artifact this skill produces when no `.specs/` pipeline is wanted.
-- **`incremental-implementation`** — delivers changes in thin verifiable slices.
+- **`idea-discovery`** — writes the design document that the Tasks phase then cuts into work.
+- **`verified-implementation`** — takes the task document this skill writes and builds it when no `.specs/` pipeline is wanted.
+- **`incremental-implementation`** — ships changes as thin slices, each one verified before the next.
 - **`spec-driven-development`** — absorbed into this skill. Its gated workflow, capability mapping, and detailed spec structure are now part of the Specify phase.
 - **`planning-and-task-breakdown`** — absorbed into this skill. Its dependency-graph mapping, vertical slicing, output file conventions, and checkpoint strategy are now part of the Tasks phase.
-- **`task-cutting`** — absorbed into this skill. Its surface walk, nine-dimension sweep, one-way-door table, task-document format and Cut-only path are now the Tasks phase; [document-format.md](references/document-format.md) owns the task document and the nine-dimension rubric. Upstream: `tech-leads-club/agent-skills` `tlc-plan` @ v0.2.0 (CC-BY-4.0, Copyright Tech Leads Club).
+- **`task-cutting`** — absorbed into this skill. Its surface walk, nine-dimension sweep, one-way-door table, task-document format and Cut-only path are now the Tasks phase, rewritten in this catalog's own words in [cut.md](references/cut.md) and [document-format.md](references/document-format.md); the latter owns the task document and the nine-dimension rubric.
