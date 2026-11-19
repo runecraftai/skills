@@ -1,5 +1,36 @@
 # @runecraft/grimoire
 
+## 3.0.0
+
+### Major Changes
+
+- 046cf86: Absorb `task-cutting` into `spec-driven` and give the two shared rubrics one owner each.
+
+  **Breaking for catalog consumers:** the `task-cutting` skill id is removed. A project whose `.grimoire-lock.json` records `task-cutting` gets `unknown skill` from `grimoire install` and loses update and audit coverage until it installs `spec-driven` instead. That is why this release is a major bump.
+
+  - **`task-cutting` → `spec-driven`**: the surface walk, the nine-dimension sweep, the one-way-door table, the Cut → Ground → Write mechanism, the task-document format (now `spec-driven/references/document-format.md`) and the Cut-only path are all part of the Tasks phase. `spec-driven` also keeps its independent Verifier, discrimination sensor, `STATE.md` decisions and lessons layer.
+  - **Nine-dimension rubric (one owner)**: `spec-driven/references/document-format.md` § Canonical rubric is the only place the nine keys and their landing kinds are written; `specify.md`, `verified-implementation/SKILL.md` and `verified-implementation/references/checklist-format.md` point at it.
+  - **Interview protocol (one owner)**: `interview-me` keeps the protocol; `idea-discovery` defers to it instead of restating it.
+  - **One grain rule**: `task-cutting`'s "a slice is one observable outcome, never a layer" replaces `spec-driven`'s per-function/per-file rule and its XS–XL file-count sizing, which contradicted it.
+  - **Entrypoint stays readable**: the absorbed mechanism lives in `spec-driven/references/cut.md`, with summary and pointers in `SKILL.md`, so `spec-driven` stays under the MCP `read_skill` response ceiling; `@runecraft/grimoire-mcp` now covers that ceiling against the published catalog in its tests.
+
+  Removed skill folder: `task-cutting`. Updated `catalog.json`, the README table, and cross-references in `idea-discovery` and `verified-implementation`.
+
+### Minor Changes
+
+- 802c1a3: Add the `feature-parity` skill: a `features.csv` ledger evaluator that scores how much of a target product a rebuild reproduces and exits `1` when a must-have feature is not `yes`, `2` on an invalid ledger.
+- 83a317e: Add the `knowledge-pass` skill for code-grounded implementation handoffs and one-question-at-a-time understanding checks.
+- 511a6c4: Extend skill-forge with forward-link checks, bounded script self-tests, published trigger collision warnings, prerequisite presence, and artifact ownership declarations. Add good/bad regression fixtures and catalog-wide CI and catalog-release validation with an explicit four-finding legacy baseline.
+
+### Patch Changes
+
+- 363be96: Rewrite the task-cutting material that `spec-driven` absorbed in this catalog's own words, and drop the upstream credit it carried:
+
+  - **Rewritten:** `spec-driven/references/cut.md` (Cut → Ground → Walk the surfaces → Sweep the nine → Write, the refuse-rather-than-guess criterion tests, the question rules, the hand-off checks, red flags and rationalizations), the explanatory prose and template guidance in `spec-driven/references/document-format.md`, the `SKILL.md` § Tasks — the cut summary and Critical Rules 5–9, and the § Grain paragraph in `references/tasks.md`.
+  - **Behaviour unchanged:** every rule, warning, threshold and stopping condition is still present. The task-document schema is byte-identical: section headings, table columns, landing kinds, the three `Unresolved` kinds and the slice-heading weight. The five-surface table and the nine-dimension rubric are also unchanged.
+  - **Metadata:** the `spec-driven` description is lightly reworded, so `task cutting` and `spec driven` keep routing to it; `6.0.0` becomes `6.0.1` in `SKILL.md` and `.skill-meta.json`.
+  - **Attribution:** the `tech-leads-club/agent-skills` `tlc-plan` upstream credit on the absorbed `task-cutting` section is removed, because that text is no longer external.
+
 ## 2.0.1
 
 ### Patch Changes
