@@ -810,8 +810,8 @@
         },
         {
           "path": "references/cut.md",
-          "size": 8048,
-          "sha256": "772713465bc2cd085c67eff905fa794c72d64f932bf7576e4b868a7edcd30f28"
+          "size": 8105,
+          "sha256": "7e1b82b177ae476341dda4abfff3fb94971958ad31519e0f4b1bba61ff5a82fe"
         },
         {
           "path": "references/design.md",
@@ -825,8 +825,8 @@
         },
         {
           "path": "references/document-format.md",
-          "size": 25729,
-          "sha256": "a441558399c12de295eaf10a5ec5ed17b58102ee8d1898e0a8d51232763232d0"
+          "size": 25777,
+          "sha256": "e05785ec766a3690efc4ffa7c1d10d8af7c237a81eb35d33654a4191d385f1f7"
         },
         {
           "path": "references/implement.md",
@@ -874,7 +874,7 @@
           "sha256": "2cf4a32d8bf3132d489f2be6e2ca4f760dcde6d57f9d2b237a3c5257db8ef1f8"
         }
       ],
-      "contentSha256": "406c92c848994072e16bdc9b30ebd53b2f5ca8f24966f2f82534dbaa4ec31a1b"
+      "contentSha256": "8d7b3d48f3c3dfcb891d9120444dd8f4d7eb85b64ed19076836a9afdac0083b7"
     },
     {
       "id": "spec-loop",

@@ -1,6 +1,6 @@
 # Task document format
 
-Load this file when writing `.tasks/<name>.md` — after the cut, the grounding, the surface walk, and the sweep — and when you only need the canonical nine-dimension rubric below for a sweep. Do not load it during Cut.
+Load this file twice on a cut: once at the sweep, for the canonical nine-dimension rubric below ([cut.md](cut.md) § Sweep the nine sends you here), and once at the write step, for the template. Nothing here is needed while cutting slices or grounding them in the code.
 
 Section headings stay as they are — the next skill refers to them by name — while the prose follows the language of the document and identifiers are never translated. The document is for humans first: `verified-implementation` copies criteria into checks, and nothing under `Unresolved` gets settled while building.
 

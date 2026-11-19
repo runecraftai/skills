@@ -45,7 +45,7 @@ A surface is anything outside the system that meets it. Five kinds exist, and ea
 | document or copy | structure, tone, depth, flow and navigation, what the reader does next |
 | collection being organised | grouping criterion, naming, ordering, duplicates, the exception |
 
-**Backend, state and contract is a sixth lane with no surface of its own** — it is the nine-dimension rubric below. When the work exposes it, the sweep is the walk.
+**Backend, state and contract is a sixth lane with no surface of its own** — it is the nine-dimension sweep below, whose list [document-format.md](document-format.md) owns. When the work exposes it, the sweep is the walk.
 
 **The walk finds gaps. It does not write criteria.** Each item resolves to a criterion **already in the source or already written from it**, to something the code already does (`existing - <what>`), to `n/a - <reason>`, or to `Unresolved <n>`. The `n/a` escape is mandatory and it is what stops the list from inventing scope: a webhook has no empty state, and saying so costs a line. A landing that would need new behaviour is a question, never a numbered line.
 
