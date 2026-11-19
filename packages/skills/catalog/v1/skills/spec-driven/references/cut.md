@@ -1,6 +1,8 @@
 # The cut: Cut → Ground → Walk the surfaces → Sweep the nine → Write
 
-This is the procedure for turning a decided source into tasks. Read it to the end before you start cutting. A source qualifies when it already holds a decision: a design doc, a PRD, an RFC, a thread, or a ticket — a single line is enough. A wish with no decision in it ("something should be done about billing") does not qualify. The procedure lives here. The artifact you produce at the end, and the canonical nine-dimension rubric, live in [document-format.md](document-format.md). Inside the pipeline, [tasks.md](tasks.md) runs this same cut and adds the Test Coverage Matrix, the Parallelism Assessment and the Gate Check Commands.
+Load this before cutting a decided source — a design doc, PRD, RFC, thread or one-line ticket — into tasks. It owns the mechanism. [document-format.md](document-format.md) owns the artifact you write at the end and the canonical nine-dimension rubric; the in-pipeline Tasks phase ([tasks.md](tasks.md)) reuses this same cut and adds the Test Coverage Matrix, the Parallelism Assessment and the Gate Check Commands.
+
+A source qualifies when it already holds a decision: a design doc, a PRD, an RFC, a thread, or a ticket — a single line is enough. A wish with no decision in it ("something should be done about billing") does not qualify.
 
 The goal is work a builder can start without filling anything in themselves, with a hard stop at the first point the source never decided. Gaps the source leaves unsaid are found by holding it up against two fixed lists — the surface table and the nine dimensions — never by inventing features it did not ask for.
 
@@ -107,7 +109,7 @@ Keep every question cheap for the person answering:
 
 Deliver the artifact, not an account of how you reached it. When writing `.tasks/<name>.md`, read [document-format.md](document-format.md): intent, numbered criteria, the surface and sweep landings, impact, `Decided` as the one-way doors, sources, and `Unresolved` as a table. Report in this order: the cut first, the tasks next, and the open questions last, blocking ones on top. Open with the verdict, and state decisions as decisions.
 
-Inside the pipeline (Large/Complex), the same cut goes to `.specs/features/[feature]/tasks.md` following [tasks.md](tasks.md), which adds the Test Coverage Matrix, the Parallelism Assessment and the Gate Check Commands. Cut-only writes `.tasks/<name>.md` and ends there.
+In-pipeline (Large/Complex) the same cut lands in `.specs/features/[feature]/tasks.md` per [tasks.md](tasks.md), which adds the Test Coverage Matrix, the Parallelism Assessment and the Gate Check Commands. Cut-only produces `.tasks/<name>.md` and stops.
 
 ## Hand-off checks
 
