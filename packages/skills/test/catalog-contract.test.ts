@@ -31,10 +31,10 @@ describe("strict catalog contract", () => {
       const local = readRegistry(skillsRoot);
       expect(local).toHaveLength(generated.skills.length);
       for (const skill of local) {
-        const meta = await readFile(join(skill.dir, ".skill-meta.json"), "utf8").then((raw) => JSON.parse(raw) as { version?: string }, () => ({}));
+        const meta = await readFile(join(skill.dir, ".skill-meta.json"), "utf8").then((raw): { version?: string } => JSON.parse(raw) as { version?: string }, (): { version?: string } => ({}));
         if (!meta.version) continue;
         const id = basename(skill.dir);
-        expect([id, skill.version]).toEqual([id, published.get(id)]);
+        expect([id, skill.version]).toEqual([id, published.get(id)!]);
       }
     } finally {
       await rm(outputRoot, { recursive: true, force: true });
