@@ -71,6 +71,37 @@ describe("strict catalog contract", () => {
   test("rejects duplicate category membership in the taxonomy contract", () => {
     expect(() => validateTaxonomy({ A: ["sample"], B: ["sample"] })).toThrow("Duplicate category membership");
   });
+  test("attributes every declared upstream alongside the authoring credit", async () => {
+    const root = await mkdtemp(join(tmpdir(), "catalog-attribution-"));
+    const write = async (id: string, frontmatter: string) => {
+      await mkdir(join(root, "skills", id), { recursive: true });
+      await writeFile(join(root, "skills", id, "SKILL.md"), `---\nname: ${id}\ndescription: Display only\nlicense: CC-BY-4.0\n${frontmatter}---\nbody\n`);
+    };
+    try {
+      await write("solo", 'metadata:\n  version: 1.0.0\n  author: Someone - github.com/someone\n  upstream: "someone/agent-skills (MIT) upstream-skill @ v1.0.0"\n');
+      await write("absorbing", 'metadata:\n  version: 2.0.0\n  upstreams: \'["tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) tlc-plan @ v0.2.0"]\'\n');
+      await writeFile(join(root, "catalog.json"), JSON.stringify({ categories: { Testing: ["absorbing", "solo"] } }));
+      const registry = await generateCatalog({ skillsRoot: join(root, "skills"), outputRoot: join(root, "out"), taxonomyPath: join(root, "catalog.json"), catalogVersion: "1.0.0", revision: "abc", generatedAt: "2026-09-26T00:00:00.000Z" });
+      const solo = registry.skills.find((skill) => skill.id === "solo")!;
+      expect(solo.attribution).toHaveLength(1);
+      expect(solo.attribution[0]).toEqual({ name: "Someone - github.com/someone", url: "https://github.com/someone/agent-skills", text: "someone/agent-skills (MIT) upstream-skill @ v1.0.0; catalog source revision abc." });
+      const absorbing = registry.skills.find((skill) => skill.id === "absorbing")!;
+      expect(absorbing.attribution).toHaveLength(2);
+      expect(absorbing.attribution[0]!.name).toBe("Runecraft");
+      expect(absorbing.attribution[1]!.name).toBe("tech-leads-club/agent-skills");
+      expect(absorbing.attribution[1]!.url).toBe("https://github.com/tech-leads-club/agent-skills");
+      expect(absorbing.attribution[1]!.text).toContain("Copyright Tech Leads Club");
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+  test("rejects malformed upstreams metadata", async () => {
+    const root = await mkdtemp(join(tmpdir(), "catalog-attribution-bad-"));
+    try {
+      await mkdir(join(root, "skills", "bad"), { recursive: true });
+      await writeFile(join(root, "skills", "bad", "SKILL.md"), '---\nname: bad\ndescription: Display only\nlicense: CC-BY-4.0\nmetadata:\n  version: 1.0.0\n  upstreams: \'[" "]\'\n---\nbody\n');
+      await writeFile(join(root, "catalog.json"), JSON.stringify({ categories: { Testing: ["bad"] } }));
+      await expect(generateCatalog({ skillsRoot: join(root, "skills"), outputRoot: join(root, "out"), taxonomyPath: join(root, "catalog.json"), catalogVersion: "1.0.0", revision: "abc", generatedAt: "2026-09-26T00:00:00.000Z" })).rejects.toThrow("Invalid upstreams metadata");
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
   test("rejects file and directory digest mismatches", async () => {
     const root = await mkdtemp(join(tmpdir(), "catalog-contract-"));
     try {

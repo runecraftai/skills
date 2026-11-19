@@ -1,8 +1,10 @@
 ---
-"@runecraft/grimoire": minor
+"@runecraft/grimoire": major
 ---
 
-Absorb `task-cutting` into `spec-driven` and give the two shared rubrics one owner each:
+Absorb `task-cutting` into `spec-driven` and give the two shared rubrics one owner each.
+
+**Breaking for catalog consumers:** the `task-cutting` skill id is removed. A project whose `.grimoire-lock.json` records `task-cutting` gets `unknown skill` from `grimoire install` and loses update and audit coverage until it installs `spec-driven` instead. That is why this release is a major bump.
 
 - **`task-cutting` → `spec-driven`**: the surface walk, the nine-dimension sweep, the one-way-door table, the Cut → Ground → Write mechanism, the task-document format (now `spec-driven/references/document-format.md`) and the Cut-only path are all part of the Tasks phase. `spec-driven` also keeps its independent Verifier, discrimination sensor, `STATE.md` decisions and lessons layer.
 - **Nine-dimension rubric (one owner)**: `spec-driven/references/document-format.md` § Canonical rubric is the only place the nine keys and their landing kinds are written; `specify.md`, `verified-implementation/SKILL.md` and `verified-implementation/references/checklist-format.md` point at it.

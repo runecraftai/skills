@@ -100,7 +100,7 @@ Keep every question cheap for the person answering:
 - when the options are concrete, offer them — never an open prompt
 - put your recommendation first
 - when it is safe to, assume first
-- no more than two independent questions in one turn
+- one question at a time, each carrying your recommendation — the protocol is `interview-me`'s, not a second copy of it here
 - the boundary does not move: a question may clarify how, never whether to add a capability
 
 **Look facts up; ask about decisions.** Whatever remains — the calls reserved for Product or a tech lead — goes into `Unresolved`.
@@ -126,7 +126,7 @@ The task does not leave your hands until every box is ticked:
 - Slices that follow layers instead of observable outcomes
 - A criterion saying "gracefully", "properly", "fast" or the like, with no number attached
 - A sweep dimension landed on a criterion that belongs to another dimension
-- A turn that asks more than two questions
+- A turn that asks more than one question
 - A task that has neither an `Unresolved` section nor `None`
 - A criterion only the full test suite could prove
 

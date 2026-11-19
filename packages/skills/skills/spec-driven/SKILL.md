@@ -10,11 +10,12 @@ description: >
   da feature", "tarefas", "quebrar em tarefas", "implementar", "build", "validar", "verify
   work", "UAT", "validar implementação", "/spec", "/planning", "planning and task breakdown",
   "break into tasks", "write the task", "cut this PRD into tasks", "turn this design doc into
-  work". Do NOT use for discovery (idea-discovery), intent extraction (interview-me), a decided
-  ticket with no plan (verified-implementation), or architecture decomposition.
+  work". Do NOT use for discovery (idea-discovery), intent extraction (interview-me), or
+  architecture decomposition.
 license: CC-BY-4.0
 metadata:
   version: 6.0.1
+  upstreams: '["tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-plan @ v0.2.0"]'
 ---
 
 # spec-driven
@@ -286,4 +287,4 @@ Acceptance criteria are per-task and answer "did we build the right thing?". The
 - **`incremental-implementation`** — ships changes as thin slices, each one verified before the next.
 - **`spec-driven-development`** — absorbed into this skill. Its gated workflow, capability mapping, and detailed spec structure are now part of the Specify phase.
 - **`planning-and-task-breakdown`** — absorbed into this skill. Its dependency-graph mapping, vertical slicing, output file conventions, and checkpoint strategy are now part of the Tasks phase.
-- **`task-cutting`** — absorbed into this skill. Its surface walk, nine-dimension sweep, one-way-door table, task-document format and Cut-only path are now the Tasks phase, rewritten in this catalog's own words in [cut.md](references/cut.md) and [document-format.md](references/document-format.md); the latter owns the task document and the nine-dimension rubric.
+- **`task-cutting`** — absorbed into this skill. Its surface walk, nine-dimension sweep, one-way-door table, task-document format and Cut-only path are now the Tasks phase, rewritten in this catalog's own words in [cut.md](references/cut.md) and [document-format.md](references/document-format.md); the latter owns the task document and the nine-dimension rubric. Upstream: `tech-leads-club/agent-skills` `tlc-plan` @ v0.2.0 (CC-BY-4.0, Copyright Tech Leads Club).

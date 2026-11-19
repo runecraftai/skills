@@ -388,11 +388,11 @@
         },
         {
           "path": "SKILL.md",
-          "size": 11882,
-          "sha256": "70323dd15cd1a82ef43d32475ca5b5b47797d3eb68680631905f4874bcf23cc2"
+          "size": 11791,
+          "sha256": "d4176efcba6cbe9718497f6972cc3ba33fecd969d407a99f8ad6be9ef7bf5b06"
         }
       ],
-      "contentSha256": "1c681d4718bd967485f527d2bda9ceb3190b7cdef8998f4de17a68e0cb9ca97e"
+      "contentSha256": "7406f96a1a921321a88bab1dc8f8291698bf6cfbcc7b1cb994e527c07333a8b4"
     },
     {
       "id": "idea-refine",
@@ -782,13 +782,18 @@
       "name": "spec-driven",
       "version": "6.0.1",
       "category": "Planning & Specification",
-      "description": "Planning and implementation across four adaptive phases — Specify, Design, Tasks, Execute — with observable task criteria, atomic commits, an independent Verifier (author != verifier) and a lessons layer. Also cuts already-decided work (a PRD, design doc, RFC, or thread) into tasks ready to build: slices checked against the code, every surface walked, nine unwritten-requirement dimensions swept. Stack-agnostic. Use when planning features or cutting decided work into tasks. Triggers (PT/EN): \"specify feature\", \"vamos especificar\", \"discutir feature\", \"design\", \"design da feature\", \"tarefas\", \"quebrar em tarefas\", \"implementar\", \"build\", \"validar\", \"verify work\", \"UAT\", \"validar implementação\", \"/spec\", \"/planning\", \"planning and task breakdown\", \"break into tasks\", \"write the task\", \"cut this PRD into tasks\", \"turn this design doc into work\". Do NOT use for discovery (idea-discovery), intent extraction (interview-me), a decided ticket with no plan (verified-implementation), or architecture decomposition.",
+      "description": "Planning and implementation across four adaptive phases — Specify, Design, Tasks, Execute — with observable task criteria, atomic commits, an independent Verifier (author != verifier) and a lessons layer. Also cuts already-decided work (a PRD, design doc, RFC, or thread) into tasks ready to build: slices checked against the code, every surface walked, nine unwritten-requirement dimensions swept. Stack-agnostic. Use when planning features or cutting decided work into tasks. Triggers (PT/EN): \"specify feature\", \"vamos especificar\", \"discutir feature\", \"design\", \"design da feature\", \"tarefas\", \"quebrar em tarefas\", \"implementar\", \"build\", \"validar\", \"verify work\", \"UAT\", \"validar implementação\", \"/spec\", \"/planning\", \"planning and task breakdown\", \"break into tasks\", \"write the task\", \"cut this PRD into tasks\", \"turn this design doc into work\". Do NOT use for discovery (idea-discovery), intent extraction (interview-me), or architecture decomposition.",
       "license": "CC-BY-4.0",
       "attribution": [
         {
           "name": "Runecraft",
           "url": "https://github.com/runecraftai/skills",
           "text": "Copyright Runecraft. Runecraft-authored; source revision 8b1b50d57f0b6ea994d984bd0b2c54735ee85b62."
+        },
+        {
+          "name": "tech-leads-club/agent-skills",
+          "url": "https://github.com/tech-leads-club/agent-skills",
+          "text": "tech-leads-club/agent-skills (CC-BY-4.0, Copyright Tech Leads Club) packages/skills-catalog/skills/(development)/tlc-plan @ v0.2.0; catalog source revision 8b1b50d57f0b6ea994d984bd0b2c54735ee85b62."
         }
       ],
       "entrypoint": "SKILL.md",
@@ -810,8 +815,8 @@
         },
         {
           "path": "references/cut.md",
-          "size": 9272,
-          "sha256": "a5b52b7e475ebdd1e0502c172635ea4940337dfee0cef8c65f1a5b314a96437a"
+          "size": 9345,
+          "sha256": "c388f33435fa7c6517af6df731e9a3508e8fb3350a0fd2433cb720d245ce5821"
         },
         {
           "path": "references/design.md",
@@ -870,11 +875,11 @@
         },
         {
           "path": "SKILL.md",
-          "size": 22410,
-          "sha256": "877cc50569e0a178321f71a178c0227843096f88e5e666636f1ee5af0cb1f5b4"
+          "size": 22604,
+          "sha256": "ae1806497950f7c45996395fe0d89be4fac76e948dee86bd3c13e36c2d4c1787"
         }
       ],
-      "contentSha256": "3500f6bc7fed5b01628c76032e43936312955ba36827319c0b92348ccf2f829a"
+      "contentSha256": "fd6890856b397cc595d41eed9669b86f890a85fb799acafe6e2402c9d69c4df8"
     },
     {
       "id": "spec-loop",
