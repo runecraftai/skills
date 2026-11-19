@@ -32,7 +32,7 @@ This file is the project's committed base for project-intrinsic agent knowledge:
 - **Nine unwritten-requirement dimensions** and the `.tasks/<name>.md` document format: `packages/skills/skills/spec-driven/references/document-format.md` § Canonical rubric. `specify.md`, `verified-implementation/SKILL.md` and `verified-implementation/references/checklist-format.md` point here; never restate the keys or the landing kinds.
 - **Five surface kinds and the decisions each carries**: `packages/skills/skills/spec-driven/references/cut.md` § Walk the surfaces. `spec-driven/references/discuss.md` points here.
 - **Interview protocol** (one question at a time, each with the agent's recommended answer): `interview-me`. `idea-discovery` defers to it.
-- **Task grain**: one observable outcome, never a layer, default one task per source (`spec-driven/SKILL.md` § Tasks — the cut). Do not reintroduce per-function or per-file task sizing; it contradicts that rule.
+- **Task grain**: slice by observable outcome, never by layer, one task per source by default (`spec-driven/SKILL.md` § Tasks — the cut). Do not reintroduce per-function or per-file task sizing; it contradicts that rule.
 - Pointers across skills name the skill and the file, never a relative path — the skill validator rejects a `references/...` word in another skill's `SKILL.md` as a forward link.
 
 ## Maintaining this file
