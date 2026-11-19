@@ -2,9 +2,9 @@
 
 Load this file twice on a cut: once at the sweep, for the canonical nine-dimension rubric below ([cut.md](cut.md) § Sweep the nine sends you here), and once at the write step, for the template. Nothing here is needed while cutting slices or grounding them in the code.
 
-Section headings stay as they are — the next skill refers to them by name — while the prose follows the language of the document and identifiers are never translated. The document is for humans first: `verified-implementation` copies criteria into checks, and nothing under `Unresolved` gets settled while building.
+Section headings are fixed — the next skill finds sections by their exact names. Everything else adapts: prose is written in the document's own language, while identifiers keep the system's spelling and are never translated. A person is the first reader; after that, `verified-implementation` converts the criteria into checks, and whatever sits under `Unresolved` stays undecided throughout the build.
 
-Replace every placeholder with a concrete value, or omit the section. A heading with "N/A" under it does not appear.
+Each placeholder becomes a concrete value, or its section is removed. A heading followed only by "N/A" never ships.
 
 ## Canonical rubric: the nine unwritten-requirement dimensions
 
@@ -22,14 +22,14 @@ The sweep has one owner: this list. Every other skill that sweeps — `specify` 
 | state transitions | Valid transitions, guards, integrity |
 | observability | Logging, metrics, tracing hooks |
 
-Every dimension lands in one of four kinds, and `n/a` is mandatory rather than a shrug:
+Every dimension gets exactly one of four landings, and `n/a` is a real answer that must be given, not a way to skip:
 
-- a criterion number already written for it
+- the number of a criterion already written for that dimension
 - `existing - <what in the code already covers it>`
-- `n/a - <reason>` — a webhook has no empty state, and saying so costs a line
-- `Unresolved <n>` — a landing that would need new behaviour is a question, never a numbered line
+- `n/a - <reason>` — for example, a webhook cannot have an empty state; one line says so
+- `Unresolved <n>` — when covering it would need behaviour nobody specified, it is a question and never a numbered line
 
-A landing must observe **that** dimension. Reaching for a number already used on another line is the tell it is uncovered. Concurrency and observability hide better than the other seven.
+A landing only counts if it observes its own dimension. Reusing a criterion number that already backs a different line means the dimension is uncovered. Of the nine, concurrency and observability are the easiest to overlook.
 
 ## Template
 
@@ -38,27 +38,27 @@ Write `.tasks/<name>.md`, one file per task:
 ````markdown
 # <Title>
 
-> Build this with **verified-implementation** (`<repo-relative path, when the project vendors the skill>`).
-> Every criterion below becomes a check with a proof, referenced by its number. Nothing under
-> `Unresolved` gets settled while building.
+> Build with **verified-implementation** (`<repo-relative path, when the project vendors the skill>`).
+> Every numbered criterion turns into a check with a proof, cited by that number. Questions under
+> `Unresolved` stay open for the whole build.
 
 ## Intent
 
-<The problem, in the present tense, with no solution in it: what is true today that should not be,
-who pays for it, and what it costs them. Copy the evidence the source gives.>
+<Problem, present tense, solution-free: the current state that is wrong, who is hurt by it, and
+what it costs them. Bring over any evidence the source offers.>
 
-<The change: what is different for a user when this ships. For interface work, name the screen and
-the flow, and link the design - it is a source, not an illustration.>
+<Change: what a user notices once this ships. For interface work, name the screen and the flow and
+link the design - it counts as a source in its own right.>
 
 <N criteria in M slices · K one-way doors · Q open, of which B block>
 
 ## Criteria
 
-One observable outcome per line, with the concrete value. State the precondition when the
-outcome depends on one. On a screen, every state that matters is its own line: empty, loading,
-error, unauthorised, and it names the screen the design gives it. Use whichever shape the criterion
-actually has - most are When/Then, and the list below is a menu, not a quota. Headings are the
-slices; numbering runs across the whole task.
+One observable outcome per line, value included; add the precondition when the outcome hinges on
+one. A screen gets one line per state that matters - empty, loading, error, unauthorised - each
+naming the screen the design assigns to it. Use the shape the criterion really has: When/Then fits
+most, and the five shapes below are there to pick from, not to fill. Slices are the headings, and
+numbers continue across the whole task.
 
 ### <slice - the outcome someone can watch> · <files> files · <KB> KB · ~<tokens>k
 
@@ -73,7 +73,7 @@ slices; numbering runs across the whole task.
 
 ## States
 
-Only when the task changes a lifecycle. Every edge carries the criterion that states it.
+Include only when the task changes a lifecycle; label every edge with the criterion number behind it.
 
 ```mermaid
 stateDiagram-v2
@@ -87,7 +87,7 @@ stateDiagram-v2
 
 ## Observable
 
-Every item of every surface this task exposes. A landing is a criterion already written, `existing`, `n/a`, or `Unresolved` - never a behaviour the walk invented.
+One row per item, for every surface the task exposes. Landings are a written criterion, `existing`, `n/a` or `Unresolved` - nothing the walk invented.
 
 | Surface | Decision | Landing |
 | --- | --- | --- |
@@ -100,7 +100,7 @@ Every item of every surface this task exposes. A landing is a criterion already 
 
 ## Swept
 
-Where each unwritten requirement landed. All nine, one line each, every time.
+All nine dimensions on every task, one line each, showing where each unwritten requirement landed.
 
 - validation: <criterion number>
 - failure modes: <criterion number>
@@ -114,7 +114,7 @@ Where each unwritten requirement landed. All nine, one line each, every time.
 
 ## Impact
 
-What already exists and gets disturbed. "Nothing" is a valid answer; a missing row is not.
+Existing things this change disturbs. "Nothing" is a fine answer; a row left out is not.
 
 | Front | What changes |
 |---|---|
@@ -124,8 +124,8 @@ What already exists and gets disturbed. "Nothing" is a valid answer; a missing r
 
 ## Decided
 
-Only what is hard to reverse, with the literal shape. `None - <why nothing here is one-way>` is
-a valid row.
+Hard-to-reverse choices only, each in its literal shape. A single row
+`None - <why nothing here is one-way>` is acceptable.
 
 | Decision | Shape | Alternative rejected |
 |---|---|---|
@@ -133,8 +133,8 @@ a valid row.
 
 ## Relations
 
-Only when the task changes the shape of stored data, and only what `Decided` already settled:
-entities, cardinality, and the constraints that are one-way. No columns, no types.
+Include only when the shape of stored data changes, and draw only what `Decided` settled:
+entities, cardinality, one-way constraints. No columns, no types.
 
 ```mermaid
 erDiagram
@@ -144,8 +144,8 @@ erDiagram
 
 ## Surface
 
-Only when the task adds or changes an interface consumed outside it. The signature, not a
-specification.
+Include only when the task adds or changes an interface consumed from outside it. Signature only,
+not a specification.
 
 | Route | In | Out | Status | Criteria |
 |---|---|---|---|---|
@@ -156,13 +156,13 @@ specification.
 - <link> - <what it settles>
 - <design> - **binding for the interface**: screens <ids>, and where the copy lives
 
-This task is the record of decision. If a linked document diverges, ask before building.
+This task is the record of decision. Where a linked document disagrees with it, ask before building.
 
 ## Unresolved
 
-Questions the source does not settle and asking did not close. Nobody fills these in while
-building. `None` when nothing is open — one row, Question is `None`, other cells empty. A missing
-section is not an answer.
+What the source leaves open and asking could not settle. Nothing here gets filled in during the
+build. With nothing open, write one row whose Question is `None` and leave the other cells empty;
+omitting the section does not count as an answer.
 
 | # | Kind | Question | Until answered |
 |---|---|---|---|
@@ -171,79 +171,72 @@ section is not an answer.
 | 3 | open | <question> | <what stays imprecise, and what was written in the meantime> |
 ````
 
-**The handoff line** comes first because whoever opens this file was handed a path and nothing else - increasingly a model, with no memory of the conversation that produced the task. It names the skill that turns criteria into checks, so the reader does not improvise a plan out of a document that deliberately contains none, and it repeats the one rule that gets broken under pressure: an open question is not an invitation to decide. Name the skill, never a path - where it is installed differs per repository, and a link that does not resolve teaches the reader to skip the line. Add a repo-relative path beside the name only where the project vendors the skill in-tree, and only as a fallback: a skill configured as explicitly-invoked-only never appears in an agent's list, and in a headless or cloud run the name on its own is a reference nobody can act on. A path into somebody's home directory is the one that goes stale - never write that.
+**Handoff line.** Whoever opens the file usually received only its path — more and more often an agent who never saw the conversation behind it. So the first line does two jobs. It tells that reader which skill converts criteria into checks, because the document holds no plan on purpose and a reader left to improvise will make one up. And it restates the rule most often broken when time is short: an open question gives nobody licence to decide it. Refer to the skill by name, not by location — install locations vary per repository, and a dead link trains readers to ignore the line. Only when the project vendors the skill inside the repository, put its repo-relative path next to the name as a fallback: a skill set to explicit invocation only is missing from an agent's skill list, and a headless or cloud run cannot act on a bare name. Never write a path under anyone's home directory; those rot first.
 
-**Intent** is two paragraphs because it is two questions, and asking both in one breath reliably returns only the second. The change is already in the source and costs nothing to restate; the problem has to be recovered, so that is the half that gets dropped. Splitting them makes the omission visible.
+**Intent: two paragraphs, two questions.** Ask "what is wrong?" and "what changes?" in one go and only the change comes back. The change is free — the source already states it. The problem has to be recovered and is the part that usually goes missing, so it gets a paragraph of its own where its absence is obvious.
 
-Write the problem in the present tense with no solution inside it. "We have no Stripe integration" is not a problem - it is the absence of this task's answer, and a problem phrased that way can only ever justify the thing already chosen. Say what is true today that should not be, who pays for it and what it costs them: "anyone evaluating the product has to enter a card first" is a sentence someone can disagree with, and being disagreeable is the test. Copy whatever evidence the source gives, literally - a conversion figure, a support volume, a date somebody else set. Where it gives none, say so instead of manufacturing urgency.
+The problem paragraph describes the present and proposes nothing. Naming a missing solution — "we have no Stripe integration" — is not a problem; it only restates this task's answer and can never argue for anything else. A problem names a current state that is wrong, who suffers it and at what cost: "evaluators have to hand over a card before they can try anything" is something a reader could dispute, and being disputable is what makes it a real claim. Bring the source's evidence across verbatim — figures, ticket volumes, dates set by someone else. When there is none, say there is none instead of inventing urgency.
 
-When the source states no problem at all, that is a gap like any other and it comes back as a question. Not blocking, since the criteria stand without it, but worth asking, because decided work whose problem nobody can state is the likeliest to be the wrong work. The problem is also what makes the rest reviewable: every rejected alternative in `Decided` argues about means, so with the end unwritten a reviewer can confirm the task is well-formed and never that it is right.
+A source with no stated problem has a gap like any other, so ask. The question does not block, since the criteria hold without it, but work nobody can justify is the work most likely to be wrong. And without a stated end, a reviewer can only check that `Decided` argues coherently about means — never that the task is the right one.
 
-**Criteria** are numbered because everything downstream refers to them by number - a proof, a review comment, a question. One **outcome** per line, which is not one assertion: a single outcome usually has several observable facets, and a trial that comes back `Trialing`, sets `trialEndsAt` and leaves a subscription at the provider is one criterion rather than three. Split when a line carries two triggers or two outcomes that can succeed independently - never merely because it contains "and". Splitting facets into separately provable pieces is the next skill's job, where each check owes exactly one proof. Given/When/Then only where a precondition changes the outcome; a bare When reads better and says the same thing.
+**Criteria.**
 
-When/Then answers a trigger, and three kinds of criterion have no trigger to answer. An **invariant** holds always - "a paused subscription never grants access" - and inventing a moment for it moves the criterion off what it actually claims. A **state-driven** outcome holds while something is true rather than at an instant: "while the trial is active, usage is recorded and not billed". An **unwanted condition** responds to something going wrong rather than to someone acting: "if the provider does not answer within 10s, the charge is not retried". Give each its own shape - `Always`, `While`, `If`. Squeezed into a When, they come out as a subordinate clause inside some other criterion, which is exactly where failure handling and invariants get lost.
+- They are numbered because proofs, review comments and questions all point at them by number.
+- Each line holds a single outcome, not a single assertion. A single outcome usually has several visible facets: a trial that ends up `Trialing`, populates `trialEndsAt` and creates the provider-side subscription is still one criterion. Split a line only when it holds two triggers, or two outcomes that could pass or fail separately; an "and" on its own is no reason. Breaking facets into separately provable checks happens in the next skill, where each check carries exactly one proof.
+- Use Given only when a precondition changes the result; otherwise a plain When reads better.
+- Three kinds of criterion have no trigger. Give each its own shape rather than bending it into When/Then:
+  - `Always` — an invariant ("a paused subscription never grants access"); pinning it to an invented moment changes what it claims.
+  - `While` — true across a period rather than at an instant ("while the trial runs, usage is recorded but not billed").
+  - `If` — a reaction to something failing rather than to someone acting ("if the provider stays silent for 10s, the charge is not retried").
 
-**Write the connectives in the language of the task.** `Given`, `When`, `Then`, `While`, `If` and `Always` are shapes, not keywords, and nothing parses them - a task written in Portuguese writes `Dado`, `Quando`, `Então`. A document that switches language mid-sentence costs the reader a beat on every line and buys nothing. Three tiers, and only the middle one moves: the section headings stay as they are, because they are a schema that this skill and the next one both refer to by name; the prose and the connectives follow the document; identifiers are never translated, so a status value, a field, a route, an HTTP code and a class name keep the spelling the system uses. Translating `Trialing` into a criterion is how a task starts describing a system that does not exist.
-
-The headings are the slices the cut already found. Enumerating them and then writing a flat list throws the shape of the work away: nobody can tell where starting a trial ends and cancelling begins without reading every line, and the seams you would otherwise describe from memory when someone asks about splitting are already drawn. **Number across the whole task, never per heading** - everything downstream refers to a criterion by number, and a `3` that exists three times is worse than no grouping at all. Under about six criteria skip the headings; a list you can see whole does not need signposting.
+  Squeezed into a When, these end up as a trailing clause of some other criterion — the usual place where invariants and failure handling get lost.
+- **Connectives follow the task's language.** They are shapes, not syntax, and nothing parses them, so a Portuguese task uses `Dado`, `Quando`, `Então`; switching languages mid-sentence only slows the reader down. Three tiers apply, and only the middle one varies: section headings never change, because this skill and the next both look them up by name; prose and connectives follow the document; identifiers keep the system's spelling — status values, fields, routes, HTTP codes, class names. A translated `Trialing` describes a system that is not there.
+- Slice headings are the slices the cut produced. Flattening them into one list hides where one behaviour (starting a trial) stops and the next (cancelling it) starts, and it throws away seams that are already drawn for anyone who later asks how to split. **Numbering runs through the whole task and never restarts under a heading** — a number repeated under three headings is worse than having no groups. Below roughly six criteria, drop the headings: the whole list fits in view.
 
 **A heading carries the slice's weight** - files touched, the `wc -c` byte count over them, the token estimate - because ranking slices by weight is the decision, and the weight on the page is what makes an over-large slice visible without a file-count ceiling that splits one observable outcome into pieces nobody can verify alone. The arithmetic belongs to `verified-implementation`'s checklist format, which copies these headings into its checks.
 
-**The status line** closing `Intent` is the file obeying the rule the chat already follows: lead with the verdict. A reviewer decides in seconds whether to read now or hand it back, and the three facts that decide it - how much work, how much is locked, how much is open - otherwise sit in three different sections, the last of them at the bottom. Count, never characterise: "4 open, 1 blocks go-live" is a fact a reviewer can act on, "mostly settled" is a feeling.
+**Status line.** It closes `Intent` so that the file, like the chat, opens with its verdict. In a few seconds a reviewer chooses between reading now and sending the task back, based on three facts — how large the work is, how much of it is fixed, how much remains undecided — that would otherwise be spread over three sections, one of them at the very bottom. Give counts, never adjectives: "4 open, 1 blocks go-live" is actionable; "mostly settled" is not.
 
-Each one will get a proof attached downstream, so a criterion for which nobody can name a test is not ready to be written. You do not name the test here - finding the real command needs the repository's own test setup, and that is the next skill's job.
+**Testability.** Every criterion gets a proof downstream; if nobody can say which test would prove it, it is not ready to be written. Do not name the test here, though — that needs the repository's actual test setup, which is the next skill's work.
 
-**States** exists because a lifecycle is the one thing a list of criteria describes badly. Each transition is right on its own line and the machine they form is nowhere, so the missing edge - the state nobody said how to leave - stays invisible exactly where it costs most. Draw it only when the task changes a lifecycle, and draw it **from** the criteria: every edge carries the number that states it, and an edge you want but cannot number is a gap to close rather than a fact to add. That rule is the entire safeguard. Without it this becomes a design document with opinions of its own, which is the thing that goes stale and then misleads.
+**States.** A list of criteria is poor at expressing a lifecycle: each transition can read correctly while the machine as a whole appears nowhere, so the state with no way out goes unnoticed precisely where it hurts most. Draw the diagram only for a task that changes a lifecycle, and derive it **from** the criteria — every edge carries its criterion number, and an edge you would like but cannot number points at a gap: close the gap rather than adding the edge as fact. That derivation rule is the entire safeguard; drop it and the diagram turns into an opinionated design document that drifts out of date and misleads. Show the existing states that are not changing as well, marked existing — the risky edge tends to sit between new and old.
 
-Include the states that already exist and are not changing, marked as existing. The dangerous edge is usually the one between what you are adding and what was already there.
+The derivation rule is also the filter for diagrams in general: it lets `Relations` and `Surface` in and keeps every other picture out. Component maps and call sequences are design. Nothing in the task backs them, so nothing keeps them true and they are the first to drift — and one drawn without reading the code invents components that look settled simply because someone drew them. A call sequence that genuinely matters is a one-way door: put its literal shape in `Decided`. If tasks live in a tracker, confirm it renders mermaid before adopting it; raw mermaid is readable, though barely.
 
-That rule is what admits `Relations` and `Surface` below and excludes everything else. A map of components and a sequence of calls are design: they assert what nothing in the task sustains, so nothing holds them honest and they are the first thing to diverge - and a component diagram drawn by someone who has not read the code invents components the repository does not have, then reads as settled because it is drawn. Where a call sequence really is load-bearing it is a one-way door and belongs in `Decided` as a literal shape. If tasks live in a tracker, check that it renders mermaid before standardising on it - an unrendered block is still readable, but barely.
+**Impact.** The rows are fixed because the risk is omission, not vagueness: a missing section reads as "nothing to say", while an empty row reads as an unanswered question.
 
-**Impact** has fixed rows because the failure here is omission rather than vagueness. A section that is simply absent looks like nothing to answer; an empty row is a question someone can see.
+- The domain rows deserve more care than they seem to. Names propagate into classes, columns, payload keys and routes, and renaming one later means a migration plus every consumer — naming is a one-way door in disguise. A new term gets a one-line definition and its home. A term that changes meaning must name **who branches on it today**: those callers are outside the feature's diff, so this is where silent breakage gets caught.
+- With more than two terms, give each its own `domain` row. A cell holding six terms separated by punctuation cannot reveal a gap, and revealing gaps is the table's only purpose.
+- The stored-data row covers whatever executes against existing rows, not only the data you move. Adding a constraint to a table that already has rows makes the outcome depend on those rows: a unique index on a column that was never unique breaks on the first existing duplicate — in production, on real data, not on the three fixtures in a test. "Nothing to migrate" answers the other half. Spell out what has to be true before the migration runs.
 
-The domain row matters more than it looks. A name leaks: it becomes a class, a column, a payload key, a route, and renaming it later costs a migration plus every consumer, so naming is a one-way door that does not look like one. Give the new term its definition in one line and say where it lives. For a term that changes meaning, the second half - **who branches on it today** - is what catches the silent breakage, because those callers never appear in the feature's diff.
+**Decided.**
 
-Past two terms, give each one its own `domain` row instead of packing them into one cell. Six terms separated by punctuation inside a single cell cannot show a gap, and being able to see the gap is the only reason this is a table.
+- It holds: a persisted schema, a contract another party consumes, a new dependency, a data backfill, or a pattern new to the codebase — a precedent becomes irreversible once later features copy it.
+- Each row gives the literal shape someone will copy, plus the rejected alternative and the property that ruled it out. "Cleaner" cannot be disputed; "cannot express the next state" can. If the choice was forced, name the constraint that forced it; if two options were genuinely in play, give each a row.
+- Judge every rejection against later work, not only this task. A constraint that fixes today's problem can forbid a future slice: a uniqueness rule added to stop abuse also means no user can ever own a second row — something the eventual builder of renewals will care about, and something the anti-abuse reasoning never raised. When a door reaches beyond the boundary, write down what it closes; that sentence is the point of the review.
+- Two things look like decisions and are not, and admitting them turns the table into a dumping ground. Scope ("V1 does not charge") reverses by shipping the next slice and already lives in `Out of scope`. A rule with nothing enforcing it ("one trial per user") reverses by changing a condition; it turns into a door only when persisted state enforces it, and at that point the row records the unique index itself, in its literal definition, not the rule.
+- Columns and types qualify when they are doors — the cue is never the word "column". Identifier width is formally a type yet irreversible once there is volume, because it does not get migrated. Uniqueness is a product decision, not just a storage one. Changing nullability where rows already exist is a migration whose success depends on those rows. Once a consumer binds to a field, renaming it is no longer your call. Names, indexes and ordinary types are settled by the implementer from the repository's conventions; settling them here means deciding without reading the code that has to hold them. A data choice that needs argument rather than a row — partitioning, denormalising, switching stores — is RFC material.
+- A decision that needs a paragraph of justification, or several doors arriving together, calls for an RFC written **before** the task. Link the RFC from the row, and keep the row's shape literal.
 
-The stored-data row is about what runs against existing data, not only about rows you move. A constraint added to a populated table is data-dependent: a unique index over a column that was never unique fails on the first pair that already exists, and it fails in production against real rows rather than in a test against three fixtures. "Nothing to migrate" answers the other half of the question. Say what the migration needs to be true before it runs.
+**Relations.** It pictures what `Decided` already settled and settles nothing itself. Its only justification is that cardinality is clearer drawn than written: `1 --> 1` versus `1 --> *` decides whether a user may ever hold a second subscription, and inside a decision row a reviewer skims past it where a diagram would show it at once.
 
-**Decided** carries a persisted schema, a contract someone else consumes, a new dependency, a data backfill, or a pattern the codebase does not have yet - precedent is the part that stops being reversible once the next features have copied it. Each row shows the literal shape the next person will copy and what you rejected, named with the property that disqualified it: "cleaner" cannot be argued with, "cannot express the next state" can. Where the choice was forced rather than compared, name the constraint that forced it; where two options were live, give each one a row.
+Draw only entities, cardinality and one-way constraints — and above all no columns. A complete diagram looks authoritative and gets built exactly as drawn, so the eighty percent the planner guessed without opening the code arrives disguised as decisions. An invented schema dressed as a decision is worse than leaving the diagram out, since no one questions it. Each relationship must trace to a `Decided` row; one that does not is a decision nobody took.
 
-Weigh the rejection against what comes after this task, not only against this task. A constraint that settles the problem in front of you can forbid something a later slice needs - a uniqueness rule written for anti-abuse also decides that a user can never have a second row, which is a question for whoever builds renewals and never appears in the reasoning that produced it. When a door reaches past the boundary, say what it closes. That sentence is what the review is for.
+**Surface.** The same idea, applied to an interface, whose shape falls apart when scattered. Spread route, method, inputs, outputs and statuses across eight criteria and they are all present yet none is legible — and a missing status has nowhere to show. In one table the gap is an empty cell. Each row cites its criteria, so the table projects them instead of competing with them as a second source.
 
-Two things look like decisions here and are not, and letting them in is how the table turns into a dumping ground. Scope - "V1 does not charge" - reverses by doing the next slice, and it already has a home in `Out of scope`. A rule with no mechanism - "one trial per user" - reverses by changing a condition; it becomes a door only once something persisted enforces it, and then the row is the unique index, with its literal definition, rather than the rule.
+Keep it to the signature. Types, examples and an error catalogue belong to OpenAPI — the heavyweight artifact this skill is meant to spare you — and the undecided half would get made up to fill it. Include only interfaces that something outside the task binds to: a public endpoint, a webhook payload, a published event, a CLI. Internal methods can be refactored, so they are not doors and not yours to pin down here. Whatever the source leaves open — an error body, a status nobody named — goes to `Unresolved`, not into a guessed cell.
 
-A column and a type belong here whenever they are doors, and the tell is never the word "column". Identifier width is the plainest case - formally a type, irreversibly a door, because you do not migrate it once there is volume. Uniqueness decides product behaviour, not storage. Nullability over a populated table is a migration that depends on the rows already there. A field a consumer binds to stops being yours to rename. Everything else about the schema - names, indexes, ordinary types - is settled by whoever implements, from the conventions in the repository, and deciding it here means deciding it without having read the code that has to hold it. Where a data decision needs argument rather than a row - partitioning, denormalising, changing store - it is an RFC.
+**Sources.** Expect several, each in its own shape — a PRD here, a design doc there, a thread. Pulling them into the task gives the next step one stable input rather than five formats.
 
-When a decision needs a paragraph to justify itself, or several one-way doors arrive together, that is an RFC and it comes **before** the task. Write it first, then link it and keep the row literal.
+- **Designs.** A design is a source, and the one most often treated as decoration. Mark it binding and list the screens it covers: downstream, checks come from whatever this section marks binding, so an unmarked link becomes background reading and the interface gets built to resemble whatever the codebase already has. A design also holds each screen's concrete values, so a criterion that renders a screen names it; otherwise "shows the assembling state" is as hollow as "gracefully" and passes against any interface.
+- **Open the design and write down what it decides.** Nearly every design can be opened: fetch an artifact URL, read a design file through its MCP, pull an issue attachment through the tracker, read an image committed to the repository as a plain file. The exception is an image that exists only in a chat — commit it and reference its path, or it is lost before anyone builds.
+- **Reachability is checked, never inferred.** A domain name does not reveal whether a sign-in sits behind it, and calling a public artifact unreachable without requesting it fabricates a fact about the environment — the invented-API failure, disguised as caution. Make the request: it costs one call, and the guess costs the interface.
+- **On a real failure, report the attempt and the response.** "Couldn't access the design" strands the user; a 403 from the fetch tells them whether they should paste an export, hook up the MCP, or grant access — the difference between a blocked task and one the next message unblocks.
+- **Transcription neither replaces the link nor hedges against it breaking.** Checks assert against text, and downstream readers vary: a sub-agent may lack vision, and a CI job always does. The link serves the person; the values travel inside each screen's criterion — the heading's wording, the controls on the screen, the step counter's reading, and whether a state is its own screen or a band on another.
+- **That is what makes images workable**, where there are no lines to quote. Describing stays forbidden and transcribing stays required, and telling them apart is easy: "a clean screen with cards" is uncheckable, while "heading is the question, options as full-width cards, a `1 de 3` counter, Voltar and Continuar" is four facts a check can assert.
+- **A source without an address** — a conversation, a document pasted into a chat — gets said as much, and its deciding lines are quoted verbatim rather than summarised. Nothing downstream can reread a chat, so a summary is where the decision silently disappears.
+- **Copy only the part this task must not get wrong, verbatim**, and leave the reasoning in the source, where it keeps its readers after the merge. Copy instead of linking for two reasons: the source spans more than this slice and keeps changing for months, while the task is the snapshot at build time; and the builder needs the exact shape at hand, not a pointer into thirty pages.
 
-**Relations** renders what `Decided` settled, so it decides nothing. That is the whole licence for drawing it: cardinality is the part of stored data that reads worst in prose and best in a picture
-- `1 --> 1` against `1 --> *` is the difference between a user who can never hold a second subscription and one who can, and buried in a decision row it goes past a reviewer who would have caught it at a glance.
+**Observable.** The surface walk in a form someone can check. An empty landing marks an item nobody decided; a reasonless `n/a` is that same hole with an excuse. A row that would need new behaviour cites `Unresolved <n>` and ends there — inventing a criterion to fill the cell is exactly what the landing rule forbids. `None - no user-facing surface` counts as a full answer, and having it in writing is what lets someone challenge the omission.
 
-Entities, cardinality and the constraints that are one-way. Nothing else, and columns least of all: a full diagram looks authoritative, so the next person builds exactly what is drawn, and the four fifths the planner filled in without opening the code arrive looking decided. An invented schema wearing the costume of a decision is worse than no diagram, because nobody argues with it. Every relationship traces to a row in `Decided`; one you cannot trace is a decision nobody made.
-
-**Surface** is the same move for an interface, and it earns a section for the reason a shape does not survive being scattered. Route, method, fields in, fields out, statuses - spread across eight criteria, all of it is present and none of it is legible, and a missing status is invisible because absence has nowhere to show. Consolidated, the hole is a blank cell. Every row cites the criteria that state it, so this stays a projection rather than a second source competing with them.
-
-The signature, never a specification. Types, examples and a catalogue of errors are OpenAPI, which is the heavyweight artifact this skill exists to do without, and the half of it nobody decided would get invented to fill the page. Only interfaces something outside this task binds to: a public endpoint, a webhook payload, a published event, a CLI. An internal method is refactorable, so it is not a door and it is not yours to fix here. What the source leaves open - the error body, an unnamed status - is `Unresolved`, not a guess in a table cell.
-
-**Sources** are usually several and rarely in one shape - a PRD, a design doc, a thread. The task normalises them so what comes next has one stable input instead of five formats.
-
-A design is a source like any other, and the one that gets demoted to decoration. Mark it binding and say which screens it carries, because downstream a check gets written from whatever this section calls binding - a link without the mark arrives as background reading, and the interface then gets built from whatever the codebase already looks like. On a screen the design is also where the concrete values are, so a criterion that renders one carries its screen: without that, "shows the assembling state" is as empty as "gracefully" and passes under any interface.
-
-Open it, then transcribe what it decides. Most designs resolve: an artifact URL with a fetch, a design file through its MCP, an attachment on the issue through the tracker, an image committed to the repo as an ordinary file read. The one that does not resolve is an image pasted into a chat and nowhere else, so commit it and reference the path - otherwise it is gone before anyone builds.
-
-**Whether a link opens is something you find out, not something you infer.** A domain name tells you nothing about whether there is a sign-in behind it, and reporting a public artifact as inaccessible without having made the request is a fabricated fact about the environment - the same failure as inventing an API, wearing the costume of caution. Fetch it. The attempt costs one call; the assumption costs the interface.
-
-When it genuinely fails, say what you tried and what came back. "I could not access the design" leaves the user nowhere; "the fetch returned 403" tells them whether to paste an export, connect the MCP, or grant access, which is the difference between a task that is blocked and one the next message unblocks.
-
-Transcribing is not a substitute for the link and not a bet that the link will fail. It is there because what a check asserts is text, and because the readers downstream differ: a sub-agent may have no vision and a CI job certainly has none. The link stays for the person; the values travel in the criterion for each screen - what the heading says, which controls are present, what the step counter reads, which states are one screen rather than a band on another.
-
-That is also what makes this work on a picture at all, where "quote the deciding lines" has nothing to quote. Describing is still forbidden and transcribing is required, and the two are easy to tell apart: "a clean screen with cards" gives nobody anything to check, while "heading is the question, options as full-width cards, a `1 de 3` counter, Voltar and Continuar" is four things a check can assert.
-
-When a source has no address - a conversation, a document pasted into a chat - say so and quote the deciding lines instead of describing them. Nothing downstream can re-read a chat, so a description is where the decision quietly stops existing.
-
-Copy only the slice that this task cannot get wrong, and copy it literally. The reasoning stays in the source, where it has readers and outlives the merge. Two reasons to copy rather than link: the source covers more than this slice and keeps being edited for months, while the task is the record at the moment of building; and whoever builds needs the exact shape in front of them, not a link to thirty pages containing it somewhere.
-
-**Observable** is the surface walk made checkable. A blank landing is an item nobody decided; an `n/a` without a reason is the same blank wearing an escape. A row that would need a new behaviour cites `Unresolved <n>` and stops - writing a criterion to fill the cell is the failure the landing rule exists to prevent. `None - no user-facing surface` is a complete answer, and stating it is what makes the omission contestable.
-
-**Unresolved** is a table because `Kind` has to travel with the question. A numbered list with a bold prefix still lets a blocking row read as a note, which is the failure this section exists to prevent. The three `Kind` values are a closed set: `blocks` (a criterion cannot be satisfied), `blocks go-live` (proofs can be green and real users still cannot be switched on), `open` (imprecise, not blocking - including a default you assumed and nobody confirmed). Order the rows that way, so the status line can be counted from the column rather than inferred from wording. `#` stays because Swept, Observable and the chat refer to a row by number. `Until answered` is where a written-in-the-meantime value lives, so a reviewer can see what to tear up when the question closes. Never treat silence as confirmation: an assumed default stays `open` until a human says otherwise.
+**Unresolved.** A table, so that each question carries its `Kind`; in a numbered list with bold prefixes a blocking question can still pass for a note, and stopping that is the point of the section. `Kind` is a closed set of three: `blocks` (some criterion cannot be met), `blocks go-live` (the proofs may pass, yet real users cannot be switched on), and `open` (imprecise but not blocking — including any default you assumed that nobody has confirmed). Sort the rows in that order so the status line is counted from the column, not guessed from wording. Keep `#`, because Swept, Observable and the chat refer to rows by number. `Until answered` holds whatever was written provisionally, so a reviewer knows what to rip out when the answer arrives. Never treat silence as agreement: an assumed default stays `open` until a person confirms it.

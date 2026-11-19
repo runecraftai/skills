@@ -6,9 +6,9 @@
 
 ## Grain
 
-**A slice is one observable outcome, never a layer.** This is the rule the whole Tasks phase runs on, and `SKILL.md` § Tasks — the cut owns it: default to one task for the whole source, and split only for an order constraint, an answer only someone else can give, or another team. A slice that spans schema, API and UI is one task when one run can settle it; four tasks on the same file are four tasks when each proves something the others cannot.
+**Slice by observable outcome, never by layer.** The whole Tasks phase rests on this rule, and `SKILL.md` § Tasks — the cut owns it: start from one task for the whole source, and split only for an ordering constraint, an answer that only someone else can supply, or another team's ownership. Schema, API and UI together are still one task if a single run settles them; four tasks touching the same file stay four tasks when each proves something the others cannot.
 
-So "granular" here means **each task can be verified alone**, not that each task is small. "Schema first, then endpoints" produces pieces nobody can verify alone — that is the failure this rule exists to prevent, not the standard of granularity it asks for.
+So "granular" here means **each task can be verified on its own**, not that each task is small. Cutting by layer — the schema now, the endpoints later — yields pieces nobody can verify on their own; that is the failure this rule exists to prevent, not the standard of granularity it asks for.
 
 ## Vertical Slicing
 
